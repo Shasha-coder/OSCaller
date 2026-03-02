@@ -96,11 +96,23 @@
   }
 }
 
+/* Selection color */
+::selection {
+  background: rgba(143, 179, 74, 0.2);
+  color: #0F172A;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus visible */
+*:focus-visible {
+  outline: 2px solid rgba(143, 179, 74, 0.4);
+  outline-offset: 2px;
 }
 
 /* Services ticker animation */
