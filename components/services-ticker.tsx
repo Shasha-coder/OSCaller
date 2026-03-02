@@ -1,5 +1,7 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+
 function PlumbingIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -97,25 +99,37 @@ const SERVICES = [
   { label: 'Security', icon: ShieldIcon },
 ]
 
-function ServiceCard({ label, icon: Icon }: { label: string; icon: React.FC<{ className?: string }> }) {
+function ServiceCard({ label, icon: Icon, dark }: { label: string; icon: React.FC<{ className?: string }>; dark?: boolean }) {
   return (
-    <div className="flex flex-shrink-0 items-center gap-3.5 rounded-2xl border border-border/40 bg-card px-5 py-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] ring-1 ring-border/20 transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
-        <Icon className="h-5 w-5 text-primary" />
+    <div className={cn(
+      'flex flex-shrink-0 items-center gap-3 rounded-2xl px-4 py-3 transition-shadow',
+      dark
+        ? 'border border-white/10 bg-white/10 backdrop-blur-sm'
+        : 'border border-border/40 bg-card shadow-[0_2px_12px_rgba(0,0,0,0.04)] ring-1 ring-border/20 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]'
+    )}>
+      <div className={cn(
+        'flex h-9 w-9 items-center justify-center rounded-xl',
+        dark ? 'bg-white/15' : 'bg-secondary'
+      )}>
+        <Icon className={cn('h-4.5 w-4.5', dark ? 'text-white' : 'text-primary')} />
       </div>
-      <span className="text-sm font-semibold text-foreground whitespace-nowrap">{label}</span>
+      <span className={cn(
+        'text-sm font-semibold whitespace-nowrap',
+        dark ? 'text-white/90' : 'text-foreground'
+      )}>{label}</span>
     </div>
   )
 }
 
-export function ServicesTicker() {
+export function ServicesTicker({ variant }: { variant?: 'dark' | 'light' }) {
+  const dark = variant === 'dark'
   const doubled = [...SERVICES, ...SERVICES]
 
   return (
-    <section className="w-full overflow-hidden py-5" aria-label="Available services">
-      <div className="flex gap-3.5 animate-ticker" style={{ width: 'max-content' }}>
+    <section className="w-full overflow-hidden py-4" aria-label="Available services">
+      <div className="flex gap-3 animate-ticker" style={{ width: 'max-content' }}>
         {doubled.map((s, i) => (
-          <ServiceCard key={`${s.label}-${i}`} label={s.label} icon={s.icon} />
+          <ServiceCard key={`${s.label}-${i}`} label={s.label} icon={s.icon} dark={dark} />
         ))}
       </div>
     </section>

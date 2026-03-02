@@ -1,9 +1,9 @@
 'use client'
 
 import { Home, MapPin, Clock, Headphones } from 'lucide-react'
-import Image from 'next/image'
 import type { AppPage } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { OSSymbol } from '@/components/os-logo'
 
 interface AppSidebarProps {
   currentPage: AppPage
@@ -12,7 +12,7 @@ interface AppSidebarProps {
 
 const NAV_ITEMS: { page: AppPage; icon: typeof Home; label: string }[] = [
   { page: 'home', icon: Home, label: 'Home' },
-  { page: 'tracking', icon: MapPin, label: 'Tracking' },
+  { page: 'tracking', icon: MapPin, label: 'Request' },
   { page: 'history', icon: Clock, label: 'History' },
   { page: 'support', icon: Headphones, label: 'Support' },
 ]
@@ -20,50 +20,57 @@ const NAV_ITEMS: { page: AppPage; icon: typeof Home; label: string }[] = [
 export function AppSidebar({ currentPage, onNavigate }: AppSidebarProps) {
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed right-0 top-0 h-screen w-24 flex-col items-center gap-2 border-l border-border bg-card py-6 z-50">
+      {/* Desktop right sidebar */}
+      <aside className="hidden lg:flex fixed right-0 top-0 h-dvh w-20 flex-col items-center gap-1.5 bg-card/95 backdrop-blur-md border-l border-border/50 py-5 z-50 shadow-[-4px_0_24px_rgba(0,0,0,0.04)]">
         <button
           onClick={() => onNavigate('home')}
-          className="mb-6 flex items-center justify-center rounded-2xl p-2 transition-transform hover:scale-105"
+          className="mb-5 flex items-center justify-center rounded-2xl p-2 transition-all duration-200 hover:scale-110 active:scale-95"
           aria-label="OSCaller home"
         >
-          <Image src="/symbol-green.svg" alt="OSCaller" width={44} height={44} />
+          <OSSymbol className="h-9 w-9" color="#8FB34A" />
         </button>
 
-        <nav className="flex flex-1 flex-col items-center gap-3" aria-label="Main navigation">
+        <nav className="flex flex-1 flex-col items-center gap-1" aria-label="Main navigation">
           {NAV_ITEMS.map(({ page, icon: Icon, label }) => (
             <button
               key={page}
               onClick={() => onNavigate(page)}
               className={cn(
-                'group flex flex-col items-center gap-1 rounded-2xl p-3 transition-all duration-200',
+                'group relative flex flex-col items-center gap-1 rounded-2xl px-3 py-2.5 transition-all duration-200',
                 currentPage === page
-                  ? 'bg-secondary text-secondary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-secondary/50 hover:text-secondary-foreground'
+                  ? 'bg-secondary text-secondary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
               aria-current={currentPage === page ? 'page' : undefined}
               aria-label={label}
             >
+              {currentPage === page && (
+                <span className="absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
+              )}
               <Icon
                 className={cn(
-                  'h-5 w-5 transition-transform duration-200 group-hover:scale-105',
+                  'h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110',
                   currentPage === page && 'text-primary'
                 )}
+                strokeWidth={currentPage === page ? 2.5 : 2}
               />
-              <span className="text-[11px] font-medium">{label}</span>
+              <span className={cn(
+                'text-[10px] font-medium',
+                currentPage === page && 'font-semibold'
+              )}>{label}</span>
             </button>
           ))}
         </nav>
       </aside>
 
-      {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border bg-card px-2 pb-[env(safe-area-inset-bottom)] pt-2" aria-label="Main navigation">
+      {/* Mobile bottom bar */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border/50 bg-card/95 backdrop-blur-md px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]" aria-label="Main navigation">
         {NAV_ITEMS.map(({ page, icon: Icon, label }) => (
           <button
             key={page}
             onClick={() => onNavigate(page)}
             className={cn(
-              'flex flex-col items-center gap-0.5 rounded-xl px-4 py-2 transition-all duration-200',
+              'relative flex flex-col items-center gap-0.5 rounded-xl px-4 py-2 transition-all duration-200',
               currentPage === page
                 ? 'text-primary'
                 : 'text-muted-foreground'
@@ -71,8 +78,14 @@ export function AppSidebar({ currentPage, onNavigate }: AppSidebarProps) {
             aria-current={currentPage === page ? 'page' : undefined}
             aria-label={label}
           >
-            <Icon className="h-5 w-5" />
-            <span className="text-[10px] font-medium">{label}</span>
+            {currentPage === page && (
+              <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 h-[3px] w-5 rounded-b-full bg-primary" />
+            )}
+            <Icon className="h-5 w-5" strokeWidth={currentPage === page ? 2.5 : 1.8} />
+            <span className={cn(
+              'text-[10px]',
+              currentPage === page ? 'font-semibold' : 'font-medium'
+            )}>{label}</span>
           </button>
         ))}
       </nav>
