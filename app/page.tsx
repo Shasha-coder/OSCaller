@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import type { AppPage, RequestFormData, ServiceRequest } from '@/lib/store'
 import { OSSymbol, OSCallerWordmark } from '@/components/os-logo'
@@ -11,40 +11,33 @@ import { TrackingPage } from '@/components/tracking-page'
 import { HistoryPage } from '@/components/history-page'
 import { SupportPage } from '@/components/support-page'
 
-type TransitionState = 'idle' | 'animating'
+const PAGE_ORDER: AppPage[] = ['home', 'tracking', 'history', 'support']
 
 export default function Root() {
-  const [currentPage, setCurrentPage] = useState<AppPage>('home')
-  const [nextPage, setNextPage]       = useState<AppPage | null>(null)
-  const [transition, setTransition]   = useState<TransitionState>('idle')
-  const [request, setRequest]         = useState<ServiceRequest | null>(null)
-  const animating = useRef(false)
+  const [active, setActive]   = useState<AppPage>('home')
+  const [exiting, setExiting] = useState<AppPage | null>(null)
+  const [direction, setDirection] = useState<1 | -1>(1) // 1 = forward (up), -1 = backward (down)
+  const [request, setRequest] = useState<ServiceRequest | null>(null)
 
   const navigate = useCallback((target: AppPage) => {
-    if (target === currentPage || animating.current) return
-    animating.current = true
-    setNextPage(target)
-    setTransition('animating')
-
-    // After animation completes, swap pages
-    setTimeout(() => {
-      setCurrentPage(target)
-      setNextPage(null)
-      setTransition('idle')
-      animating.current = false
-    }, 420)
-  }, [currentPage])
+    if (target === active || exiting) return
+    const fromIdx = PAGE_ORDER.indexOf(active)
+    const toIdx   = PAGE_ORDER.indexOf(target)
+    setDirection(toIdx > fromIdx ? 1 : -1)
+    setExiting(active)
+    setActive(target)
+    setTimeout(() => setExiting(null), 450)
+  }, [active, exiting])
 
   const handleSubmit = useCallback((form: RequestFormData) => {
-    const req: ServiceRequest = {
+    setRequest({
       id: `req-${Date.now()}`,
       form,
       status: 'submitted',
       timeline: [],
       createdAt: new Date(),
       paymentStatus: 'none',
-    }
-    setRequest(req)
+    })
     navigate('tracking')
   }, [navigate])
 
@@ -53,30 +46,20 @@ export default function Root() {
     navigate('home')
   }, [navigate])
 
+  const dir = direction === 1 ? 'Up' : 'Down'
+
   return (
     <div className="relative flex h-dvh w-full overflow-hidden">
 
-      {/* ── Current page (slides up-out when transitioning) ── */}
-      <div
-        className={cn(
-          'absolute inset-0 will-change-transform',
-          transition === 'animating' ? 'anim-slide-out' : ''
-        )}
-      >
-        <PageContent
-          page={currentPage}
-          request={request}
-          navigate={navigate}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
-      </div>
-
-      {/* ── Next page (slides up-in when transitioning) ── */}
-      {nextPage && (
-        <div className="absolute inset-0 anim-slide-in will-change-transform">
+      {/* OLD page — exits */}
+      {exiting && (
+        <div
+          key={`exit-${exiting}`}
+          className="absolute inset-0"
+          style={{ zIndex: 1, animation: `slideOut${dir} 0.42s cubic-bezier(0.4,0,0.2,1) forwards` }}
+        >
           <PageContent
-            page={nextPage}
+            page={exiting}
             request={request}
             navigate={navigate}
             onSubmit={handleSubmit}
@@ -85,13 +68,31 @@ export default function Root() {
         </div>
       )}
 
-      {/* ── Sidebar always on top ── */}
+      {/* NEW page — enters */}
+      <div
+        key={`enter-${active}`}
+        className="absolute inset-0"
+        style={{
+          zIndex: 2,
+          animation: exiting ? `slideIn${dir} 0.42s cubic-bezier(0.4,0,0.2,1) forwards` : 'none',
+        }}
+      >
+        <PageContent
+          page={active}
+          request={request}
+          navigate={navigate}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
+      </div>
+
+      {/* Sidebar — always above everything */}
       <div className="pointer-events-none absolute inset-0 z-50">
         <div className="pointer-events-auto absolute right-0 top-0 h-full">
           <AppSidebar
-            currentPage={currentPage}
+            currentPage={active}
             onNavigate={navigate}
-            isHomePage={currentPage === 'home'}
+            isHomePage={active === 'home'}
           />
         </div>
       </div>
@@ -100,14 +101,8 @@ export default function Root() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// PageContent — renders the correct screen for a given page
-// ─────────────────────────────────────────────────────────────
 function PageContent({
-  page,
-  request,
-  navigate,
-  onSubmit,
-  onCancel,
+  page, request, navigate, onSubmit, onCancel,
 }: {
   page: AppPage
   request: ServiceRequest | null
@@ -115,34 +110,44 @@ function PageContent({
   onSubmit: (f: RequestFormData) => void
   onCancel: () => void
 }) {
-  const isHome = page === 'home'
-
   return (
-    <div className={cn('flex h-dvh w-full flex-col overflow-hidden', !isHome && 'bg-[#F6F8F4]')}>
+    <div className={cn('flex h-dvh w-full flex-col overflow-hidden', page !== 'home' && 'bg-[#F6F8F4]')}>
 
       {/* ══ HOME ══ */}
-      {isHome && (
+      {page === 'home' && (
         <div
           className="relative flex h-full w-full flex-col overflow-hidden"
           style={{ backgroundImage: "url('/bg1.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
         >
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-24 pt-12">
-            <div className="flex flex-col items-center">
-              <OSSymbol
-                className="h-44 w-44 drop-shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:h-52 sm:w-52"
-                color="#FFFFFF"
-              />
+            <div className="flex flex-col items-center gap-0">
+
+              {/* OS symbol in frosted glass card */}
+              <div style={{
+                width: 192, height: 192, borderRadius: 38,
+                background: 'rgba(255,255,255,0.18)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+                border: '1.5px solid rgba(255,255,255,0.28)',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <OSSymbol className="h-32 w-32" color="#FFFFFF" />
+              </div>
+
+              {/* OSCaller wordmark — flush below card */}
               <div
-                className="rounded-2xl px-10 py-3"
+                className="mt-4 rounded-2xl px-10 py-3"
                 style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
               >
                 <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />
               </div>
             </div>
-            <div className="mt-6 flex flex-col items-center gap-0.5 text-center">
-              <p className="text-sm text-white/80 sm:text-[15px]">This is where help arrives fast, anytime</p>
-              <p className="text-sm text-white/80 sm:text-[15px]">Pros get dispatched fast, anytime</p>
-              <p className="text-sm text-white/60 sm:text-[15px]">Emergencies get handled fast</p>
+
+            <div className="mt-6 flex flex-col items-center gap-1 text-center">
+              <p className="text-sm text-white/85 sm:text-[15px]">This is where help arrives fast, anytime</p>
+              <p className="text-sm text-white/85 sm:text-[15px]">Pros get dispatched fast, anytime</p>
+              <p className="text-sm text-white/55 sm:text-[15px]">Emergencies get handled fast</p>
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 z-10 pb-[env(safe-area-inset-bottom)]">

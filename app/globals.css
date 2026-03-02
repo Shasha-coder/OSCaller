@@ -142,26 +142,22 @@ html {
   animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-/* ── Real page swipe-up transitions ─────────────────────── */
-
-/* New page: starts below, slides up into view */
-@keyframes slide-in-up {
-  0%   { transform: translateY(100%); }
-  100% { transform: translateY(0%); }
+/* ── Page swipe transitions (two-layer, direction-aware) ── */
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0.5; }
+  to   { transform: translateY(0);    opacity: 1;   }
 }
-
-/* Old page: starts in view, slides up and out */
-@keyframes slide-out-up {
-  0%   { transform: translateY(0%); }
-  100% { transform: translateY(-30%); }
+@keyframes slideOutUp {
+  from { transform: translateY(0);     opacity: 1;   }
+  to   { transform: translateY(-100%); opacity: 0.3; }
 }
-
-.anim-slide-in {
-  animation: slide-in-up 0.42s cubic-bezier(0.32, 0.72, 0, 1) both;
+@keyframes slideInDown {
+  from { transform: translateY(-100%); opacity: 0.5; }
+  to   { transform: translateY(0);     opacity: 1;   }
 }
-
-.anim-slide-out {
-  animation: slide-out-up 0.42s cubic-bezier(0.32, 0.72, 0, 1) both;
+@keyframes slideOutDown {
+  from { transform: translateY(0);    opacity: 1;   }
+  to   { transform: translateY(100%); opacity: 0.3; }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
