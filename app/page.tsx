@@ -83,7 +83,7 @@ export default function HomePage() {
 
               {/* OSCaller wordmark — tightly beneath OS symbol */}
               <div
-                className="mt-3 rounded-2xl px-10 py-3"
+                className="mt-1 rounded-2xl px-10 py-3"
                 style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
               >
                 <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />

@@ -63,11 +63,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
           'hidden lg:flex flex-col items-center justify-center gap-2 py-8 z-50',
           'fixed right-0 top-0 h-dvh w-[88px]',
           isHomePage
-            ? 'bg-[#ddecc4]/80 border-l border-white/20 pointer-events-none select-none'
+            ? 'bg-[#ddecc4]/80 border-l border-white/20'
             : 'bg-white/90 backdrop-blur-xl border-l border-black/[0.06] shadow-[-4px_0_24px_rgba(0,0,0,0.04)]'
         )}
-        aria-label={isHomePage ? undefined : 'Main navigation'}
-        aria-hidden={isHomePage ? true : undefined}
+        aria-label="Main navigation"
       >
         {NAV.map(({ page, label, Icon }) => {
           const active = currentPage === page
@@ -112,11 +111,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
           'flex items-center justify-around px-2',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
           isHomePage
-            ? 'bg-[#7aaa30]/70 border-t border-white/10 pointer-events-none select-none'
+            ? 'bg-[#7aaa30]/70 border-t border-white/10'
             : 'bg-white/95 backdrop-blur-xl border-t border-black/[0.06] shadow-[0_-4px_24px_rgba(0,0,0,0.05)]'
         )}
-        aria-hidden={isHomePage ? true : undefined}
-        aria-label={isHomePage ? undefined : 'Main navigation'}
+        aria-label="Main navigation"
       >
         {NAV.map(({ page, label, Icon }) => {
           const active = currentPage === page
