@@ -94,6 +94,9 @@
   .text-balance {
     text-wrap: balance;
   }
+  .duration-600 {
+    transition-duration: 600ms;
+  }
 }
 
 /* Selection color */
