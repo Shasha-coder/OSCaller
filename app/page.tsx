@@ -107,14 +107,13 @@ export default function HomePage() {
         {/* ══════════ REQUEST FORM ══════════ */}
         {displayPage === 'tracking' && !request && (
           <div className="flex min-h-dvh flex-col">
-            <header className="flex items-center gap-3 bg-[#8DB33F] px-5 py-4 sm:px-8">
+            <header className="flex items-center gap-3 border-b border-border/40 bg-[#F6F8F4] px-5 py-5 sm:px-8">
               <button
                 onClick={() => navigate('home')}
-                className="flex items-center gap-3 transition-opacity hover:opacity-80 active:opacity-60"
+                className="transition-opacity hover:opacity-70 active:opacity-50"
                 aria-label="Go home"
               >
-                <OSSymbol className="h-8 w-8" color="#FFFFFF" />
-                <OSCallerWordmark className="h-5 w-auto" color="#FFFFFF" />
+                <OSCallerWordmark className="h-7 w-auto" color="#8DB33F" />
               </button>
             </header>
             <section className="flex flex-1 flex-col items-center px-5 pt-8 pb-28 sm:px-8 sm:pt-12">
@@ -134,14 +133,13 @@ export default function HomePage() {
         {/* ══════════ TRACKING ══════════ */}
         {displayPage === 'tracking' && request && (
           <div className="min-h-dvh px-5 py-6 pb-28 sm:px-8 sm:py-8">
-            <header className="mb-6 flex items-center gap-3">
+            <header className="mb-8 flex items-center">
               <button
                 onClick={() => navigate('home')}
-                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                className="transition-opacity hover:opacity-70"
                 aria-label="Go home"
               >
-                <OSSymbol className="h-8 w-8" color="#8DB33F" />
-                <OSCallerWordmark className="h-5 w-auto" color="#8DB33F" />
+                <OSCallerWordmark className="h-7 w-auto" color="#8DB33F" />
               </button>
             </header>
             <TrackingPage request={request} onCancel={handleCancel} />
@@ -151,14 +149,13 @@ export default function HomePage() {
         {/* ══════════ HISTORY ══════════ */}
         {displayPage === 'history' && (
           <div className="min-h-dvh px-5 py-6 pb-28 sm:px-8 sm:py-8">
-            <header className="mb-6 flex items-center gap-3">
+            <header className="mb-8 flex items-center">
               <button
                 onClick={() => navigate('home')}
-                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                className="transition-opacity hover:opacity-70"
                 aria-label="Go home"
               >
-                <OSSymbol className="h-8 w-8" color="#8DB33F" />
-                <OSCallerWordmark className="h-5 w-auto" color="#8DB33F" />
+                <OSCallerWordmark className="h-7 w-auto" color="#8DB33F" />
               </button>
             </header>
             <HistoryPage />
@@ -168,14 +165,13 @@ export default function HomePage() {
         {/* ══════════ SUPPORT ══════════ */}
         {displayPage === 'support' && (
           <div className="min-h-dvh px-5 py-6 pb-28 sm:px-8 sm:py-8">
-            <header className="mb-6 flex items-center gap-3">
+            <header className="mb-8 flex items-center">
               <button
                 onClick={() => navigate('home')}
-                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                className="transition-opacity hover:opacity-70"
                 aria-label="Go home"
               >
-                <OSSymbol className="h-8 w-8" color="#8DB33F" />
-                <OSCallerWordmark className="h-5 w-auto" color="#8DB33F" />
+                <OSCallerWordmark className="h-7 w-auto" color="#8DB33F" />
               </button>
             </header>
             <SupportPage />
