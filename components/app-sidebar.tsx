@@ -61,8 +61,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       <aside
         className={cn(
           'hidden lg:flex flex-col items-center justify-center gap-2 py-8 z-50',
-          'fixed right-0 top-0 h-dvh',
-          isHomePage ? 'w-20 bg-transparent' : 'w-20 bg-white/80 backdrop-blur-xl border-l border-black/[0.06]'
+          'fixed right-0 top-0 h-dvh w-[88px]',
+          isHomePage
+            ? 'bg-[#ddecc4]/80 backdrop-blur-sm border-l border-white/20'
+            : 'bg-white/90 backdrop-blur-xl border-l border-black/[0.06] shadow-[-4px_0_24px_rgba(0,0,0,0.04)]'
         )}
         aria-label="Main navigation"
       >
@@ -79,8 +81,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
                 isHomePage
                   ? active
-                    ? 'bg-white/25 text-white shadow-[0_2px_12px_rgba(0,0,0,0.1)]'
-                    : 'text-white/50 hover:bg-white/15 hover:text-white'
+                    ? 'bg-[#7aaa2a] text-white shadow-[0_4px_16px_rgba(122,170,42,0.45)]'
+                    : 'text-[#4a7a1a]/70 hover:bg-[#c8e0a0]/60 hover:text-[#3a6a10]'
                   : active
                     ? 'bg-[#8DB33F]/12 text-[#5d8a1a]'
                     : 'text-[#94a37a] hover:bg-[#8DB33F]/08 hover:text-[#5d8a1a]'
@@ -90,7 +92,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 <span
                   className={cn(
                     'absolute right-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-l-full',
-                    isHomePage ? 'bg-white' : 'bg-[#8DB33F]'
+                    isHomePage ? 'bg-[#5a9020]' : 'bg-[#8DB33F]'
                   )}
                   aria-hidden="true"
                 />

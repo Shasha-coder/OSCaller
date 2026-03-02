@@ -64,62 +64,41 @@ export default function HomePage() {
 
         {/* ══════════ HOME ══════════ */}
         {isHome && (
-          <div className="home-shell relative flex h-dvh w-full flex-col overflow-hidden">
-
-            {/* SVG organic background — precise, scalable, clean */}
-            <svg
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              viewBox="0 0 1200 800"
-              preserveAspectRatio="xMidYMid slice"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              {/* Large top-left circle */}
-              <circle cx="-60" cy="-40" r="460" fill="#7FAC36" fillOpacity="0.55" />
-              {/* Medium bottom-left circle */}
-              <circle cx="80" cy="900" r="340" fill="#7FAC36" fillOpacity="0.38" />
-              {/* Large right-side circle */}
-              <circle cx="1160" cy="180" r="440" fill="#7FAC36" fillOpacity="0.32" />
-              {/* Small highlight near center top */}
-              <circle cx="480" cy="160" r="130" fill="#B5CF72" fillOpacity="0.18" />
-            </svg>
-
-            {/* Cream right strip — matches reference exactly */}
-            <div
-              className="pointer-events-none absolute right-0 top-0 hidden h-full w-20 lg:block"
-              style={{ background: 'linear-gradient(90deg, transparent 0%, #dce9c4 45%, #eaf4d6 100%)' }}
-              aria-hidden="true"
-            />
-
+          <div
+            className="relative flex h-dvh w-full flex-col overflow-hidden"
+            style={{
+              backgroundImage: "url('/bg1.webp')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
             {/* Center content */}
-            <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-28 pt-16">
+            <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-24 pt-12">
 
-              {/* OS mark */}
-              <div className="drop-shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
-                <OSSymbol className="h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56" color="#FFFFFF" />
-              </div>
+              {/* OS symbol — large, crisp, centered */}
+              <OSSymbol
+                className="h-44 w-44 drop-shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:h-52 sm:w-52"
+                color="#FFFFFF"
+              />
 
-              {/* Frosted "OSCaller" pill — exactly like reference */}
-              <div className="mt-6 rounded-xl bg-white/15 px-10 py-3.5 backdrop-blur-md">
-                <OSCallerWordmark className="h-9 w-auto sm:h-11" color="#FFFFFF" />
+              {/* OSCaller wordmark in a subtle frosted badge */}
+              <div
+                className="rounded-2xl px-10 py-3"
+                style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+              >
+                <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />
               </div>
 
               {/* Tagline */}
-              <div className="mt-7 flex flex-col items-center gap-1 text-center">
-                <p className="text-[15px] font-medium leading-relaxed text-white/80 sm:text-base">
-                  This is where you get served faster anytime
-                </p>
-                <p className="text-[15px] font-medium leading-relaxed text-white/80 sm:text-base">
-                  This is where you get served faster anytime
-                </p>
-                <p className="text-[15px] font-medium leading-relaxed text-white/60 sm:text-base">
-                  This is where you get served faster
-                </p>
+              <div className="flex flex-col items-center gap-0.5 text-center">
+                <p className="text-sm font-normal text-white/75 sm:text-[15px]">This is where you get served faster anytime</p>
+                <p className="text-sm font-normal text-white/75 sm:text-[15px]">This is where you get served faster anytime</p>
+                <p className="text-sm font-normal text-white/60 sm:text-[15px]">This is where you get served faster</p>
               </div>
             </div>
 
             {/* Services ticker pinned to bottom */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-0 left-0 right-0 z-10 pb-[env(safe-area-inset-bottom)]">
               <ServicesTicker variant="dark" />
             </div>
           </div>
