@@ -18,15 +18,18 @@ export default function HomePage() {
   const [request, setRequest] = useState<ServiceRequest | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
+  const [animKey, setAnimKey] = useState(0)
+
   const navigate = useCallback((target: AppPage) => {
     if (target === page) return
     setTransitioning(true)
     setTimeout(() => {
       setPage(target)
       setDisplayPage(target)
+      setAnimKey(k => k + 1)
       setTransitioning(false)
       contentRef.current?.scrollTo({ top: 0 })
-    }, 240)
+    }, 200)
   }, [page])
 
   const handleSubmit = useCallback((form: RequestFormData) => {
@@ -55,9 +58,10 @@ export default function HomePage() {
       {/* ── Main scroll area ── */}
       <div
         ref={contentRef}
+        key={animKey}
         className={cn(
-          'relative flex-1 overflow-y-auto overflow-x-hidden transition-opacity duration-240',
-          transitioning ? 'opacity-0' : 'opacity-100',
+          'relative flex-1 overflow-y-auto overflow-x-hidden',
+          transitioning ? 'page-exit' : 'page-enter',
           !isHome && 'bg-[#F6F8F4]'
         )}
       >

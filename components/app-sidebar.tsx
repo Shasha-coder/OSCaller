@@ -126,8 +126,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 {active && (
                   <span
                     className={cn(
-                      'absolute -top-[9px] left-1/2 -translate-x-1/2 h-[3px] w-5 rounded-full',
-                      isHomePage ? 'bg-white' : 'bg-[#8DB33F]'
+                      'absolute -top-[8px] left-1/2 -translate-x-1/2 h-[2px] w-4 rounded-full',
+                      isHomePage ? 'bg-white/80' : 'bg-[#8DB33F]'
                     )}
                     aria-hidden="true"
                   />
