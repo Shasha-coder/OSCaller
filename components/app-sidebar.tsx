@@ -88,15 +88,6 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                     : 'text-[#94a37a] hover:bg-[#8DB33F]/08 hover:text-[#5d8a1a]'
               )}
             >
-              {active && (
-                <span
-                  className={cn(
-                    'absolute right-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-l-full',
-                    isHomePage ? 'bg-[#5a9020]' : 'bg-[#8DB33F]'
-                  )}
-                  aria-hidden="true"
-                />
-              )}
               <Icon active={active} />
               <span className="sr-only">{label}</span>
             </button>

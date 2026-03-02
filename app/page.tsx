@@ -72,25 +72,26 @@ export default function HomePage() {
               backgroundPosition: 'center',
             }}
           >
-            {/* Center content */}
+            {/* Center content — OS + OSCaller as one tight lockup */}
             <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-24 pt-12">
 
-              {/* OS symbol */}
-              <OSSymbol
-                className="h-44 w-44 drop-shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:h-52 sm:w-52"
-                color="#FFFFFF"
-              />
-
-              {/* OSCaller wordmark — tightly beneath OS symbol */}
-              <div
-                className="mt-1 rounded-2xl px-10 py-3"
-                style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
-              >
-                <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />
+              <div className="flex flex-col items-center">
+                {/* OS symbol */}
+                <OSSymbol
+                  className="h-44 w-44 drop-shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:h-52 sm:w-52"
+                  color="#FFFFFF"
+                />
+                {/* OSCaller wordmark — zero gap, flush below OS symbol */}
+                <div
+                  className="rounded-2xl px-10 py-3"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+                >
+                  <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />
+                </div>
               </div>
 
               {/* Tagline */}
-              <div className="mt-5 flex flex-col items-center gap-0.5 text-center">
+              <div className="mt-6 flex flex-col items-center gap-0.5 text-center">
                 <p className="text-sm font-normal text-white/80 sm:text-[15px]">This is where help arrives fast, anytime</p>
                 <p className="text-sm font-normal text-white/80 sm:text-[15px]">Pros get dispatched fast, anytime</p>
                 <p className="text-sm font-normal text-white/60 sm:text-[15px]">Emergencies get handled fast</p>
