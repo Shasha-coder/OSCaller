@@ -60,12 +60,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50',
+          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 w-20',
           'fixed right-0 top-0 h-dvh',
           'transition-colors duration-300',
-          isHomePage
-            ? ''
-            : 'bg-white/90 backdrop-blur-2xl border-l border-black/[0.03]'
+          'bg-white/90 backdrop-blur-2xl border-l border-black/[0.03]'
         )}
         style={{ width: 80 }}
         aria-label="Main navigation"
@@ -82,22 +80,15 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'group relative flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-250 w-[60px] h-[60px]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-                isHomePage
-                  ? active
-                    ? 'bg-white/25 text-white shadow-[0_4px_16px_rgba(255,255,255,0.15)]'
-                    : 'text-white/50 hover:bg-white/12 hover:text-white/80'
-                  : active
-                    ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
-                    : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
+                active
+                  ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
+                  : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
               )}
             >
               {/* Active indicator dot */}
               {active && (
                 <span
-                  className={cn(
-                    'absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full transition-all duration-300',
-                    isHomePage ? 'bg-white/80' : 'bg-[#8FB34A]'
-                  )}
+                  className="absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#8FB34A] transition-all duration-300"
                   aria-hidden="true"
                 />
               )}
