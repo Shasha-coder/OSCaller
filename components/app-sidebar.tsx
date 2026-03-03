@@ -63,7 +63,9 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
           'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 w-20 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
           'transition-colors duration-300',
-          'bg-white/80 backdrop-blur-2xl border-l border-black/[0.03]'
+          isHomePage
+            ? ''
+            : 'bg-white/80 backdrop-blur-2xl border-l border-black/[0.03]'
         )}
         style={{ width: 80 }}
         aria-label="Main navigation"
@@ -80,15 +82,22 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'group relative flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-250 w-[60px] h-[60px]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-                active
-                  ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
-                  : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
+                isHomePage
+                  ? active
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/60 hover:bg-white/10 hover:text-white/90'
+                  : active
+                    ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
+                    : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
               )}
             >
               {/* Active indicator dot */}
               {active && (
                 <span
-                  className="absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#8FB34A] transition-all duration-300"
+                  className={cn(
+                    'absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full transition-all duration-300',
+                    isHomePage ? 'bg-white' : 'bg-[#8FB34A]'
+                  )}
                   aria-hidden="true"
                 />
               )}
