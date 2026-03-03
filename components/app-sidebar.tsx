@@ -9,40 +9,41 @@ interface Props {
   isHomePage?: boolean
 }
 
-/* Crisp inline SVG icons — no external dependency */
 function HomeIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
-      <path d="M9 21V12h6v9" />
+    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
+      <path d="M2.25 12l8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12" />
+      <path d="M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
     </svg>
   )
 }
 
 function RequestIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v4l3 3" />
+    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
+      <path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877" />
+      <path d="M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" />
     </svg>
   )
 }
 
 function HistoryIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M12 7v5l4 2" />
+    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
+      <path d="M12 6v6h4.5" />
+      <path d="M3.75 12a8.25 8.25 0 1 1 16.5 0 8.25 8.25 0 0 1-16.5 0Z" />
+      <path d="M3 3.75V7.5h3.75" />
+      <path d="M3.75 12A8.25 8.25 0 0 1 7.39 5.16" />
     </svg>
   )
 }
 
 function SupportIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      <path d="M8 10h8M8 14h5" />
+    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
+      <path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75" />
+      <path d="M12 18.75h.008v.008H12v-.008Z" strokeWidth={active ? 2.5 : 2} fill="currentColor" />
+      <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
     </svg>
   )
 }
@@ -57,14 +58,14 @@ const NAV: { page: AppPage; label: string; Icon: React.FC<{ active: boolean }> }
 export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
   return (
     <>
-      {/* ── Desktop right rail ── */}
+      {/* Desktop right rail */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-2 py-8 z-50',
-          'fixed right-0 top-0 h-dvh w-[88px]',
+          'hidden lg:flex flex-col items-center justify-center gap-3 py-8 z-50',
+          'fixed right-0 top-0 h-dvh w-[80px]',
           isHomePage
-            ? 'bg-[#ddecc4]/80 border-l border-white/20'
-            : 'bg-white/90 backdrop-blur-xl border-l border-black/[0.06] shadow-[-4px_0_24px_rgba(0,0,0,0.04)]'
+            ? 'bg-[#ddecc4]/70 border-l border-white/20'
+            : 'bg-white/95 backdrop-blur-xl border-l border-black/[0.06] shadow-[-2px_0_20px_rgba(0,0,0,0.04)]'
         )}
         aria-label="Main navigation"
       >
@@ -76,16 +77,17 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               onClick={() => onNavigate(page)}
               aria-label={label}
               aria-current={active ? 'page' : undefined}
+              title={label}
               className={cn(
                 'relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                 isHomePage
                   ? active
-                    ? 'bg-[#7aaa2a] text-white shadow-[0_4px_16px_rgba(122,170,42,0.45)]'
-                    : 'text-[#4a7a1a]/70 hover:bg-[#c8e0a0]/60 hover:text-[#3a6a10]'
+                    ? 'bg-[#6a9e24] text-white shadow-[0_4px_14px_rgba(106,158,36,0.4)]'
+                    : 'text-[#3a5e10]/65 hover:bg-[#c0d890]/50 hover:text-[#3a5e10]'
                   : active
-                    ? 'bg-[#8DB33F]/12 text-[#5d8a1a]'
-                    : 'text-[#94a37a] hover:bg-[#8DB33F]/08 hover:text-[#5d8a1a]'
+                    ? 'bg-secondary text-primary shadow-[0_2px_8px_rgba(143,179,74,0.18)]'
+                    : 'text-muted-foreground hover:bg-secondary/60 hover:text-primary'
               )}
             >
               <Icon active={active} />
@@ -95,15 +97,15 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         })}
       </aside>
 
-      {/* ── Mobile bottom bar ── */}
+      {/* Mobile bottom bar */}
       <nav
         className={cn(
           'lg:hidden fixed bottom-0 left-0 right-0 z-50',
-          'flex items-center justify-around px-2',
+          'flex items-end justify-around px-2',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
           isHomePage
-            ? 'bg-[#7aaa30]/70 border-t border-white/10'
-            : 'bg-white/95 backdrop-blur-xl border-t border-black/[0.06] shadow-[0_-4px_24px_rgba(0,0,0,0.05)]'
+            ? 'bg-[#6a9e24]/65 backdrop-blur-md border-t border-white/10'
+            : 'bg-white/95 backdrop-blur-xl border-t border-black/[0.06] shadow-[0_-2px_20px_rgba(0,0,0,0.05)]'
         )}
         aria-label="Main navigation"
       >
@@ -118,23 +120,23 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'flex flex-col items-center gap-[3px] px-4 py-1.5 rounded-xl transition-all duration-200',
                 isHomePage
-                  ? active ? 'text-white' : 'text-white/45 active:text-white'
-                  : active ? 'text-[#5d8a1a]' : 'text-[#94a37a] active:text-[#5d8a1a]'
+                  ? active ? 'text-white' : 'text-white/45 active:text-white/80'
+                  : active ? 'text-primary' : 'text-muted-foreground active:text-primary'
               )}
             >
               <div className="relative">
                 {active && (
                   <span
                     className={cn(
-                      'absolute -top-[8px] left-1/2 -translate-x-1/2 h-[2px] w-4 rounded-full',
-                      isHomePage ? 'bg-white/80' : 'bg-[#8DB33F]'
+                      'absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2px] w-4 rounded-full',
+                      isHomePage ? 'bg-white/70' : 'bg-primary'
                     )}
                     aria-hidden="true"
                   />
                 )}
                 <Icon active={active} />
               </div>
-              <span className={cn('text-[10px] leading-none', active ? 'font-bold' : 'font-medium')}>{label}</span>
+              <span className={cn('text-[10px] leading-none', active ? 'font-semibold' : 'font-medium')}>{label}</span>
             </button>
           )
         })}
