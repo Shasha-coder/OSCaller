@@ -97,6 +97,13 @@
   .duration-600 {
     transition-duration: 600ms;
   }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* Selection color */

@@ -6,11 +6,12 @@ import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
 import {
     LayoutDashboard, Users, Wrench, Settings, LogOut,
-    Bell, ChevronDown
+    Bell, ChevronDown, MessageSquare
 } from 'lucide-react'
 
 const NAV_ITEMS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'support', label: 'Support Chats', icon: MessageSquare, badge: 3 },
     { id: 'technicians', label: 'Technicians', icon: Users },
     { id: 'requests', label: 'Requests', icon: Wrench },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -87,14 +88,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
 
                 <nav className="flex-1 px-3 py-4 space-y-0.5">
-                    {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+                    {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
                         <button
                             key={id}
                             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/[0.04] hover:text-white/80 data-[active=true]:bg-[#8FB34A]/10 data-[active=true]:text-[#8FB34A]"
                             data-active={id === 'dashboard'}
                         >
                             <Icon className="h-[18px] w-[18px]" />
-                            {label}
+                            <span className="flex-1 text-left">{label}</span>
+                            {badge && badge > 0 && (
+                                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8FB34A] px-1.5 text-[10px] font-bold text-white">
+                                    {badge}
+                                </span>
+                            )}
                         </button>
                     ))}
                 </nav>

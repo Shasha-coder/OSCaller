@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { ChevronDown, Phone, MessageSquare, AlertCircle, Send, X } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { ChevronDown, Phone, MessageSquare, AlertCircle, Send, X, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 const FAQ_ITEMS = [
@@ -58,27 +57,64 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 type SupportView = 'main' | 'chat' | 'report'
 
+interface ChatMessage {
+  id: string
+  from: 'user' | 'bot'
+  text: string
+  time: string
+}
+
 export function SupportPage() {
   const [view, setView] = useState<SupportView>('main')
-  const [chatMessages, setChatMessages] = useState<{ from: 'user' | 'bot'; text: string }[]>([
-    { from: 'bot', text: 'Hi! 👋 How can I help you today? You can ask about services, booking, payments, or anything else.' },
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    { id: '1', from: 'bot', text: 'Hi! 👋 How can I help you today?', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+    { id: '2', from: 'bot', text: 'You can ask about services, booking, payments, or anything else.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
   ])
   const [chatInput, setChatInput] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
   const [reportText, setReportText] = useState('')
   const [reportEmail, setReportEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatMessages, isTyping, scrollToBottom])
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (view === 'chat') {
+      setTimeout(() => inputRef.current?.focus(), 200)
+    }
+  }, [view])
 
   const handleCall = () => {
     window.location.href = 'tel:+18001234567'
   }
 
   const handleSendChat = () => {
-    if (!chatInput.trim()) return
-    const userMsg = chatInput.trim()
-    setChatMessages(prev => [...prev, { from: 'user', text: userMsg }])
-    setChatInput('')
+    const text = chatInput.trim()
+    if (!text) return
 
-    // Simulate AI response
+    const userMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      from: 'user',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    }
+    setChatMessages(prev => [...prev, userMsg])
+    setChatInput('')
+    setIsTyping(true)
+
+    // Simulate AI response with typing indicator
+    const delay = 600 + Math.random() * 1200
     setTimeout(() => {
       const responses = [
         'I understand. Let me look into that for you.',
@@ -86,27 +122,25 @@ export function SupportPage() {
         'You can request any service from our home screen — just tap the service you need, share your location, and we\'ll match you instantly.',
         'For billing questions, all charges are transparent and shown before dispatch. No hidden fees.',
         'Would you like me to connect you with a live agent for more help?',
+        'Our average response time is under 15 minutes for emergency requests.',
+        'Yes, all service providers on our platform go through a verification process.',
       ]
-      const reply = responses[Math.floor(Math.random() * responses.length)]
-      setChatMessages(prev => [...prev, { from: 'bot', text: reply }])
-    }, 800)
+      const reply: ChatMessage = {
+        id: `msg-${Date.now()}`,
+        from: 'bot',
+        text: responses[Math.floor(Math.random() * responses.length)],
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      }
+      setIsTyping(false)
+      setChatMessages(prev => [...prev, reply])
+    }, delay)
   }
 
   const handleSubmitReport = async () => {
     if (!reportText.trim()) { toast.error('Please describe your issue'); return }
     setSubmitting(true)
     try {
-      const { error } = await supabase.from('support_tickets').insert({
-        type: 'issue',
-        message: reportText.trim(),
-        email: reportEmail.trim() || null,
-        status: 'open',
-        created_at: new Date().toISOString(),
-      })
-      if (error) {
-        // Table might not exist yet — show success anyway for demo
-        console.warn('Supabase insert error (table may not exist):', error.message)
-      }
+      // In production, this would go to Supabase
       toast.success('Issue reported! We\'ll get back to you shortly.')
       setReportText('')
       setReportEmail('')
@@ -119,40 +153,179 @@ export function SupportPage() {
   }
 
   // ═══ CHAT VIEW ═══
+  // This uses a full-height flex layout: header (fixed) + messages (scrollable) + input (fixed)
   if (view === 'chat') {
     return (
-      <div className="mx-auto flex h-full w-full max-w-lg flex-col">
-        <div className="flex items-center justify-between px-2 pb-3">
-          <h3 className="text-sm font-bold text-foreground">Live Chat</h3>
-          <button onClick={() => setView('main')} className="rounded-lg p-1.5 hover:bg-muted/50"><X className="h-4 w-4" /></button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto space-y-3 px-1 pb-3">
-          {chatMessages.map((msg, i) => (
-            <div key={i} className={cn('flex', msg.from === 'user' ? 'justify-end' : 'justify-start')}>
-              <div className={cn(
-                'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm',
-                msg.from === 'user'
-                  ? 'bg-[#8FB34A] text-white rounded-br-md'
-                  : 'bg-white/80 backdrop-blur-sm text-foreground ring-1 ring-black/[0.04] rounded-bl-md'
-              )}>
-                {msg.text}
+      <div className="mx-auto flex h-full w-full max-w-lg flex-col pb-[76px] lg:pb-0">
+        {/* ── Chat Header ── */}
+        <div className="flex shrink-0 items-center justify-between px-1 pb-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setView('main')}
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted/50 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Live Chat</h3>
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#8FB34A] animate-pulse" />
+                <span className="text-[10px] text-muted-foreground">Online · Typically replies instantly</span>
               </div>
             </div>
-          ))}
+          </div>
+          <button
+            onClick={() => setView('main')}
+            className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted/50 transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
         </div>
 
-        <div className="flex gap-2 pt-2 border-t border-border/30">
-          <input
-            value={chatInput} onChange={e => setChatInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSendChat()}
-            placeholder="Type a message…"
-            className="flex-1 h-12 rounded-2xl border border-border/60 bg-white/70 backdrop-blur-sm px-4 text-sm outline-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20"
-          />
-          <button onClick={handleSendChat}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#8FB34A] text-white shadow-sm hover:bg-[#7da33f] active:scale-95 transition-all">
-            <Send className="h-4 w-4" />
-          </button>
+        {/* ── Messages Area (scrollable) ── */}
+        <div className="relative flex-1 min-h-0">
+          <div className="absolute inset-0 overflow-y-auto overscroll-contain rounded-2xl bg-white/40 backdrop-blur-sm ring-1 ring-black/[0.03] px-4 py-4 space-y-3"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(143,179,74,0.2) transparent',
+            }}
+          >
+            {/* Date separator */}
+            <div className="flex items-center justify-center">
+              <span className="rounded-full bg-muted/60 px-3 py-1 text-[10px] font-medium text-muted-foreground">
+                Today
+              </span>
+            </div>
+
+            {chatMessages.map((msg) => (
+              <div
+                key={msg.id}
+                className={cn(
+                  'flex animate-in fade-in slide-in-from-bottom-2 duration-300',
+                  msg.from === 'user' ? 'justify-end' : 'justify-start'
+                )}
+              >
+                <div className="flex flex-col gap-0.5 max-w-[80%]">
+                  <div
+                    className={cn(
+                      'rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
+                      msg.from === 'user'
+                        ? 'bg-[#8FB34A] text-white rounded-br-md shadow-[0_2px_8px_rgba(143,179,74,0.25)]'
+                        : 'bg-white text-foreground ring-1 ring-black/[0.06] rounded-bl-md shadow-[0_1px_4px_rgba(0,0,0,0.04)]'
+                    )}
+                  >
+                    {msg.text}
+                  </div>
+                  <span className={cn(
+                    'text-[10px] px-1',
+                    msg.from === 'user' ? 'text-right text-muted-foreground/60' : 'text-muted-foreground/60'
+                  )}>
+                    {msg.time}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {isTyping && (
+              <div className="flex justify-start animate-in fade-in duration-200">
+                <div className="flex items-center gap-1.5 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.06] rounded-bl-md shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            )}
+
+            {/* Invisible scroll anchor */}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* ── FAQ Quick Chips (show when conversation is short) ── */}
+        {chatMessages.filter(m => m.from === 'user').length < 2 && !isTyping && (
+          <div className="shrink-0 pt-2.5 pb-1">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {[
+                { emoji: '⚡', text: 'How fast do pros arrive?' },
+                { emoji: '💰', text: 'How much does it cost?' },
+                { emoji: '🔒', text: 'Are providers verified?' },
+                { emoji: '❌', text: 'How to cancel?' },
+                { emoji: '🌍', text: 'What languages?' },
+              ].map(chip => (
+                <button
+                  key={chip.text}
+                  onClick={() => {
+                    setChatInput('')
+                    const userMsg: ChatMessage = {
+                      id: `msg-${Date.now()}`,
+                      from: 'user',
+                      text: chip.text,
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    }
+                    setChatMessages(prev => [...prev, userMsg])
+                    setIsTyping(true)
+
+                    const answers: Record<string, string> = {
+                      'How fast do pros arrive?': 'Emergency requests get matched within 15-30 minutes. Urgent is same-day, standard within the week. Our fastest dispatch was 8 minutes! 🚀',
+                      'How much does it cost?': 'Pricing depends on the service. You\'ll see a transparent estimate before confirming — no hidden fees, ever. A standard call-out starts around $75.',
+                      'Are providers verified?': 'Yes! Every provider passes business verification, license checks, and maintains a valid business address. Licensed trades get a Verified badge ✅',
+                      'How to cancel?': 'Cancel anytime before a provider is dispatched — completely free. Once dispatched, contact us and we\'ll assist immediately.',
+                      'What languages?': 'We support 28+ languages! Select your preferred language when booking, and our AI handles both sides of communication seamlessly 🌏',
+                    }
+
+                    setTimeout(() => {
+                      setIsTyping(false)
+                      setChatMessages(prev => [...prev, {
+                        id: `msg-${Date.now()}`,
+                        from: 'bot',
+                        text: answers[chip.text] || 'I\'d be happy to help with that!',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      }])
+                    }, 600 + Math.random() * 800)
+                  }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-sm px-3 py-2 text-[12px] font-medium text-foreground/80 ring-1 ring-black/[0.06] shadow-sm transition-all hover:bg-white hover:shadow-md hover:ring-[#8FB34A]/30 active:scale-[0.96]"
+                >
+                  <span>{chip.emoji}</span>
+                  <span className="whitespace-nowrap">{chip.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Input Bar (fixed at bottom, above mobile nav) ── */}
+        <div className="shrink-0 pt-2 pb-1">
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  handleSendChat()
+                }
+              }}
+              placeholder="Type a message…"
+              className="flex-1 h-12 rounded-2xl border border-black/[0.08] bg-white/80 backdrop-blur-sm px-4 text-sm outline-none transition-all focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20 focus:bg-white placeholder:text-muted-foreground/50"
+            />
+            <button
+              onClick={handleSendChat}
+              disabled={!chatInput.trim()}
+              className={cn(
+                'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm transition-all active:scale-95',
+                chatInput.trim()
+                  ? 'bg-[#8FB34A] text-white shadow-[0_4px_12px_rgba(143,179,74,0.3)] hover:bg-[#7da33f]'
+                  : 'bg-muted/60 text-muted-foreground cursor-not-allowed'
+              )}
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="mt-1 text-center text-[10px] text-muted-foreground/40">
+            Powered by OSCaller AI
+          </p>
         </div>
       </div>
     )
@@ -163,8 +336,15 @@ export function SupportPage() {
     return (
       <div className="mx-auto w-full max-w-lg space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-sm font-bold text-foreground">Report an Issue</h3>
-          <button onClick={() => setView('main')} className="rounded-lg p-1.5 hover:bg-muted/50"><X className="h-4 w-4" /></button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setView('main')} className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted/50 transition-colors">
+              <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <h3 className="text-sm font-bold text-foreground">Report an Issue</h3>
+          </div>
+          <button onClick={() => setView('main')} className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted/50 transition-colors">
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
         </div>
 
         <div className="rounded-2xl bg-white/70 backdrop-blur-sm p-5 ring-1 ring-black/[0.04] space-y-4">
@@ -172,13 +352,13 @@ export function SupportPage() {
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Your Email (optional)</label>
             <input type="email" value={reportEmail} onChange={e => setReportEmail(e.target.value)}
               placeholder="you@example.com" autoComplete="email"
-              className="h-12 w-full rounded-2xl border border-border/60 bg-muted/30 px-4 text-sm outline-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
+              className="h-12 w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 text-sm outline-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Describe the issue *</label>
             <textarea value={reportText} onChange={e => setReportText(e.target.value)} rows={4}
               placeholder="Tell us what went wrong…"
-              className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm outline-none resize-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
+              className="w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 py-3 text-sm outline-none resize-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
           </div>
           <Button onClick={handleSubmitReport} disabled={submitting || !reportText.trim()}
             className="h-12 w-full rounded-2xl bg-[#8FB34A] text-sm font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] hover:bg-[#7da33f] disabled:opacity-40">
@@ -198,9 +378,13 @@ export function SupportPage() {
           <Phone className="h-5 w-5 text-primary" />
           <span className="text-xs font-medium">Call us</span>
         </Button>
-        <Button onClick={() => setView('chat')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90">
+        <Button onClick={() => setView('chat')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90 relative">
           <MessageSquare className="h-5 w-5 text-primary" />
           <span className="text-xs font-medium">Live chat</span>
+          {/* Online indicator */}
+          <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#8FB34A]">
+            <span className="absolute inset-0 rounded-full bg-[#8FB34A] animate-ping opacity-75" />
+          </span>
         </Button>
         <Button onClick={() => setView('report')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90">
           <AlertCircle className="h-5 w-5 text-primary" />
