@@ -144,20 +144,20 @@ html {
 
 /* ── Page swipe transitions (two-layer, direction-aware) ── */
 @keyframes slideInUp {
-  from { transform: translateY(100%); opacity: 0.5; }
-  to   { transform: translateY(0);    opacity: 1;   }
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 @keyframes slideOutUp {
-  from { transform: translateY(0);     opacity: 1;   }
-  to   { transform: translateY(-100%); opacity: 0.3; }
+  from { transform: translateY(0); }
+  to   { transform: translateY(-40%); }
 }
 @keyframes slideInDown {
-  from { transform: translateY(-100%); opacity: 0.5; }
-  to   { transform: translateY(0);     opacity: 1;   }
+  from { transform: translateY(-40%); }
+  to   { transform: translateY(0); }
 }
 @keyframes slideOutDown {
-  from { transform: translateY(0);    opacity: 1;   }
-  to   { transform: translateY(100%); opacity: 0.3; }
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
