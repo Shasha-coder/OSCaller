@@ -83,7 +83,7 @@ export default function Root() {
   }, [navigate])
 
   return (
-    <div className="relative flex h-dvh w-full overflow-hidden" style={{ backgroundColor: '#8FB34A' }}>
+    <div className="relative flex h-dvh w-full overflow-hidden bg-white">
 
       {/* EXITING page (behind) */}
       {exitPage && (

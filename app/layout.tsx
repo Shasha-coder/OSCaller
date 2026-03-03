@@ -39,7 +39,7 @@ export default function RootLayout({
         {/* Preload the landing background so there's no white flash */}
         <link rel="preload" href="/bg1.webp" as="image" />
       </head>
-      <body className="font-sans antialiased" style={{ backgroundColor: '#8FB34A' }}>
+      <body className="font-sans antialiased bg-white">
         {children}
         <Toaster
           position="top-right"

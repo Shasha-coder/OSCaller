@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   MapPin, Building2, ChevronRight, AlertTriangle, Clock, CalendarDays,
 } from 'lucide-react'
@@ -140,6 +140,65 @@ const EMERGENCY_COLORS: Record<EmergencyLevel, { ring: string; bg: string; icon:
   },
 }
 
+const LANGUAGES = [
+  'English', 'French', 'Spanish', 'Arabic', 'Portuguese', 'Hindi', 'Mandarin',
+  'German', 'Japanese', 'Korean', 'Italian', 'Dutch', 'Polish', 'Turkish',
+  'Swedish', 'Indonesian', 'Filipino', 'Romanian', 'Ukrainian', 'Greek',
+  'Czech', 'Danish', 'Finnish', 'Bulgarian', 'Croatian', 'Slovak', 'Tamil', 'Malay',
+]
+
+function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Language</label>
+      <button type="button" onClick={() => setOpen(!open)}
+        className={cn(
+          'flex h-12 w-full items-center justify-between rounded-2xl border px-3 text-sm font-medium transition-all cursor-pointer',
+          open
+            ? 'border-[#8FB34A] bg-white ring-2 ring-[#8FB34A]/20'
+            : 'border-border/60 bg-muted/40 hover:border-border'
+        )}>
+        <span className="flex items-center gap-2">
+          <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+          {value}
+        </span>
+        <svg className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', open && 'rotate-180')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-2xl border border-border/60 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
+          style={{ scrollbarWidth: 'thin' }}>
+          {LANGUAGES.map(lang => (
+            <button key={lang} type="button"
+              onClick={() => { onChange(lang); setOpen(false) }}
+              className={cn(
+                'flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors',
+                lang === value
+                  ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]'
+                  : 'text-foreground hover:bg-muted/50'
+              )}>
+              {lang}
+              {lang === value && (
+                <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface IntakeFormProps {
   onSubmit: (form: RequestFormData) => void
 }
@@ -195,15 +254,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
                 className="h-12 rounded-2xl border-border/60 bg-muted/40 pl-9 text-sm font-medium placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/30" />
             </div>
           </div>
-          <div>
-            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Language</label>
-            <select value={form.language || 'English'} onChange={e => update('language' as any, e.target.value)}
-              className="h-12 w-full rounded-2xl border border-border/60 bg-muted/40 px-3 text-sm font-medium text-foreground outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer">
-              {['English', 'French', 'Spanish', 'Arabic', 'Portuguese', 'Hindi', 'Mandarin', 'German', 'Japanese', 'Korean', 'Italian', 'Dutch', 'Polish', 'Turkish', 'Swedish', 'Indonesian', 'Filipino', 'Romanian', 'Ukrainian', 'Greek', 'Czech', 'Danish', 'Finnish', 'Bulgarian', 'Croatian', 'Slovak', 'Tamil', 'Malay'].map(l => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-          </div>
+          <LanguageDropdown value={form.language || 'English'} onChange={v => update('language' as any, v)} />
         </div>
 
         {/* Service selection -- polished cards */}
