@@ -166,7 +166,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
 
   return (
     <div className="mx-auto w-full max-w-lg">
-      <div className="rounded-3xl bg-card p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-border/50 sm:p-8">
+      <div className="rounded-3xl bg-white/70 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] sm:p-8">
 
         {/* Address */}
         <div className="mb-6">
@@ -308,6 +308,40 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
               )
             })}
           </div>
+        </div>
+
+        {/* Phone number */}
+        <div className="mb-6">
+          <label className="mb-2 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Your phone
+          </label>
+          <div className="relative">
+            <svg className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+            <Input
+              type="tel"
+              placeholder="(555) 123-4567"
+              value={form.phone || ''}
+              onChange={e => update('phone' as any, e.target.value)}
+              autoComplete="tel"
+              className="h-13 rounded-2xl border-border/60 bg-muted/40 pl-11 text-sm font-medium placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/60"
+            />
+          </div>
+        </div>
+
+        {/* Language */}
+        <div className="mb-6">
+          <label className="mb-2 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Preferred language
+          </label>
+          <select
+            value={form.language || 'English'}
+            onChange={e => update('language' as any, e.target.value)}
+            className="h-13 w-full rounded-2xl border border-border/60 bg-muted/40 px-4 text-sm font-medium text-foreground outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60 appearance-none cursor-pointer"
+          >
+            {['English', 'French', 'Spanish', 'Arabic', 'Portuguese', 'Hindi', 'Mandarin', 'German', 'Japanese', 'Korean', 'Italian', 'Dutch', 'Polish', 'Turkish', 'Swedish', 'Indonesian', 'Filipino', 'Romanian', 'Ukrainian', 'Greek', 'Czech', 'Danish', 'Finnish', 'Bulgarian', 'Croatian', 'Slovak', 'Tamil', 'Malay'].map(l => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
         </div>
 
         {/* Description */}

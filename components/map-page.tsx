@@ -97,7 +97,7 @@ export function MapPage() {
         {NEARBY_SERVICES.map(({ label, count }) => (
           <button
             key={label}
-            className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] ring-1 ring-[#E5E7EB]/60 transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] hover:-translate-y-0.5 active:scale-[0.98]"
+            className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur-sm px-4 py-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] ring-1 ring-[#E5E7EB]/40 transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF4D8]">
               <svg viewBox="0 0 24 24" className="h-5 w-5 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
