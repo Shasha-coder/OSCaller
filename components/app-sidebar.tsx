@@ -60,14 +60,14 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 w-20 pointer-events-auto',
+          'hidden lg:flex flex-col items-center justify-center gap-1 py-6 z-50 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
           'transition-colors duration-300',
           isHomePage
             ? ''
             : 'bg-white/80 backdrop-blur-2xl border-l border-black/[0.03]'
         )}
-        style={{ width: 80 }}
+        style={{ width: 64 }}
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -84,8 +84,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                 isHomePage
                   ? active
-                    ? 'bg-white/20 text-white'
-                    : 'text-white/60 hover:bg-white/10 hover:text-white/90'
+                    ? 'bg-white/25 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]'
+                    : 'text-white/80 hover:bg-white/15 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]'
                   : active
                     ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
                     : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
@@ -114,7 +114,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Mobile bottom bar ─── */}
       <nav
         className={cn(
-          'lg:hidden fixed bottom-0 left-0 right-0 z-50',
+          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto',
           'flex items-end justify-around px-1',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
           isHomePage
