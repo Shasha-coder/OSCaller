@@ -8,6 +8,7 @@ import { OSSymbol, OSCallerWordmark } from '@/components/os-logo'
 import { AppSidebar } from '@/components/app-sidebar'
 import { IntakeForm } from '@/components/intake-form'
 import { ServicesTicker } from '@/components/services-ticker'
+import { HeroBackground } from '@/components/hero-background'
 import { TrackingPage } from '@/components/tracking-page'
 import { HistoryPage } from '@/components/history-page'
 import { SupportPage } from '@/components/support-page'
@@ -145,17 +146,9 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
 
       {/* ══ HOME ══ */}
       {isHome && (
-        <div
-          className="relative flex h-full w-full flex-col overflow-hidden"
-          style={{ backgroundImage: "url('/bg1.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
-        >
-          {/* Gradient overlays for depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/40 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent pointer-events-none" />
-
-          {/* Soft glowing orbs */}
-          <div className="absolute top-[15%] left-[10%] h-[300px] w-[300px] rounded-full bg-[#8FB34A]/15 blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
-          <div className="absolute bottom-[20%] right-[20%] h-[250px] w-[250px] rounded-full bg-white/8 blur-[80px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="relative flex h-full w-full flex-col overflow-hidden">
+          {/* Animated background — replaces static bg1.webp */}
+          <HeroBackground />
 
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-40 sm:pb-44 lg:pb-28 pt-12">
             <div className="flex flex-col items-center">
