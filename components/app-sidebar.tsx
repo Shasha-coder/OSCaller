@@ -9,51 +9,50 @@ interface Props {
   isHomePage?: boolean
 }
 
-function HomeIcon({ active }: { active: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
-      <path d="M2.25 12l8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12" />
-      <path d="M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
-    </svg>
-  )
-}
-
-function RequestIcon({ active }: { active: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
-      <path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877" />
-      <path d="M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" />
-    </svg>
-  )
-}
-
-function HistoryIcon({ active }: { active: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
-      <path d="M12 6v6h4.5" />
-      <path d="M3.75 12a8.25 8.25 0 1 1 16.5 0 8.25 8.25 0 0 1-16.5 0Z" />
-      <path d="M3 3.75V7.5h3.75" />
-      <path d="M3.75 12A8.25 8.25 0 0 1 7.39 5.16" />
-    </svg>
-  )
-}
-
-function SupportIcon({ active }: { active: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
-      <path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75" />
-      <path d="M12 18.75h.008v.008H12v-.008Z" strokeWidth={active ? 2.5 : 2} fill="currentColor" />
-      <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-    </svg>
-  )
-}
-
-const NAV: { page: AppPage; label: string; Icon: React.FC<{ active: boolean }> }[] = [
-  { page: 'home',     label: 'Home',    Icon: HomeIcon },
-  { page: 'tracking', label: 'Request', Icon: RequestIcon },
-  { page: 'history',  label: 'History', Icon: HistoryIcon },
-  { page: 'support',  label: 'Support', Icon: SupportIcon },
+const NAV: { page: AppPage; label: string; path: string; extraPath?: string }[] = [
+  {
+    page: 'home',
+    label: 'Home',
+    path: 'M2.25 12l8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75',
+  },
+  {
+    page: 'tracking',
+    label: 'Request',
+    path: 'M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75',
+  },
+  {
+    page: 'map',
+    label: 'Nearby',
+    path: 'M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+    extraPath: 'M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z',
+  },
+  {
+    page: 'search',
+    label: 'Search',
+    path: 'M21 21l-4.35-4.35',
+    extraPath: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z',
+  },
+  {
+    page: 'history',
+    label: 'History',
+    path: 'M12 6v6h4.5M3.75 12a8.25 8.25 0 1 1 16.5 0 8.25 8.25 0 0 1-16.5 0Z',
+    extraPath: 'M3 3.75V7.5h3.75M3.75 12A8.25 8.25 0 0 1 7.39 5.16',
+  },
+  {
+    page: 'support',
+    label: 'Support',
+    path: 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+  },
 ]
+
+function NavIcon({ path, extraPath, active }: { path: string; extraPath?: string; active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.1 : 1.6}>
+      <path d={path} />
+      {extraPath && <path d={extraPath} />}
+    </svg>
+  )
+}
 
 export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
   return (
@@ -61,7 +60,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* Desktop right rail */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-3 py-8 z-50',
+          'hidden lg:flex flex-col items-center justify-center gap-2 py-8 z-50',
           'fixed right-0 top-0 h-dvh w-[80px]',
           isHomePage
             ? 'bg-[#ddecc4]/70 border-l border-white/20'
@@ -69,7 +68,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         )}
         aria-label="Main navigation"
       >
-        {NAV.map(({ page, label, Icon }) => {
+        {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
             <button
@@ -79,7 +78,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-current={active ? 'page' : undefined}
               title={label}
               className={cn(
-                'relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-200',
+                'flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                 isHomePage
                   ? active
@@ -90,7 +89,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                     : 'text-muted-foreground hover:bg-secondary/60 hover:text-primary'
               )}
             >
-              <Icon active={active} />
+              <NavIcon path={path} extraPath={extraPath} active={active} />
               <span className="sr-only">{label}</span>
             </button>
           )
@@ -101,7 +100,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       <nav
         className={cn(
           'lg:hidden fixed bottom-0 left-0 right-0 z-50',
-          'flex items-end justify-around px-2',
+          'flex items-end justify-around px-1',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
           isHomePage
             ? 'bg-[#6a9e24]/65 backdrop-blur-md border-t border-white/10'
@@ -109,7 +108,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         )}
         aria-label="Main navigation"
       >
-        {NAV.map(({ page, label, Icon }) => {
+        {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
             <button
@@ -118,7 +117,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-label={label}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-[3px] px-4 py-1.5 rounded-xl transition-all duration-200',
+                'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
                 isHomePage
                   ? active ? 'text-white' : 'text-white/45 active:text-white/80'
                   : active ? 'text-primary' : 'text-muted-foreground active:text-primary'
@@ -134,7 +133,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                     aria-hidden="true"
                   />
                 )}
-                <Icon active={active} />
+                <NavIcon path={path} extraPath={extraPath} active={active} />
               </div>
               <span className={cn('text-[10px] leading-none', active ? 'font-semibold' : 'font-medium')}>{label}</span>
             </button>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Headphones, ChevronDown, Phone, MessageSquare, AlertCircle } from 'lucide-react'
+import { ChevronDown, Phone, MessageSquare, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -57,14 +57,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export function SupportPage() {
   return (
     <div className="mx-auto w-full max-w-lg space-y-6">
-      {/* Header */}
-      <div className="flex flex-col items-center text-center">
-        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
-          <Headphones className="h-6 w-6 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground">How can we help?</h2>
-        <p className="mt-1 text-sm text-muted-foreground">We typically respond within minutes.</p>
-      </div>
 
       {/* Quick actions */}
       <div className="flex gap-3">
