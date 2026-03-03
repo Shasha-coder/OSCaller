@@ -34,7 +34,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="font-sans antialiased">
+      <head>
+        {/* Preload the landing background so there's no white flash */}
+        <link rel="preload" href="/bg1.webp" as="image" />
+      </head>
+      <body className="font-sans antialiased" style={{ backgroundColor: '#8FB34A' }}>
         {children}
         <Analytics />
       </body>
