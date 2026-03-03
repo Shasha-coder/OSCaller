@@ -107,11 +107,9 @@ export default function Root() {
         <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} />
       </div>
 
-      {/* Sidebar always on top — fixed width, no extra space */}
+      {/* Sidebar always on top */}
       <div className="pointer-events-none absolute inset-0 z-50">
-        <div className="pointer-events-auto absolute right-0 top-0 h-full w-20">
-          <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} />
-        </div>
+        <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} />
       </div>
     </div>
   )

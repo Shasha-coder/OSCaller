@@ -60,10 +60,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 w-20',
+          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 w-20 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
           'transition-colors duration-300',
-          'bg-white/90 backdrop-blur-2xl border-l border-black/[0.03]'
+          'bg-white/80 backdrop-blur-2xl border-l border-black/[0.03]'
         )}
         style={{ width: 80 }}
         aria-label="Main navigation"
