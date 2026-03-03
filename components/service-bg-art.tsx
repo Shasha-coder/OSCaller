@@ -9,9 +9,7 @@
 
 export function ServicePageBackground() {
     return (
-        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none" aria-hidden="true">
-            {/* Subtle gradient base */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F6F8F4] via-[#F0F4EC] to-[#E8F0E0]" />
+        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none" aria-hidden="true">
 
             <svg
                 className="absolute inset-0 h-full w-full"

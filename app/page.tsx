@@ -139,7 +139,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
   return (
     <div className={cn(
       'flex h-dvh w-full flex-col overflow-hidden relative z-10',
-      !isHome && 'bg-transparent'
+      !isHome && 'bg-[#F6F8F4]/80'
     )}>
 
       {/* SVG art background for service pages — renders at z-0, behind content */}
