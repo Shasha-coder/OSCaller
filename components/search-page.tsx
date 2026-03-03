@@ -21,9 +21,9 @@ export function SearchPage() {
 
   const results = query.trim().length > 0
     ? ALL_SERVICES.filter((s) =>
-        s.label.toLowerCase().includes(query.toLowerCase()) ||
-        s.tags.some((t) => t.includes(query.toLowerCase()))
-      )
+      s.label.toLowerCase().includes(query.toLowerCase()) ||
+      s.tags.some((t) => t.includes(query.toLowerCase()))
+    )
     : []
 
   return (
@@ -43,7 +43,7 @@ export function SearchPage() {
           placeholder="Search for a service or issue…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-14 w-full rounded-2xl border border-border bg-card pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground shadow-[0_2px_12px_rgba(0,0,0,0.05)] outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="h-14 w-full rounded-2xl border border-[#E2E8F0] bg-card pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-[#8FB34A] focus:ring-0"
         />
         {query && (
           <button

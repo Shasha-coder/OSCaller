@@ -57,15 +57,17 @@ function NavIcon({ path, extraPath, active }: { path: string; extraPath?: string
 export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
   return (
     <>
-      {/* Desktop right rail */}
+      {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-2 py-8 z-50',
-          'fixed right-0 top-0 h-dvh w-[80px]',
+          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50',
+          'fixed right-0 top-0 h-dvh',
+          'transition-colors duration-300',
           isHomePage
-            ? 'bg-[#ddecc4]/70 border-l border-white/20'
-            : 'bg-white/95 backdrop-blur-xl border-l border-black/[0.06] shadow-[-2px_0_20px_rgba(0,0,0,0.04)]'
+            ? 'bg-[#6a9e24]/40 backdrop-blur-xl border-l border-white/15'
+            : 'bg-white/90 backdrop-blur-2xl border-l border-black/[0.05]'
         )}
+        style={{ width: 80 }}
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -78,33 +80,46 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-current={active ? 'page' : undefined}
               title={label}
               className={cn(
-                'flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-200',
+                'group relative flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-250 w-[60px] h-[60px]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                 isHomePage
                   ? active
-                    ? 'bg-[#6a9e24] text-white shadow-[0_4px_14px_rgba(106,158,36,0.4)]'
-                    : 'text-[#3a5e10]/65 hover:bg-[#c0d890]/50 hover:text-[#3a5e10]'
+                    ? 'bg-white/25 text-white shadow-[0_4px_16px_rgba(255,255,255,0.15)]'
+                    : 'text-white/50 hover:bg-white/12 hover:text-white/80'
                   : active
-                    ? 'bg-secondary text-primary shadow-[0_2px_8px_rgba(143,179,74,0.18)]'
-                    : 'text-muted-foreground hover:bg-secondary/60 hover:text-primary'
+                    ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
+                    : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
               )}
             >
+              {/* Active indicator dot */}
+              {active && (
+                <span
+                  className={cn(
+                    'absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full transition-all duration-300',
+                    isHomePage ? 'bg-white/80' : 'bg-[#8FB34A]'
+                  )}
+                  aria-hidden="true"
+                />
+              )}
               <NavIcon path={path} extraPath={extraPath} active={active} />
-              <span className="sr-only">{label}</span>
+              <span className={cn(
+                'text-[9px] tracking-wide transition-colors duration-200',
+                active ? 'font-bold' : 'font-medium'
+              )}>{label}</span>
             </button>
           )
         })}
       </aside>
 
-      {/* Mobile bottom bar */}
+      {/* ─── Mobile bottom bar ─── */}
       <nav
         className={cn(
           'lg:hidden fixed bottom-0 left-0 right-0 z-50',
           'flex items-end justify-around px-1',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
           isHomePage
-            ? 'bg-[#6a9e24]/65 backdrop-blur-md border-t border-white/10'
-            : 'bg-white/95 backdrop-blur-xl border-t border-black/[0.06] shadow-[0_-2px_20px_rgba(0,0,0,0.05)]'
+            ? 'bg-[#5a8a1a]/60 backdrop-blur-xl border-t border-white/10'
+            : 'bg-white/90 backdrop-blur-2xl border-t border-black/[0.05] shadow-[0_-2px_24px_rgba(0,0,0,0.06)]'
         )}
         aria-label="Main navigation"
       >
@@ -119,23 +134,23 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
                 isHomePage
-                  ? active ? 'text-white' : 'text-white/45 active:text-white/80'
-                  : active ? 'text-primary' : 'text-muted-foreground active:text-primary'
+                  ? active ? 'text-white' : 'text-white/40 active:text-white/80'
+                  : active ? 'text-[#8FB34A]' : 'text-[#94a3b8] active:text-[#64748b]'
               )}
             >
               <div className="relative">
                 {active && (
                   <span
                     className={cn(
-                      'absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2px] w-4 rounded-full',
-                      isHomePage ? 'bg-white/70' : 'bg-primary'
+                      'absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2.5px] w-5 rounded-full transition-all duration-300',
+                      isHomePage ? 'bg-white/80' : 'bg-[#8FB34A]'
                     )}
                     aria-hidden="true"
                   />
                 )}
                 <NavIcon path={path} extraPath={extraPath} active={active} />
               </div>
-              <span className={cn('text-[10px] leading-none', active ? 'font-semibold' : 'font-medium')}>{label}</span>
+              <span className={cn('text-[10px] leading-none', active ? 'font-bold' : 'font-medium')}>{label}</span>
             </button>
           )
         })}

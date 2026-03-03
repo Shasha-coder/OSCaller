@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 const inter = Inter({
@@ -40,8 +41,23 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased" style={{ backgroundColor: '#8FB34A' }}>
         {children}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#0F172A',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '16px',
+              fontSize: '13px',
+              fontWeight: 500,
+            },
+          }}
+          richColors
+        />
         <Analytics />
       </body>
     </html>
   )
 }
+
