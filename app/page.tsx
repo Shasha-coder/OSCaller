@@ -107,9 +107,9 @@ export default function Root() {
         <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} />
       </div>
 
-      {/* Sidebar always on top */}
+      {/* Sidebar always on top — no wrapper bg, fully transparent */}
       <div className="pointer-events-none absolute inset-0 z-50">
-        <div className="pointer-events-auto absolute right-0 top-0 h-full">
+        <div className="pointer-events-auto absolute right-0 top-0 h-full" style={{ background: 'transparent' }}>
           <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} />
         </div>
       </div>
@@ -151,34 +151,82 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
           className="relative flex h-full w-full flex-col overflow-hidden"
           style={{ backgroundImage: "url('/bg1.webp')", backgroundSize: 'cover', backgroundPosition: 'center' }}
         >
-          {/* Gradient overlay for depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/30 pointer-events-none" />
+          {/* Gradient overlays for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/40 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent pointer-events-none" />
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-24 pt-12 lg:pr-[96px]">
+          {/* Soft glowing orbs */}
+          <div className="absolute top-[15%] left-[10%] h-[300px] w-[300px] rounded-full bg-[#8FB34A]/15 blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
+          <div className="absolute bottom-[20%] right-[20%] h-[250px] w-[250px] rounded-full bg-white/8 blur-[80px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
+
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-28 pt-12 lg:pr-[96px]">
             <div className="flex flex-col items-center">
-              <div style={{
-                width: 192, height: 192, borderRadius: 38,
-                background: 'rgba(255,255,255,0.18)',
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                border: '1.5px solid rgba(255,255,255,0.28)',
-                boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <OSSymbol className="h-32 w-32" color="#FFFFFF" />
-              </div>
+              {/* Logo with refined glassmorphism */}
               <div
-                className="mt-4 rounded-2xl px-10 py-3"
-                style={{ backgroundColor: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+                className="relative"
+                style={{
+                  width: 160, height: 160, borderRadius: 36,
+                  background: 'rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1.5px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
               >
-                <OSCallerWordmark className="h-8 w-auto sm:h-10" color="#FFFFFF" />
+                <OSSymbol className="h-24 w-24" color="#FFFFFF" />
+              </div>
+
+              {/* Wordmark */}
+              <div
+                className="mt-5 rounded-2xl px-8 py-2.5"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)' }}
+              >
+                <OSCallerWordmark className="h-7 w-auto sm:h-9" color="#FFFFFF" />
               </div>
             </div>
-            <div className="mt-8 flex flex-col items-center gap-2 text-center">
-              <p className="text-base font-semibold text-white/95 sm:text-lg tracking-tight">Get emergency help in minutes.</p>
-              <p className="text-sm text-white/60 sm:text-[15px]">Pros dispatched fast. Pre-authorized. Tracked live.</p>
+
+            {/* Tagline */}
+            <div className="mt-8 flex flex-col items-center gap-2.5 text-center">
+              <p className="text-lg font-bold text-white sm:text-xl tracking-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
+                Get emergency help in minutes.
+              </p>
+              <p className="max-w-[300px] text-sm text-white/65 sm:text-[15px] leading-relaxed">
+                Pros dispatched fast. Pre-authorized. Tracked live.
+              </p>
+            </div>
+
+            {/* CTA button */}
+            <button
+              onClick={() => navigate('tracking')}
+              className="mt-8 flex items-center gap-2.5 rounded-2xl bg-white px-8 py-3.5 font-bold text-[#3a5e10] shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition-all hover:shadow-[0_16px_50px_rgba(0,0,0,0.35)] hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Request a Pro Now
+            </button>
+
+            {/* Trust indicators */}
+            <div className="mt-6 flex items-center gap-5 text-[11px] font-medium text-white/50">
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                24/7
+              </span>
+              <span className="h-3 w-px bg-white/20" />
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                GPS Tracked
+              </span>
+              <span className="h-3 w-px bg-white/20" />
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                Licensed Pros
+              </span>
             </div>
           </div>
+
+          {/* Services ticker */}
           <div className="absolute bottom-0 left-0 right-0 z-10 pb-[env(safe-area-inset-bottom)]">
             <ServicesTicker variant="dark" />
           </div>

@@ -64,8 +64,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
           'fixed right-0 top-0 h-dvh',
           'transition-colors duration-300',
           isHomePage
-            ? 'bg-[#6a9e24]/40 backdrop-blur-xl border-l border-white/15'
-            : 'bg-white/90 backdrop-blur-2xl border-l border-black/[0.05]'
+            ? 'bg-[#6a9e24]/30 backdrop-blur-xl'
+            : 'bg-white/90 backdrop-blur-2xl border-l border-black/[0.03]'
         )}
         style={{ width: 80 }}
         aria-label="Main navigation"
