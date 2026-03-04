@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
-import { HeroBackground } from '@/components/hero-background'
+import { ServicePageBackground } from '@/components/service-bg-art'
 import {
     Power, Wrench, MapPin, Clock, DollarSign,
     Star, Phone, Bell, ChevronRight, CheckCircle2,
@@ -82,7 +82,9 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
     if (pathname === '/provider/login') {
         return (
             <div className="relative min-h-dvh">
-                <HeroBackground />
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <ServicePageBackground />
+                </div>
                 <div className="relative z-10">{children}</div>
             </div>
         )
@@ -90,7 +92,9 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
     return (
         <div className="relative min-h-dvh bg-[#F6F8F4]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-            <HeroBackground />
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <ServicePageBackground />
+            </div>
 
             {/* Top bar - Minimalist Light Style */}
             <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
