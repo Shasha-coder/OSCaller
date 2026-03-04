@@ -246,7 +246,7 @@ export default function JoinPage() {
             const { error: err } = await supabase.auth.signInWithOtp({ phone: fullPhone })
             if (err) { setError(err.message); setLoading(false); return }
             setStep('otp')
-            setResendTimer(30)
+            setResendTimer(60)
             setLoading(false)
             setTimeout(() => otpRefs.current[0]?.focus(), 100)
         } catch {

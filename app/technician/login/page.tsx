@@ -58,22 +58,24 @@ export default function TechnicianLoginPage() {
         haptic('light')
 
         try {
-            const { error: signInError } = await supabase.auth.signInWithOtp({
-                phone: `+1${digits}`,
+            const res = await fetch('/api/otp/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: `+1${digits}` }),
             })
+            const data = await res.json()
 
-            if (signInError) {
-                setError(signInError.message)
+            if (!res.ok) {
+                setError(data.error || 'Failed to send code.')
                 haptic('heavy')
                 setLoading(false)
                 return
             }
 
             setStep('otp')
-            setResendTimer(30) // 30s cooldown
+            setResendTimer(30)
             setLoading(false)
             haptic('medium')
-            // Auto-focus first OTP input after step change
             setTimeout(() => otpRefs.current[0]?.focus(), 100)
         } catch {
             setError('Failed to send verification code.')
@@ -89,16 +91,19 @@ export default function TechnicianLoginPage() {
 
         try {
             const digits = phone.replace(/\D/g, '')
-            const { error: resendError } = await supabase.auth.signInWithOtp({
-                phone: `+1${digits}`,
+            const res = await fetch('/api/otp/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: `+1${digits}` }),
             })
+            const data = await res.json()
 
-            if (resendError) {
-                setError(resendError.message)
+            if (!res.ok) {
+                setError(data.error || 'Failed to resend code.')
                 haptic('heavy')
             } else {
                 setResendCount(prev => prev + 1)
-                setResendTimer(30 + resendCount * 15) // Increasing cooldown
+                setResendTimer(30 + resendCount * 15)
                 setOtp(['', '', '', '', '', ''])
                 otpRefs.current[0]?.focus()
                 haptic('medium')
@@ -160,33 +165,42 @@ export default function TechnicianLoginPage() {
 
         try {
             const digits = phone.replace(/\D/g, '')
-            const { data, error: verifyError } = await supabase.auth.verifyOtp({
-                phone: `+1${digits}`,
-                token: code,
-                type: 'sms',
+            const res = await fetch('/api/otp/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: `+1${digits}`, code }),
             })
+            const data = await res.json()
 
-            if (verifyError) {
-                setError(verifyError.message)
+            if (!res.ok) {
+                setError(data.error || 'Invalid code.')
                 haptic('heavy')
-                // Shake + clear on error
                 setOtp(['', '', '', '', '', ''])
                 setTimeout(() => otpRefs.current[0]?.focus(), 200)
                 setLoading(false)
                 return
             }
 
-            const { data: profile } = await supabase
+            // OTP verified — check if user has a profile
+            const { data: profiles } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', data.user?.id)
-                .single()
+                .eq('phone', `+1${digits}`)
+                .limit(1)
+
+            const profile = profiles?.[0]
 
             if (!profile || !profile.name) {
                 setStep('register')
                 setLoading(false)
                 haptic('medium')
             } else {
+                // Existing user — sign in via Supabase email auth
+                const fakeEmail = `tech_${digits}@oscaller.app`
+                await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: `otp_${digits}_verified`,
+                })
                 haptic('heavy')
                 router.push('/technician')
             }
@@ -228,8 +242,34 @@ export default function TechnicianLoginPage() {
         haptic('light')
 
         try {
+            const digits = phone.replace(/\D/g, '')
+            const fakeEmail = `tech_${digits}@oscaller.app`
+            const fakePassword = `otp_${digits}_verified`
+
+            // Create Supabase user (or sign in if exists)
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                email: fakeEmail,
+                password: fakePassword,
+            })
+
+            if (signUpError && !signUpError.message.includes('already registered')) {
+                // If already registered, sign in instead
+                const { error: signInErr } = await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: fakePassword,
+                })
+                if (signInErr) {
+                    setError('Account setup failed. Please try again.')
+                    haptic('heavy')
+                    setLoading(false)
+                    return
+                }
+            }
+
             const { data: { session } } = await supabase.auth.getSession()
-            if (!session) {
+            const userId = session?.user?.id || signUpData?.user?.id
+
+            if (!userId) {
                 setError('Session expired. Please start over.')
                 setStep('phone')
                 setLoading(false)
@@ -239,10 +279,10 @@ export default function TechnicianLoginPage() {
             const { error: upsertError } = await supabase
                 .from('profiles')
                 .upsert({
-                    id: session.user.id,
+                    id: userId,
                     name: name.trim(),
                     email: email.trim().toLowerCase(),
-                    phone: session.user.phone,
+                    phone: `+1${digits}`,
                     role: 'technician',
                     trade,
                     status: 'offline',
@@ -381,8 +421,8 @@ export default function TechnicianLoginPage() {
                                         onKeyDown={e => handleOtpKeyDown(i, e)}
                                         autoFocus={i === 0}
                                         className={`h-14 w-12 rounded-xl border text-center text-xl font-bold outline-none transition-all ${digit
-                                                ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#0F172A]'
-                                                : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#0F172A]'
+                                            ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#0F172A]'
+                                            : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#0F172A]'
                                             } focus:border-[#8FB34A] focus:bg-white focus:ring-2 focus:ring-[#8FB34A]/20`}
                                     />
                                 ))}
@@ -482,8 +522,8 @@ export default function TechnicianLoginPage() {
                                             type="button"
                                             onClick={() => { setTrade(t); haptic('light') }}
                                             className={`flex items-center justify-center rounded-xl border px-3 py-3 text-sm font-semibold transition-all active:scale-[0.97] ${trade === t
-                                                    ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#3a5e10] shadow-[0_2px_8px_rgba(143,179,74,0.15)]'
-                                                    : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#64748B] hover:border-[#94a3b8]'
+                                                ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#3a5e10] shadow-[0_2px_8px_rgba(143,179,74,0.15)]'
+                                                : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#64748B] hover:border-[#94a3b8]'
                                                 }`}
                                         >
                                             {t}
