@@ -25,13 +25,13 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
                 return
             }
 
-            const { data: prof } = await supabase
+            const { data: prof, error: profErr } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
                 .single()
 
-            if (!prof || prof.role !== 'technician') {
+            if (profErr || !prof || !['technician', 'provider'].includes(prof.role)) {
                 await supabase.auth.signOut()
                 router.push('/technician/login')
                 return
