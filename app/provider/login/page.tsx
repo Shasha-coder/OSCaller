@@ -21,6 +21,14 @@ export default function ProviderLoginPage() {
     // ─── Uber UX: Resend timer ───
     const [resendTimer, setResendTimer] = useState(0)
     const [resendCount, setResendCount] = useState(0)
+    const [lockoutTimer, setLockoutTimer] = useState(0)
+
+    // Auto-countdown for lockout
+    useEffect(() => {
+        if (lockoutTimer <= 0) return
+        const t = setInterval(() => setLockoutTimer(prev => prev - 1), 1000)
+        return () => clearInterval(t)
+    }, [lockoutTimer])
 
     const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -66,7 +74,12 @@ export default function ProviderLoginPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || 'Failed to send code.')
+                if (res.status === 429 && data.retryAfter) {
+                    setLockoutTimer(data.retryAfter)
+                    setError(data.error || 'Too many attempts.')
+                } else {
+                    setError(data.error || 'Failed to send code.')
+                }
                 haptic('heavy')
                 setLoading(false)
                 return
@@ -447,10 +460,12 @@ export default function ProviderLoginPage() {
 
                             <button
                                 type="submit"
-                                disabled={loading || phoneDigits.length < 10}
+                                disabled={loading || phoneDigits.length < 10 || lockoutTimer > 0}
                                 className="h-14 w-full rounded-2xl bg-[#8FB34A] font-bold text-white text-lg shadow-[0_8px_30px_rgba(143,179,74,0.4)] transition-all hover:bg-[#7da33f] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#8FB34A]/50"
                             >
-                                {loading ? (
+                                {lockoutTimer > 0 ? (
+                                    `Try again in ${Math.floor(lockoutTimer / 60)}:${(lockoutTimer % 60).toString().padStart(2, '0')}`
+                                ) : loading ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                                         Sending…

@@ -8,8 +8,8 @@ import { NextRequest, NextResponse } from 'next/server'
  * Body: { phone: string, code: string }
  */
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL!
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN!
+const UPSTASH_URL = (process.env.UPSTASH_REDIS_REST_URL || '').trim()
+const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim()
 
 const MAX_VERIFY_ATTEMPTS = 5
 const VERIFY_LOCKOUT_TTL = 900 // 15 min lockout after too many failed attempts

@@ -243,8 +243,19 @@ export default function JoinPage() {
         if (phoneDigits.length < 10) { setError('Enter a valid phone number.'); return }
         setLoading(true)
         try {
-            const { error: err } = await supabase.auth.signInWithOtp({ phone: fullPhone })
-            if (err) { setError(err.message); setLoading(false); return }
+            const res = await fetch('/api/otp/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: fullPhone }),
+            })
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.error || 'Failed to send code.')
+                setLoading(false)
+                return
+            }
+
             setStep('otp')
             setResendTimer(60)
             setLoading(false)
@@ -274,10 +285,21 @@ export default function JoinPage() {
     const verifyOtp = async (code: string) => {
         setLoading(true)
         try {
-            const { error: err } = await supabase.auth.verifyOtp({
-                phone: fullPhone, token: code, type: 'sms',
+            const res = await fetch('/api/otp/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: fullPhone, code }),
             })
-            if (err) { setError(err.message); setOtp(['', '', '', '', '', '']); setLoading(false); return }
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.error || 'Invalid code.')
+                setOtp(['', '', '', '', '', ''])
+                setTimeout(() => otpRefs.current[0]?.focus(), 100)
+                setLoading(false)
+                return
+            }
+
             setStep('business')
             setLoading(false)
             haptic('medium')
@@ -299,13 +321,34 @@ export default function JoinPage() {
         setLoading(true)
 
         try {
+            const fakeEmail = `tech_${phoneDigits}@oscaller.app`
+            const fakePassword = `otp_${phoneDigits}_verified`
+
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                email: fakeEmail,
+                password: fakePassword,
+            })
+
+            if (signUpError && !signUpError.message.includes('already registered')) {
+                const { error: signInErr } = await supabase.auth.signInWithPassword({
+                    email: fakeEmail, password: fakePassword,
+                })
+                if (signInErr) {
+                    setError('Account setup failed.')
+                    setLoading(false)
+                    return
+                }
+            }
+
             const { data: { session } } = await supabase.auth.getSession()
-            if (!session) { setError('Session expired.'); setStep('phone'); setLoading(false); return }
+            const userId = session?.user?.id || signUpData?.user?.id
+
+            if (!userId) { setError('Session error.'); setStep('phone'); setLoading(false); return }
 
             const { error: err } = await supabase.from('profiles').upsert({
-                id: session.user.id,
+                id: userId,
                 name: businessName.trim(),
-                phone: session.user.phone,
+                phone: fullPhone,
                 email: contactEmail.trim().toLowerCase() || null,
                 role: 'provider',
                 trade: selectedTrades[0],
@@ -320,7 +363,7 @@ export default function JoinPage() {
 
             if (err) { setError(err.message); setLoading(false); return }
             haptic('heavy')
-            router.push('/provider')
+            router.push('/admin') // Redirect to admin for now, or provider portal
         } catch { setError('Registration failed.'); setLoading(false) }
     }
 

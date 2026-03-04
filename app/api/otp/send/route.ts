@@ -8,16 +8,16 @@ import { NextRequest, NextResponse } from 'next/server'
  * Body: { phone: string }  — E.164 format e.g. "+15551234567"
  */
 
-const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID!
-const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN!
-const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER!
-const TWILIO_MSG_SID = process.env.TWILIO_MESSAGING_SERVICE_SID!
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL!
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN!
+const TWILIO_SID = (process.env.TWILIO_ACCOUNT_SID || '').trim()
+const TWILIO_TOKEN = (process.env.TWILIO_AUTH_TOKEN || '').trim()
+const TWILIO_FROM = (process.env.TWILIO_PHONE_NUMBER || '').trim()
+const TWILIO_MSG_SID = (process.env.TWILIO_MESSAGING_SERVICE_SID || '').trim()
+const UPSTASH_URL = (process.env.UPSTASH_REDIS_REST_URL || '').trim()
+const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim()
 
-// Rate limit: max 5 OTP sends per phone per hour
+// Rate limit: max 5 OTP sends per phone per 5 minutes
 const RATE_LIMIT_MAX = 5
-const RATE_LIMIT_WINDOW = 3600 // 1 hour in seconds
+const RATE_LIMIT_WINDOW = 300 // 5 minutes in seconds
 const OTP_TTL = 300 // 5 minutes
 
 function generateOTP(): string {
@@ -59,8 +59,15 @@ export async function POST(req: NextRequest) {
         const currentCount = parseInt(rateResult?.result || '0')
 
         if (currentCount >= RATE_LIMIT_MAX) {
+            const ttlResult = await redisCommand(['TTL', rateLimitKey])
+            const ttl = Math.max(0, parseInt(ttlResult?.result || '300'))
+            const minutes = Math.ceil(ttl / 60)
+
             return NextResponse.json(
-                { error: 'Too many verification attempts. Please try again later.' },
+                {
+                    error: `Too many attempts. Please try again in ${minutes} minute${minutes !== 1 ? 's' : ''}.`,
+                    retryAfter: ttl
+                },
                 { status: 429 }
             )
         }
