@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
 
-type Step = 'phone' | 'otp' | 'register'
+type Step = 'phone' | 'otp' | 'register' | 'email' | 'email_sent'
 
 export default function ProviderLoginPage() {
     const router = useRouter()
@@ -132,6 +132,42 @@ export default function ProviderLoginPage() {
             if (code.length === 6) {
                 setTimeout(() => submitOtp(code), 150) // Short delay for visual feedback
             }
+        }
+    }
+
+    const handleEmailSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError('')
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            setError('Please enter a valid email address.')
+            haptic('medium')
+            return
+        }
+        setLoading(true)
+        haptic('light')
+
+        try {
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email.trim().toLowerCase(),
+                options: {
+                    emailRedirectTo: `${window.location.origin}/provider`,
+                },
+            })
+
+            if (error) {
+                setError(error.message)
+                haptic('heavy')
+                setLoading(false)
+                return
+            }
+
+            setStep('email_sent')
+            setLoading(false)
+            haptic('medium')
+        } catch {
+            setError('Failed to send magic link.')
+            haptic('heavy')
+            setLoading(false)
         }
     }
 
@@ -312,7 +348,7 @@ export default function ProviderLoginPage() {
     const stepIdx = step === 'phone' ? 0 : step === 'otp' ? 1 : 2
 
     return (
-        <div className="flex min-h-dvh flex-col bg-[#F6F8F4]">
+        <div className="flex min-h-dvh flex-col bg-transparent text-white">
             {/* Safe area top spacing for mobile notch */}
             <div className="h-[env(safe-area-inset-top)]" />
 
@@ -320,28 +356,32 @@ export default function ProviderLoginPage() {
                 <div className="w-full max-w-[400px]">
                     {/* Logo + Step indicator */}
                     <div className="mb-8 flex flex-col items-center">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8FB34A] shadow-[0_8px_30px_rgba(143,179,74,0.3)]">
-                            <OSSymbol className="h-8 w-8" color="#FFFFFF" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-[#8FB34A] shadow-[0_8px_30px_rgba(143,179,74,0.4)] border border-[#8FB34A]/50">
+                            <OSSymbol className="h-10 w-10" color="#FFFFFF" />
                         </div>
-                        <h1 className="mt-4 text-xl font-bold text-[#0F172A] tracking-tight">Provider Portal</h1>
-                        <p className="mt-1 text-sm text-[#64748B]">
+                        <h1 className="mt-6 text-2xl font-bold text-white tracking-tight drop-shadow-sm">Provider Portal</h1>
+                        <p className="mt-1.5 text-sm text-white/60 font-medium text-center">
                             {step === 'phone' && 'Enter your phone number to get started'}
                             {step === 'otp' && 'Enter the verification code'}
                             {step === 'register' && 'Complete your profile'}
+                            {step === 'email' && 'Enter your recovery email'}
+                            {step === 'email_sent' && 'Check your inbox'}
                         </p>
 
                         {/* Step dots */}
-                        <div className="mt-4 flex items-center gap-2">
-                            {[0, 1, 2].map(i => (
-                                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === stepIdx ? 'w-6 bg-[#8FB34A]' : i < stepIdx ? 'w-1.5 bg-[#8FB34A]/40' : 'w-1.5 bg-[#E2E8F0]'
-                                    }`} />
-                            ))}
-                        </div>
+                        {step !== 'email' && step !== 'email_sent' && (
+                            <div className="mt-4 flex items-center gap-2">
+                                {[0, 1, 2].map(i => (
+                                    <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === stepIdx ? 'w-6 bg-[#8FB34A]' : i < stepIdx ? 'w-1.5 bg-[#8FB34A]/40' : 'w-1.5 bg-[#E2E8F0]'
+                                        }`} />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* ═══ Phone Step ═══ */}
                     {step === 'phone' && (
-                        <form onSubmit={handlePhoneSubmit} className="rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+                        <form onSubmit={handlePhoneSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 animate-in fade-in shake-x duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -351,11 +391,11 @@ export default function ProviderLoginPage() {
                                 </div>
                             )}
 
-                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">
+                            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-white/50">
                                 Phone Number
                             </label>
-                            <div className="relative mb-5">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#0F172A]">+1</span>
+                            <div className="relative mb-6">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-bold text-white/90">+1</span>
                                 <input
                                     type="tel"
                                     value={phone}
@@ -363,12 +403,12 @@ export default function ProviderLoginPage() {
                                     placeholder="(555) 123-4567"
                                     autoFocus
                                     autoComplete="tel"
-                                    className="h-14 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] pl-11 pr-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none transition-colors focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 pl-12 pr-4 text-lg font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#8FB34A] focus:bg-black/40 focus:ring-2 focus:ring-[#8FB34A]/20"
                                 />
                                 {/* Checkmark when valid */}
                                 {phoneDigits.length === 10 && (
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-[#8FB34A] animate-in zoom-in duration-200">
-                                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-[#8FB34A] animate-in zoom-in duration-300 shadow-[0_0_15px_rgba(143,179,74,0.5)]">
+                                        <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
                                     </div>
                                 )}
                             </div>
@@ -376,7 +416,7 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || phoneDigits.length < 10}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="h-14 w-full rounded-2xl bg-[#8FB34A] font-bold text-white text-lg shadow-[0_8px_30px_rgba(143,179,74,0.4)] transition-all hover:bg-[#7da33f] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#8FB34A]/50"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -386,15 +426,25 @@ export default function ProviderLoginPage() {
                                 ) : 'Send verification code'}
                             </button>
 
-                            <p className="mt-4 text-center text-xs text-[#94a3b8]">
+                            <p className="mt-5 text-center text-xs font-bold uppercase tracking-widest text-white/40">
                                 We'll send a 6-digit code via SMS
                             </p>
+
+                            <div className="mt-6 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => { setStep('email'); setError('') }}
+                                    className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+                                >
+                                    Lost access to your phone?
+                                </button>
+                            </div>
                         </form>
                     )}
 
                     {/* ═══ OTP Step ═══ */}
                     {step === 'otp' && (
-                        <form onSubmit={handleOtpSubmit} className="rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+                        <form onSubmit={handleOtpSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 animate-in fade-in duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
@@ -402,8 +452,8 @@ export default function ProviderLoginPage() {
                                 </div>
                             )}
 
-                            <p className="mb-5 text-center text-sm text-[#64748B]">
-                                Code sent to <span className="font-semibold text-[#0F172A]">+1 {phone}</span>
+                            <p className="mb-6 text-center text-sm text-white/60 font-medium">
+                                Code sent to <span className="font-bold text-white">+1 {phone}</span>
                             </p>
 
                             <div className="mb-5 flex justify-center gap-2.5" onPaste={handleOtpPaste}>
@@ -420,10 +470,10 @@ export default function ProviderLoginPage() {
                                         onChange={e => handleOtpChange(i, e.target.value)}
                                         onKeyDown={e => handleOtpKeyDown(i, e)}
                                         autoFocus={i === 0}
-                                        className={`h-14 w-12 rounded-xl border text-center text-xl font-bold outline-none transition-all ${digit
-                                            ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#0F172A]'
-                                            : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#0F172A]'
-                                            } focus:border-[#8FB34A] focus:bg-white focus:ring-2 focus:ring-[#8FB34A]/20`}
+                                        className={`h-14 w-12 rounded-2xl border text-center text-xl font-bold outline-none transition-all ${digit
+                                            ? 'border-[#8FB34A] bg-[#8FB34A]/20 text-white shadow-[0_4px_20px_rgba(143,179,74,0.2)]'
+                                            : 'border-white/20 bg-black/20 text-white placeholder:text-white/20'
+                                            } focus:border-[#8FB34A] focus:bg-black/40 focus:ring-2 focus:ring-[#8FB34A]/20`}
                                     />
                                 ))}
                             </div>
@@ -438,26 +488,26 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || otp.join('').length < 6}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40"
+                                className="h-14 w-full mt-2 rounded-2xl bg-[#8FB34A] font-bold text-white text-lg shadow-[0_8px_30px_rgba(143,179,74,0.4)] transition-all hover:bg-[#7da33f] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#8FB34A]/50"
                             >
                                 Verify code
                             </button>
 
                             {/* Resend with timer */}
-                            <div className="mt-4 flex items-center justify-center gap-3">
+                            <div className="mt-6 flex items-center justify-center gap-3">
                                 <button
                                     type="button"
                                     onClick={() => { setStep('phone'); setOtp(['', '', '', '', '', '']); setError(''); setResendTimer(0) }}
-                                    className="text-sm text-[#64748B] font-medium hover:text-[#0F172A] transition-colors"
+                                    className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
                                 >
                                     Change number
                                 </button>
-                                <span className="text-[#E2E8F0]">|</span>
+                                <span className="text-white/20">|</span>
                                 <button
                                     type="button"
                                     onClick={handleResendOtp}
                                     disabled={resendTimer > 0 || resendCount >= 3 || loading}
-                                    className={`text-sm font-medium transition-colors ${resendTimer > 0 ? 'text-[#94a3b8] cursor-default' : 'text-[#8FB34A] hover:text-[#7da33f]'
+                                    className={`text-xs font-bold uppercase tracking-widest transition-colors ${resendTimer > 0 ? 'text-white/30 cursor-default' : 'text-[#8FB34A] hover:text-[#7da33f]'
                                         }`}
                                 >
                                     {resendTimer > 0
@@ -467,12 +517,22 @@ export default function ProviderLoginPage() {
                                             : 'Resend code'}
                                 </button>
                             </div>
+
+                            <div className="mt-4 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => { setStep('email'); setOtp(['', '', '', '', '', '']); setError(''); setResendTimer(0) }}
+                                    className="text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white/70 transition-colors"
+                                >
+                                    Login with email instead
+                                </button>
+                            </div>
                         </form>
                     )}
 
                     {/* ═══ Registration Step ═══ */}
                     {step === 'register' && (
-                        <form onSubmit={handleRegistration} className="rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+                        <form onSubmit={handleRegistration} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 animate-in fade-in duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
@@ -480,15 +540,15 @@ export default function ProviderLoginPage() {
                                 </div>
                             )}
 
-                            <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#EAF4D8] px-4 py-2.5 text-sm font-semibold text-[#3a5e10]">
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <div className="mb-5 flex items-center gap-2 rounded-2xl bg-[#8FB34A]/20 border border-[#8FB34A]/30 px-4 py-3 text-sm font-bold text-white tracking-wide">
+                                <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                                 Phone verified ✓
                             </div>
 
-                            <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Full Name</label>
+                            <div className="mb-5">
+                                <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-white/50">Full Name</label>
                                 <input
                                     type="text"
                                     value={name}
@@ -496,34 +556,34 @@ export default function ProviderLoginPage() {
                                     placeholder="John Smith"
                                     autoFocus
                                     autoComplete="name"
-                                    className="h-13 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] px-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none transition-colors focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-base font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#8FB34A] focus:bg-black/40 focus:ring-2 focus:ring-[#8FB34A]/20"
                                 />
                             </div>
 
-                            <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Recovery Email</label>
+                            <div className="mb-6">
+                                <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-white/50">Recovery Email</label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     placeholder="john@example.com"
                                     autoComplete="email"
-                                    className="h-13 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] px-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none transition-colors focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-base font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#8FB34A] focus:bg-black/40 focus:ring-2 focus:ring-[#8FB34A]/20"
                                 />
-                                <p className="mt-1 text-[11px] text-[#94a3b8]">Used for account recovery if you change your number</p>
+                                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-white/30 text-center">Used for account recovery</p>
                             </div>
 
-                            <div className="mb-5">
-                                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Primary Trade</label>
-                                <div className="grid grid-cols-2 gap-2">
+                            <div className="mb-7">
+                                <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-white/50 text-center">Primary Trade</label>
+                                <div className="grid grid-cols-2 gap-3">
                                     {trades.map(t => (
                                         <button
                                             key={t}
                                             type="button"
                                             onClick={() => { setTrade(t); haptic('light') }}
-                                            className={`flex items-center justify-center rounded-xl border px-3 py-3 text-sm font-semibold transition-all active:scale-[0.97] ${trade === t
-                                                ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#3a5e10] shadow-[0_2px_8px_rgba(143,179,74,0.15)]'
-                                                : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#64748B] hover:border-[#94a3b8]'
+                                            className={`flex items-center justify-center rounded-2xl border px-3 py-3.5 text-sm font-bold tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] ${trade === t
+                                                ? 'border-[#8FB34A]/50 bg-[#8FB34A]/20 text-white shadow-[0_4px_20px_rgba(143,179,74,0.3)]'
+                                                : 'border-white/10 bg-black/20 text-white/60 hover:border-white/20 hover:text-white/90'
                                                 }`}
                                         >
                                             {t}
@@ -535,7 +595,7 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || !name.trim() || !email.trim() || !trade}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="h-14 mt-2 w-full rounded-2xl bg-[#8FB34A] font-bold text-white text-lg shadow-[0_8px_30px_rgba(143,179,74,0.4)] transition-all hover:bg-[#7da33f] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#8FB34A]/50"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -547,8 +607,85 @@ export default function ProviderLoginPage() {
                         </form>
                     )}
 
+                    {/* ═══ Email Fallback Step ═══ */}
+                    {step === 'email' && (
+                        <form onSubmit={handleEmailSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
+                            {error && (
+                                <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 animate-in fade-in shake-x duration-300">
+                                    <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
+                                    </svg>
+                                    {error}
+                                </div>
+                            )}
+
+                            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-white/50">
+                                Recovery Email
+                            </label>
+                            <div className="relative mb-6">
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    placeholder="john@example.com"
+                                    autoFocus
+                                    autoComplete="email"
+                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-lg font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#8FB34A] focus:bg-black/40 focus:ring-2 focus:ring-[#8FB34A]/20"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading || !email.trim()}
+                                className="h-14 w-full rounded-2xl bg-[#8FB34A] font-bold text-white text-lg shadow-[0_8px_30px_rgba(143,179,74,0.4)] transition-all hover:bg-[#7da33f] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#8FB34A]/50"
+                            >
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                        Sending…
+                                    </span>
+                                ) : 'Send Magic Link'}
+                            </button>
+
+                            <div className="mt-6 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => { setStep('phone'); setError('') }}
+                                    className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+                                >
+                                    Back to phone login
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* ═══ Email Sent Step ═══ */}
+                    {step === 'email_sent' && (
+                        <div className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10 text-center animate-in fade-in zoom-in-95 duration-500">
+                            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#8FB34A]/20 border border-[#8FB34A]/30">
+                                <svg className="h-8 w-8 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h2 className="mb-2 text-xl font-bold text-white">Check your inbox</h2>
+                            <p className="text-sm text-white/60 font-medium">
+                                We sent a magic link to <br /><span className="font-bold text-white">{email.toLowerCase()}</span>
+                            </p>
+
+                            <div className="mt-8 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => setStep('phone')}
+                                    className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+                                >
+                                    Return to phone login
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Trust badges */}
-                    <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-[#94a3b8]">
+                    <div className="mt-8 flex items-center justify-center gap-5 text-[10px] font-bold uppercase tracking-widest text-white/40">
                         <span className="flex items-center gap-1">
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

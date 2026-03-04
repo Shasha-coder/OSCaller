@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
+import { HeroBackground } from '@/components/hero-background'
 import {
     Power, Wrench, MapPin, Clock, DollarSign,
     Star, Phone, Bell, ChevronRight, CheckCircle2,
@@ -79,30 +80,37 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
     // Hide the top bar and padding on the login page itself
     if (pathname === '/provider/login') {
-        return <div className="min-h-dvh bg-[#F6F8F4]">{children}</div>
+        return (
+            <div className="relative min-h-dvh">
+                <HeroBackground />
+                <div className="relative z-10">{children}</div>
+            </div>
+        )
     }
 
     return (
-        <div className="min-h-dvh bg-[#F6F8F4]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-            {/* Top bar */}
-            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div className="relative min-h-dvh" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+            <HeroBackground />
+
+            {/* Top bar - Frosted Glass Dark */}
+            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-black/40 backdrop-blur-2xl border-b border-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)]">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#8FB34A]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#8FB34A] shadow-[0_0_15px_rgba(143,179,74,0.4)]">
                         <OSSymbol className="h-5 w-5" color="#FFFFFF" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-[#0F172A]">{profile?.name || 'Service Provider'}</p>
-                        <p className="text-[10px] text-[#94a3b8] font-medium">{profile?.trade}</p>
+                        <p className="text-sm font-bold text-white">{profile?.name || 'Service Provider'}</p>
+                        <p className="text-[10px] text-white/60 font-medium">{profile?.trade || 'Loading...'}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0] active:scale-[0.93] transition-all">
+                    <button className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all">
                         <Bell className="h-4 w-4" />
                         <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#8FB34A] ring-2 ring-white" />
                     </button>
                     <button
                         onClick={handleSignOut}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F1F5F9] text-[#64748B] hover:bg-red-50 hover:text-red-400 active:scale-[0.93] transition-all"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white/80 hover:bg-red-500/20 hover:text-red-400 transition-all"
                         title="Sign out"
                     >
                         <LogOut className="h-4 w-4" />
@@ -110,7 +118,9 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
                 </div>
             </header>
 
-            {children}
+            <main className="relative z-10 pt-4">
+                {children}
+            </main>
         </div>
     )
 }
