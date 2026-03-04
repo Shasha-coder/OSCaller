@@ -36,9 +36,9 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-API-Key' },
         ],
       },
-      // No-cache for admin/technician pages
+      // No-cache for admin/provider pages
       {
-        source: '/(admin|technician)/:path*',
+        source: '/(admin|provider)/:path*',
         headers: [
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
         ],

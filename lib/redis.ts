@@ -7,8 +7,8 @@ export const redis = new Redis({
 
 /* ─── Key helpers ─── */
 export const KEYS = {
-    technicianStatus: (id: string) => `tech:${id}:status`,
-    technicianServices: (id: string) => `tech:${id}:services`,
+    providerStatus: (id: string) => `provider:${id}:status`,
+    providerServices: (id: string) => `provider:${id}:services`,
     serviceAvailability: (service: string) => `svc:${service}:available`,
     activeRequests: 'requests:active',
     requestDetail: (id: string) => `req:${id}`,

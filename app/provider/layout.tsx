@@ -11,7 +11,7 @@ import {
     Droplets, Zap, Thermometer, KeyRound, Bug, Home
 } from 'lucide-react'
 
-export default function TechnicianLayout({ children }: { children: React.ReactNode }) {
+export default function ProviderLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const [user, setUser] = useState<{ id: string; phone?: string } | null>(null)
     const [profile, setProfile] = useState<any>(null)
@@ -21,7 +21,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
 
     useEffect(() => {
         // Skip auth check if we are on the login page
-        if (pathname === '/technician/login') {
+        if (pathname === '/provider/login') {
             setLoading(false)
             return
         }
@@ -29,7 +29,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
         const checkAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
-                router.push('/technician/login')
+                router.push('/provider/login')
                 setLoading(false)
                 return
             }
@@ -42,7 +42,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
 
             if (profErr || !prof || !['technician', 'provider'].includes(prof.role)) {
                 await supabase.auth.signOut()
-                router.push('/technician/login')
+                router.push('/provider/login')
                 setLoading(false)
                 return
             }
@@ -55,7 +55,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
         checkAuth()
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-            if (event === 'SIGNED_OUT') router.push('/technician/login')
+            if (event === 'SIGNED_OUT') router.push('/provider/login')
         })
 
         return () => subscription.unsubscribe()
@@ -63,7 +63,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
 
     const handleSignOut = useCallback(async () => {
         await supabase.auth.signOut()
-        router.push('/technician/login')
+        router.push('/provider/login')
     }, [router])
 
     if (loading) {
@@ -78,7 +78,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
     }
 
     // Hide the top bar and padding on the login page itself
-    if (pathname === '/technician/login') {
+    if (pathname === '/provider/login') {
         return <div className="min-h-dvh bg-[#F6F8F4]">{children}</div>
     }
 
@@ -91,7 +91,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
                         <OSSymbol className="h-5 w-5" color="#FFFFFF" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-[#0F172A]">{profile?.name || 'Technician'}</p>
+                        <p className="text-sm font-bold text-[#0F172A]">{profile?.name || 'Service Provider'}</p>
                         <p className="text-[10px] text-[#94a3b8] font-medium">{profile?.trade}</p>
                     </div>
                 </div>

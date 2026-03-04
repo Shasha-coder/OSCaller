@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   name TEXT,
   email TEXT,
   phone TEXT,
-  role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('admin', 'technician', 'customer')),
+  role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('admin', 'provider', 'customer')),
   trade TEXT,
   status TEXT DEFAULT 'offline' CHECK (status IN ('online', 'offline', 'busy')),
   services TEXT[] DEFAULT '{}',
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS public.service_requests (
   priority TEXT NOT NULL CHECK (priority IN ('emergency', 'urgent', 'standard')),
   description TEXT,
   status TEXT NOT NULL DEFAULT 'submitted',
-  technician_id UUID REFERENCES public.profiles(id),
-  technician_name TEXT,
+  provider_id UUID REFERENCES public.profiles(id),
+  provider_name TEXT,
   eta_minutes INTEGER,
   amount NUMERIC(10,2),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -84,7 +84,7 @@ CREATE POLICY "Admins can read all requests" ON public.service_requests
 
 -- RLS: Technicians can read their assigned requests
 CREATE POLICY "Technicians can read assigned requests" ON public.service_requests
-  FOR SELECT USING (technician_id = auth.uid());
+  FOR SELECT USING (provider_id = auth.uid());
 
 -- RLS: Customers can read their own requests
 CREATE POLICY "Customers can read own requests" ON public.service_requests
@@ -151,6 +151,6 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 CREATE INDEX IF NOT EXISTS idx_profiles_status ON public.profiles(status);
 CREATE INDEX IF NOT EXISTS idx_profiles_trade ON public.profiles(trade);
 CREATE INDEX IF NOT EXISTS idx_requests_status ON public.service_requests(status);
-CREATE INDEX IF NOT EXISTS idx_requests_technician ON public.service_requests(technician_id);
+CREATE INDEX IF NOT EXISTS idx_requests_provider ON public.service_requests(provider_id);
 CREATE INDEX IF NOT EXISTS idx_requests_service ON public.service_requests(service);
 CREATE INDEX IF NOT EXISTS idx_request_events_request ON public.request_events(request_id);

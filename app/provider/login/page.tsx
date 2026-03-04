@@ -7,7 +7,7 @@ import { OSSymbol } from '@/components/os-logo'
 
 type Step = 'phone' | 'otp' | 'register'
 
-export default function TechnicianLoginPage() {
+export default function ProviderLoginPage() {
     const router = useRouter()
     const [step, setStep] = useState<Step>('phone')
     const [phone, setPhone] = useState('')
@@ -202,7 +202,7 @@ export default function TechnicianLoginPage() {
                     password: `otp_${digits}_verified`,
                 })
                 haptic('heavy')
-                router.push('/technician')
+                router.push('/provider')
             }
         } catch {
             setError('Verification failed. Please try again.')
@@ -283,7 +283,7 @@ export default function TechnicianLoginPage() {
                     name: name.trim(),
                     email: email.trim().toLowerCase(),
                     phone: `+1${digits}`,
-                    role: 'technician',
+                    role: 'provider',
                     trade,
                     status: 'offline',
                     created_at: new Date().toISOString(),
@@ -297,7 +297,7 @@ export default function TechnicianLoginPage() {
             }
 
             haptic('heavy')
-            router.push('/technician')
+            router.push('/provider')
         } catch {
             setError('Registration failed. Please try again.')
             haptic('heavy')
@@ -323,7 +323,7 @@ export default function TechnicianLoginPage() {
                         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8FB34A] shadow-[0_8px_30px_rgba(143,179,74,0.3)]">
                             <OSSymbol className="h-8 w-8" color="#FFFFFF" />
                         </div>
-                        <h1 className="mt-4 text-xl font-bold text-[#0F172A] tracking-tight">Technician Portal</h1>
+                        <h1 className="mt-4 text-xl font-bold text-[#0F172A] tracking-tight">Provider Portal</h1>
                         <p className="mt-1 text-sm text-[#64748B]">
                             {step === 'phone' && 'Enter your phone number to get started'}
                             {step === 'otp' && 'Enter the verification code'}

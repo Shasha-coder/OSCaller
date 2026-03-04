@@ -320,7 +320,7 @@ export default function JoinPage() {
 
             if (err) { setError(err.message); setLoading(false); return }
             haptic('heavy')
-            router.push('/technician')
+            router.push('/provider')
         } catch { setError('Registration failed.'); setLoading(false) }
     }
 

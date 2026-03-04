@@ -20,19 +20,19 @@ export async function GET(request: Request) {
         }
 
         const stats = {
-            online_technicians: 8,
+            online_providers: 8,
             active_requests: 12,
             completed_today: 34,
             avg_response_min: 4.2,
             services_available: [
-                { service: 'plumbing', technicians_available: 3, active: true },
-                { service: 'electrical', technicians_available: 2, active: true },
-                { service: 'hvac', technicians_available: 2, active: true },
-                { service: 'locksmith', technicians_available: 1, active: true },
-                { service: 'appliance', technicians_available: 1, active: true },
-                { service: 'roofing', technicians_available: 0, active: false },
-                { service: 'glass', technicians_available: 0, active: false },
-                { service: 'pest', technicians_available: 1, active: true },
+                { service: 'plumbing', providers_available: 3, active: true },
+                { service: 'electrical', providers_available: 2, active: true },
+                { service: 'hvac', providers_available: 2, active: true },
+                { service: 'locksmith', providers_available: 1, active: true },
+                { service: 'appliance', providers_available: 1, active: true },
+                { service: 'roofing', providers_available: 0, active: false },
+                { service: 'glass', providers_available: 0, active: false },
+                { service: 'pest', providers_available: 1, active: true },
             ],
             system_health: 'operational',
         }
