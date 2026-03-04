@@ -37,7 +37,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         {/* Preload the landing background so there's no white flash */}
-        <link rel="preload" href="/bg1.webp" as="image" />
+
       </head>
       <body className="font-sans antialiased bg-white">
         {children}

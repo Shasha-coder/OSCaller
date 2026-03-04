@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
 import {
@@ -17,11 +17,20 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
     const [profile, setProfile] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
+    const pathname = usePathname()
+
     useEffect(() => {
+        // Skip auth check if we are on the login page
+        if (pathname === '/technician/login') {
+            setLoading(false)
+            return
+        }
+
         const checkAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
                 router.push('/technician/login')
+                setLoading(false)
                 return
             }
 
@@ -34,6 +43,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
             if (profErr || !prof || !['technician', 'provider'].includes(prof.role)) {
                 await supabase.auth.signOut()
                 router.push('/technician/login')
+                setLoading(false)
                 return
             }
 
@@ -65,6 +75,11 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
                 </div>
             </div>
         )
+    }
+
+    // Hide the top bar and padding on the login page itself
+    if (pathname === '/technician/login') {
+        return <div className="min-h-dvh bg-[#F6F8F4]">{children}</div>
     }
 
     return (
