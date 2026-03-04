@@ -217,26 +217,60 @@ export default function ProviderLoginPage() {
                 return
             }
 
-            // OTP verified — check if user has a profile
-            const { data: profiles } = await supabase
+            // OTP verified — Try to authenticate FIRST (bypasses RLS block on profiles)
+            const fakeEmail = `tech_${digits}@oscaller.app`
+            const fakePassword = `otp_${digits}_verified`
+
+            const { error: signInErr } = await supabase.auth.signInWithPassword({
+                email: fakeEmail,
+                password: fakePassword,
+            })
+
+            if (signInErr) {
+                // New user - sign them up
+                const { error: signUpError } = await supabase.auth.signUp({
+                    email: fakeEmail,
+                    password: fakePassword,
+                    options: { data: { role: 'provider' } }
+                })
+
+                if (signUpError) {
+                    setError('Authentication setup failed. Please try again.')
+                    haptic('heavy')
+                    setLoading(false)
+                    return
+                }
+
+                // Force sign in after sign up
+                await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: fakePassword,
+                })
+            }
+
+            // User is now safely authenticated, RLS will allow profile reads
+            const { data: { session } } = await supabase.auth.getSession()
+
+            if (!session) {
+                setError('Session initialization failed.')
+                haptic('heavy')
+                setLoading(false)
+                return
+            }
+
+            const { data: profile } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('phone', `+1${digits}`)
-                .limit(1)
-
-            const profile = profiles?.[0]
+                .eq('id', session.user.id)
+                .single()
 
             if (!profile || !profile.name) {
+                // Incomplete profile, send to registration step
                 setStep('register')
                 setLoading(false)
                 haptic('medium')
             } else {
-                // Existing user — sign in via Supabase email auth
-                const fakeEmail = `tech_${digits}@oscaller.app`
-                await supabase.auth.signInWithPassword({
-                    email: fakeEmail,
-                    password: `otp_${digits}_verified`,
-                })
+                // Fully complete, take to dashboard
                 haptic('heavy')
                 router.push('/provider')
             }
@@ -280,73 +314,32 @@ export default function ProviderLoginPage() {
         try {
             const digits = phone.replace(/\D/g, '')
 
-            // First check if the phone number already exists in profiles
-            const { data: existingProfiles, error: checkError } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('phone', `+1${digits}`)
-                .limit(1)
+            // Since submitOtp authenticated the user, we just fetch their session
+            const { data: { session } } = await supabase.auth.getSession()
+            const userId = session?.user?.id
 
-            if (checkError) {
-                console.error("Profile check error:", checkError)
-                // Continue with registration anyway, as auth.signUp will also catch duplicates
-            } else if (existingProfiles && existingProfiles.length > 0) {
-                // Phone number is already tied to an account
-                setError('This phone number is already registered. Please login instead.')
-                haptic('heavy')
+            if (!userId) {
+                setError('Session expired. Please restart the login process.')
+                setStep('phone')
                 setLoading(false)
                 return
             }
 
-            const fakeEmail = `tech_${digits}@oscaller.app`
-            const fakePassword = `otp_${digits}_verified`
+            // First check if the phone number already exists in profiles for *another* user
+            const { data: existingProfiles, error: checkError } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('phone', `+1${digits}`)
+                .neq('id', userId) // Exclude current user's profile
+                .limit(1)
 
-            // Create Supabase user
-            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                email: fakeEmail,
-                password: fakePassword,
-                options: {
-                    data: { role: 'provider' }
-                }
-            })
-
-            // If user already exists (or any other issue), try to sign in
-            if (signUpError) {
-                const isAlreadyRegistered = signUpError.message.toLowerCase().includes('already registered') ||
-                    signUpError.message.toLowerCase().includes('already exists')
-
-                if (isAlreadyRegistered) {
-                    const { error: signInErr } = await supabase.auth.signInWithPassword({
-                        email: fakeEmail,
-                        password: fakePassword,
-                    })
-                    if (signInErr) {
-                        setError('Account setup failed. Please try again.')
-                        haptic('heavy')
-                        setLoading(false)
-                        return
-                    }
-                } else {
-                    setError(`Registration error: ${signUpError.message}`)
-                    haptic('heavy')
-                    setLoading(false)
-                    return
-                }
-            } else {
-                // Just to be absolutely safe, forcefully sign them in if this was a fresh signup
-                // (Sometimes Supabase doesn't auto-login if email confirmations are somehow toggled)
-                await supabase.auth.signInWithPassword({
-                    email: fakeEmail,
-                    password: fakePassword,
-                })
-            }
-
-            const { data: { session } } = await supabase.auth.getSession()
-            const userId = session?.user?.id || signUpData?.user?.id
-
-            if (!userId) {
-                setError('Session expired. Please start over.')
-                setStep('phone')
+            if (checkError) {
+                console.error("Profile check error:", checkError)
+                // Continue with registration anyway, as upsert will handle unique constraints
+            } else if (existingProfiles && existingProfiles.length > 0) {
+                // Phone number is already tied to another account
+                setError('This phone number is already registered to another account. Please use a different number or login to that account.')
+                haptic('heavy')
                 setLoading(false)
                 return
             }
