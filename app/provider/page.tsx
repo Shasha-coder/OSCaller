@@ -112,68 +112,65 @@ export default function ProviderDashboard() {
     if (hasJob) mapMarkers.push({ id: 'job', lat: MOCK_JOB.lat, lng: MOCK_JOB.lng, type: 'user', pulse: true })
 
     return (
-        <div className="pb-8 text-white relative z-10 w-full max-w-2xl mx-auto">
-            {/* Master Switch */}
+        <div className="pb-8 text-white relative z-10 w-full max-w-2xl mx-auto font-sans">
+            {/* Master Switch - Minimalist Uber Style */}
             <div className="px-4 pt-5 pb-6">
-                <div className={`rounded-[32px] p-6 transition-all duration-700 overflow-hidden relative ${isOnline
-                    ? 'bg-[#8FB34A]/80 backdrop-blur-2xl shadow-[0_12px_40px_rgba(143,179,74,0.3)] border border-white/20'
-                    : 'bg-white/5 backdrop-blur-2xl shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/5'
+                <div className={`rounded-3xl p-6 transition-all duration-500 overflow-hidden relative ${isOnline
+                    ? 'bg-[#111111] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
+                    : 'bg-[#111111] border border-white/5 opacity-80'
                     }`}>
-                    {!isOnline && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-                    )}
-                    {isOnline && (
-                        <div className="absolute -inset-10 bg-[#8FB34A]/30 blur-3xl pointer-events-none rounded-full" />
-                    )}
 
-                    <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="flex items-center justify-between relative z-10">
                         <div>
-                            <h2 className={`text-2xl font-bold tracking-tight transition-colors duration-500 ${isOnline ? 'text-white' : 'text-white/90'}`}>
-                                {isOnline ? '🟢 You\u2019re Online' : 'You\u2019re Offline'}
+                            <h2 className={`text-2xl font-bold tracking-tight transition-colors duration-500 ${isOnline ? 'text-white' : 'text-white/70'}`}>
+                                {isOnline ? 'You\u2019re Online' : 'You\u2019re Offline'}
                             </h2>
-                            <p className={`text-sm mt-1.5 transition-colors duration-500 font-medium ${isOnline ? 'text-white/90' : 'text-white/50'}`}>
+                            <p className={`text-sm mt-1 transition-colors duration-500 font-medium ${isOnline ? 'text-white/60' : 'text-white/40'}`}>
                                 {isOnline ? 'Receiving job requests' : 'Go online to start receiving jobs'}
                             </p>
                         </div>
+                        {/* Brand Green Toggle Button */}
                         <button
                             onClick={() => setIsOnline(!isOnline)}
-                            className={`relative flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-500 ${isOnline
-                                ? 'bg-white text-[#5a8a1a] shadow-[0_8px_30px_rgba(255,255,255,0.4)] scale-105'
-                                : 'bg-white/10 text-white/50 hover:bg-white/20 hover:text-white/90 shadow-[inset_0_2px_8px_rgba(0,0,0,0.2)]'
+                            className={`relative flex h-14 w-14 items-center justify-center rounded-full transition-all duration-300 shadow-xl ${isOnline
+                                ? 'bg-[#8FB34A] text-white hover:bg-[#7da33f] hover:scale-105 active:scale-95'
+                                : 'bg-white/10 text-white/40 hover:bg-white/15 hover:text-white/80 active:scale-95'
                                 }`}
                         >
-                            <Power className="h-7 w-7" strokeWidth={2.5} />
+                            <Power className="h-6 w-6" strokeWidth={isOnline ? 3 : 2} />
                         </button>
                     </div>
 
                     {isOnline && (
-                        <div className="mt-6 flex gap-3 relative z-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            <div className="flex-1 rounded-2xl bg-black/10 px-3 py-3.5 text-center border border-white/10 shadow-inner">
-                                <p className="text-xl font-bold text-white tracking-tight">$340</p>
-                                <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest mt-0.5">Today</p>
+                        <div className="mt-6 pt-6 border-t border-white/5 flex gap-4 relative z-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div className="flex-1 text-center">
+                                <p className="text-2xl font-bold text-white tracking-tight">$340</p>
+                                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Today</p>
                             </div>
-                            <div className="flex-1 rounded-2xl bg-black/10 px-3 py-3.5 text-center border border-white/10 shadow-inner">
-                                <p className="text-xl font-bold text-white tracking-tight">3</p>
-                                <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest mt-0.5">Jobs</p>
+                            <div className="w-px bg-white/5"></div>
+                            <div className="flex-1 text-center">
+                                <p className="text-2xl font-bold text-white tracking-tight">3</p>
+                                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Jobs</p>
                             </div>
-                            <div className="flex-1 rounded-2xl bg-black/10 px-3 py-3.5 text-center border border-white/10 shadow-inner">
-                                <p className="text-xl font-bold text-white tracking-tight flex items-center justify-center gap-1.5">
-                                    4.8 <Star className="h-4 w-4 fill-[#facc15] text-[#facc15]" />
+                            <div className="w-px bg-white/5"></div>
+                            <div className="flex-1 text-center">
+                                <p className="text-2xl font-bold text-white tracking-tight flex items-center justify-center gap-1">
+                                    4.8 <Star className="h-4 w-4 fill-white text-white mb-0.5" />
                                 </p>
-                                <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest mt-0.5">Rating</p>
+                                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Rating</p>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Active Job Card */}
+            {/* Active Job Card - Minimalist */}
             {hasJob && jobStatus && (
                 <div className="px-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="rounded-[32px] bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.4)] overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/30">
-                            <span className="text-sm font-bold text-amber-400 tracking-wide">{jobStatusLabel[jobStatus]}</span>
-                            <span className="text-xs font-bold text-amber-500/80 tracking-widest">{MOCK_JOB.id}</span>
+                    <div className="rounded-3xl bg-[#111111] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                            <span className="text-xs font-bold text-[#8FB34A] tracking-wider uppercase">{jobStatusLabel[jobStatus]}</span>
+                            <span className="text-xs font-bold text-white/30 tracking-widest">{MOCK_JOB.id}</span>
                         </div>
 
                         {/* Mini map */}
@@ -183,48 +180,51 @@ export default function ProviderDashboard() {
                                 zoom={14}
                                 markers={mapMarkers}
                                 route={coords && jobStatus !== 'arrived' && jobStatus !== 'working' ? { from: coords, to: { lat: MOCK_JOB.lat, lng: MOCK_JOB.lng } } : null}
-                                style={{ height: 180 }}
+                                style={{ height: 160 }}
                             />
-                            {/* Inner gradient shadow for map */}
-                            <div className="absolute inset-0 pointer-events-none shadow-[inset_0_4px_24px_rgba(0,0,0,0.2)]" />
                         </div>
 
-                        <div className="p-6 space-y-5">
+                        <div className="p-6 space-y-6">
+                            {/* Customer Profile */}
                             <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#8FB34A] text-lg font-bold text-white shadow-[0_8px_20px_rgba(143,179,74,0.4)]">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-lg font-bold text-black border border-white/10">
                                     {MOCK_JOB.customer.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-lg font-bold text-white tracking-wide truncate">{MOCK_JOB.customer}</p>
-                                    <p className="text-sm text-white/60 mt-0.5">
-                                        {MOCK_JOB.service} <span className="mx-1.5 opacity-40">•</span> <span className="text-amber-400 font-bold tracking-widest text-[10px] uppercase">{MOCK_JOB.priority}</span>
+                                    <p className="text-sm text-white/50 mt-0.5">
+                                        {MOCK_JOB.service}
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white hover:bg-white/20 transition-all border border-white/5 hover:scale-105 active:scale-95">
-                                        <Phone className="h-4 w-4" />
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10 transition-colors active:scale-95">
+                                        <Phone className="h-5 w-5" />
                                     </button>
-                                    <button className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white hover:bg-white/20 transition-all border border-white/5 hover:scale-105 active:scale-95">
-                                        <MessageSquare className="h-4 w-4" />
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10 transition-colors active:scale-95">
+                                        <MessageSquare className="h-5 w-5" />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4 rounded-2xl bg-black/30 p-5 border border-white/5 shadow-inner">
-                                <MapPin className="h-5 w-5 text-[#8FB34A] shrink-0 mt-0.5" />
+                            {/* Job Details */}
+                            <div className="flex items-start gap-4">
+                                <div className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#8FB34A] shadow-[0_0_10px_rgba(143,179,74,0.5)]" />
                                 <div>
-                                    <p className="text-sm font-semibold text-white/90 leading-relaxed">{MOCK_JOB.address}</p>
-                                    <p className="text-xs text-white/50 mt-1.5 leading-relaxed">{MOCK_JOB.description}</p>
+                                    <p className="text-base font-semibold text-white/90 leading-snug">{MOCK_JOB.address}</p>
+                                    <p className="text-sm text-white/50 mt-1 leading-snug">{MOCK_JOB.description}</p>
+                                    {MOCK_JOB.priority === 'emergency' && (
+                                        <p className="text-xs text-red-500 font-bold uppercase tracking-wider mt-2 flex items-center gap-1.5">
+                                            <AlertTriangle className="h-3.5 w-3.5" /> Emergency Priority
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
                             <button
                                 onClick={advanceJobStatus}
-                                className={`h-14 mt-2 w-full rounded-2xl font-bold text-base transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] ${jobStatus === 'working'
-                                    ? 'bg-[#8FB34A] text-white hover:bg-[#7da33f] shadow-[0_8px_30px_rgba(143,179,74,0.3)]'
-                                    : jobStatus === 'assigned'
-                                        ? 'bg-white text-black hover:bg-gray-100 shadow-[0_8px_30px_rgba(255,255,255,0.2)]'
-                                        : 'bg-[#3B82F6] text-white hover:bg-[#2563EB] shadow-[0_8px_30px_rgba(59,130,246,0.3)]'
+                                className={`h-14 mt-2 w-full rounded-2xl font-bold text-base transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${jobStatus === 'working'
+                                    ? 'bg-[#8FB34A] text-white hover:bg-[#7da33f]'
+                                    : 'bg-white text-black hover:bg-gray-100'
                                     }`}
                             >
                                 {jobButtonText[jobStatus]}
@@ -234,12 +234,12 @@ export default function ProviderDashboard() {
                 </div>
             )}
 
-            {/* Service Toggles */}
+            {/* Service Toggles - Minimalist */}
             <div className="px-4 mb-6">
-                <div className="rounded-[32px] bg-white/5 backdrop-blur-2xl shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/5 p-6">
+                <div className="rounded-3xl bg-[#111111] border border-white/10 shadow-lg p-6">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-white/50">Services Authored</h3>
-                        <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest bg-white/10 px-2.5 py-1 rounded-full">{activeServices.size} Active</span>
+                        <h3 className="text-sm font-bold tracking-wide text-white">Services</h3>
+                        <span className="text-[10px] text-[#8FB34A] font-bold uppercase tracking-widest bg-[#8FB34A]/10 px-2.5 py-1 rounded-full">{activeServices.size} Active</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         {SERVICE_LIST.map(({ id, name, icon: Icon }) => {
@@ -250,17 +250,19 @@ export default function ProviderDashboard() {
                                     onClick={() => toggleService(id)}
                                     disabled={!isOnline}
                                     className={`flex items-center gap-3 rounded-2xl border px-3 py-3.5 transition-all duration-300 ${active && isOnline
-                                        ? 'border-[#8FB34A]/40 bg-[#8FB34A]/20 text-white shadow-[0_4px_20px_rgba(143,179,74,0.1)]'
-                                        : 'border-white/5 bg-white/5 text-white/50'
-                                        } ${!isOnline ? 'opacity-40 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-white/10 hover:border-white/10'}`}
+                                        ? 'border-white/20 bg-white/5 text-white'
+                                        : 'border-white/5 bg-transparent text-white/40'
+                                        } ${!isOnline ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-white/10'}`}
                                 >
-                                    <div className={`p-1.5 rounded-xl ${active && isOnline ? 'bg-[#8FB34A] text-white shadow-[0_4px_12px_rgba(143,179,74,0.4)]' : 'bg-white/10 text-white/70'}`}>
+                                    <div className={`p-1.5 rounded-full ${active && isOnline ? 'bg-white text-black' : 'bg-white/10 text-white/50'}`}>
                                         <Icon className="h-4 w-4" />
                                     </div>
                                     <span className="text-xs font-bold tracking-wide truncate pr-1">{name}</span>
-                                    <div className={`ml-auto shrink-0 h-4 w-8 rounded-full transition-colors duration-300 ${active && isOnline ? 'bg-[#8FB34A]' : 'bg-white/10'
+
+                                    {/* Minimalist Switch */}
+                                    <div className={`ml-auto shrink-0 h-3 w-6 rounded-full transition-colors duration-300 ${active && isOnline ? 'bg-[#8FB34A]' : 'bg-white/10'
                                         }`}>
-                                        <div className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${active && isOnline ? 'translate-x-4' : 'translate-x-0'
+                                        <div className={`h-3 w-3 rounded-full bg-white transition-transform duration-300 ${active && isOnline ? 'translate-x-3' : 'translate-x-0'
                                             }`} />
                                     </div>
                                 </button>
@@ -270,27 +272,27 @@ export default function ProviderDashboard() {
                 </div>
             </div>
 
-            {/* Recent Jobs */}
+            {/* Recent Jobs - Minimalist */}
             <div className="px-4">
-                <div className="rounded-[32px] bg-white/5 backdrop-blur-2xl shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/5 overflow-hidden">
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/5">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-white/50">Recent History</h3>
+                <div className="rounded-3xl bg-[#111111] border border-white/10 shadow-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+                        <h3 className="text-sm font-bold tracking-wide text-white">Recent Earnings</h3>
                         <button className="text-xs font-bold text-[#8FB34A] hover:text-[#7da33f] transition-colors tracking-wide">VIEW ALL</button>
                     </div>
                     <div className="divide-y divide-white/5">
                         {MOCK_HISTORY.map(job => (
-                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 transition-colors hover:bg-white/[0.04]">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#8FB34A]/20 border border-[#8FB34A]/30">
-                                    <CheckCircle2 className="h-5 w-5 text-[#8FB34A]" />
+                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 hover:bg-white/5 transition-colors cursor-pointer group">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-white group-hover:bg-white/10 transition-colors">
+                                    <DollarSign className="h-5 w-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-0.5">
-                                        <span className="text-sm font-bold text-white tracking-wide truncate">{job.customer}</span>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-sm font-semibold text-white tracking-wide truncate">{job.customer}</span>
                                         <span className="text-base font-bold text-white">{job.amount}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <p className="text-xs text-white/50 font-medium">{job.service}</p>
-                                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{job.date}</span>
+                                        <p className="text-xs text-white/50">{job.service}</p>
+                                        <span className="text-xs text-white/40">{job.date}</span>
                                     </div>
                                 </div>
                             </div>
