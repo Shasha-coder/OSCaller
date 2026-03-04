@@ -89,28 +89,28 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
     }
 
     return (
-        <div className="relative min-h-dvh bg-black" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="relative min-h-dvh bg-[#F6F8F4]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <HeroBackground />
 
-            {/* Top bar - Minimalist Uber Style */}
-            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-[#111111] border-b border-white/5 shadow-md">
+            {/* Top bar - Minimalist Light Style */}
+            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#8FB34A] shadow-[0_0_15px_rgba(143,179,74,0.3)]">
-                        <OSSymbol className="h-5 w-5" color="#FFFFFF" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAF4D8] shadow-[0_0_15px_rgba(234,244,216,0.5)] border border-[#8FB34A]/20">
+                        <OSSymbol className="h-5 w-5" color="#8FB34A" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-white tracking-wide">{profile?.name || 'Service Provider'}</p>
+                        <p className="text-sm font-bold text-[#0F172A] tracking-wide">{profile?.name || 'Service Provider'}</p>
                         <p className="text-[10px] text-[#8FB34A] font-bold uppercase tracking-widest">{profile?.trade || 'Loading...'}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] border border-slate-200 transition-all active:scale-95">
                         <Bell className="h-4 w-4" />
-                        <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-[#8FB34A] ring-2 ring-[#111111]" />
+                        <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-[#8FB34A] ring-2 ring-white" />
                     </button>
                     <button
                         onClick={handleSignOut}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white/80 hover:bg-red-500/10 hover:text-red-400 transition-all active:scale-95"
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#64748B] hover:bg-red-50 hover:text-red-500 hover:border-red-100 border border-slate-200 transition-all active:scale-95"
                         title="Sign out"
                     >
                         <LogOut className="h-4 w-4" />
