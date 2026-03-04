@@ -301,24 +301,44 @@ export default function ProviderLoginPage() {
             const fakeEmail = `tech_${digits}@oscaller.app`
             const fakePassword = `otp_${digits}_verified`
 
-            // Create Supabase user (or sign in if exists)
+            // Create Supabase user
             const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                 email: fakeEmail,
                 password: fakePassword,
+                options: {
+                    data: { role: 'provider' }
+                }
             })
 
-            if (signUpError && !signUpError.message.includes('already registered')) {
-                // If already registered, sign in instead
-                const { error: signInErr } = await supabase.auth.signInWithPassword({
-                    email: fakeEmail,
-                    password: fakePassword,
-                })
-                if (signInErr) {
-                    setError('Account setup failed. Please try again.')
+            // If user already exists (or any other issue), try to sign in
+            if (signUpError) {
+                const isAlreadyRegistered = signUpError.message.toLowerCase().includes('already registered') ||
+                    signUpError.message.toLowerCase().includes('already exists')
+
+                if (isAlreadyRegistered) {
+                    const { error: signInErr } = await supabase.auth.signInWithPassword({
+                        email: fakeEmail,
+                        password: fakePassword,
+                    })
+                    if (signInErr) {
+                        setError('Account setup failed. Please try again.')
+                        haptic('heavy')
+                        setLoading(false)
+                        return
+                    }
+                } else {
+                    setError(`Registration error: ${signUpError.message}`)
                     haptic('heavy')
                     setLoading(false)
                     return
                 }
+            } else {
+                // Just to be absolutely safe, forcefully sign them in if this was a fresh signup
+                // (Sometimes Supabase doesn't auto-login if email confirmations are somehow toggled)
+                await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: fakePassword,
+                })
             }
 
             const { data: { session } } = await supabase.auth.getSession()
