@@ -279,6 +279,25 @@ export default function ProviderLoginPage() {
 
         try {
             const digits = phone.replace(/\D/g, '')
+
+            // First check if the phone number already exists in profiles
+            const { data: existingProfiles, error: checkError } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('phone', `+1${digits}`)
+                .limit(1)
+
+            if (checkError) {
+                console.error("Profile check error:", checkError)
+                // Continue with registration anyway, as auth.signUp will also catch duplicates
+            } else if (existingProfiles && existingProfiles.length > 0) {
+                // Phone number is already tied to an account
+                setError('This phone number is already registered. Please login instead.')
+                haptic('heavy')
+                setLoading(false)
+                return
+            }
+
             const fakeEmail = `tech_${digits}@oscaller.app`
             const fakePassword = `otp_${digits}_verified`
 
@@ -604,6 +623,16 @@ export default function ProviderLoginPage() {
                                     </span>
                                 ) : 'Complete registration'}
                             </button>
+
+                            <div className="mt-6 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => { setStep('phone'); setError('') }}
+                                    className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+                                >
+                                    Already have an account? Login
+                                </button>
+                            </div>
                         </form>
                     )}
 

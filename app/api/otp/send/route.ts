@@ -101,6 +101,15 @@ export async function POST(req: NextRequest) {
         if (!twilioRes.ok) {
             const err = await twilioRes.json()
             console.error('Twilio error:', err)
+
+            // Check for Twilio's specific "Invalid 'To' Phone Number" error (Error code 21211)
+            if (err?.code === 21211) {
+                return NextResponse.json(
+                    { error: 'Invalid phone number format. Please check the number and try again.' },
+                    { status: 400 }
+                )
+            }
+
             return NextResponse.json(
                 { error: 'Failed to send verification code. Please try again.' },
                 { status: 500 }
