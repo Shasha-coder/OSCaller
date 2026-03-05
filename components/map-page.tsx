@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
+import { Search, LocateFixed } from 'lucide-react'
 
 const NEARBY_SERVICES = [
   { label: 'Plumber nearby', count: '3 available' },
@@ -17,8 +18,11 @@ export function MapPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [markers, setMarkers] = useState<MapMarker[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
 
-  useEffect(() => {
+  const requestLocation = () => {
+    setLoading(true)
+    setError(null)
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser.')
       setCoords({ lat: 40.7128, lng: -74.006 })
@@ -31,7 +35,6 @@ export function MapPage() {
         setCoords(userCoords)
         setLoading(false)
 
-        // Generate some mock nearby service markers
         setMarkers([
           { id: 'user', lat: userCoords.lat, lng: userCoords.lng, type: 'user', pulse: true },
           { id: 'svc1', lat: userCoords.lat + 0.008, lng: userCoords.lng + 0.005, type: 'service', label: 'Plumber' },
@@ -54,11 +57,31 @@ export function MapPage() {
       },
       { timeout: 8000, enableHighAccuracy: true }
     )
+  }
+
+  useEffect(() => {
+    requestLocation()
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4">
-      {/* Status bar */}
+    <div className="mx-auto w-full max-w-2xl space-y-4 relative flex flex-col h-full">
+      {/* Search Header Overlay */}
+      <div className="relative z-10 -mb-2">
+        <label htmlFor="service-search" className="sr-only">Which home service?</label>
+        <div className="relative flex items-center w-full">
+          <div className="absolute left-4 flex items-center justify-center h-full">
+            <Search className="h-5 w-5 text-slate-400" />
+          </div>
+          <input
+            id="service-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Which home service?"
+            className="w-full h-14 pl-12 pr-4 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-slate-100 text-[#0F172A] font-semibold text-lg placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8FB34A]/50 transition-all"
+          />
+        </div>
+      </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className={cn(
@@ -83,14 +106,28 @@ export function MapPage() {
         </div>
       )}
 
-      {/* Map */}
-      <GoogleMap
-        center={coords || undefined}
-        zoom={14}
-        markers={markers}
-        className="shadow-[0_8px_40px_rgba(15,23,42,0.08)]"
-        style={{ height: '55vh', minHeight: 320 }}
-      />
+      {/* Map Container */}
+      <div className="relative flex-1 min-h-[50vh] w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.08)] border border-slate-200/50 mt-2">
+        <GoogleMap
+          center={coords || undefined}
+          zoom={14}
+          markers={markers}
+          className="h-full w-full"
+        />
+
+        {/* Floating GPS Button */}
+        <button
+          onClick={requestLocation}
+          className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 transition-transform hover:scale-105 active:scale-95 text-[#0F172A]"
+          aria-label="Use my current GPS location"
+        >
+          {loading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-[#8FB34A]" />
+          ) : (
+            <LocateFixed className="h-5 w-5" />
+          )}
+        </button>
+      </div>
 
       {/* Nearby services grid */}
       <div className="grid grid-cols-2 gap-3">
