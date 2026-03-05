@@ -6,17 +6,15 @@ import { cn } from '@/lib/utils'
 import type { AppPage, RequestFormData, ServiceRequest } from '@/lib/store'
 import { OSSymbol, OSCallerWordmark } from '@/components/os-logo'
 import { AppSidebar } from '@/components/app-sidebar'
-import { IntakeForm } from '@/components/intake-form'
 import { ServicesTicker } from '@/components/services-ticker'
 import { HeroBackground } from '@/components/hero-background'
 import { TrackingPage } from '@/components/tracking-page'
 import { HistoryPage } from '@/components/history-page'
 import { SupportPage } from '@/components/support-page'
 import { MapPage } from '@/components/map-page'
-import { SearchPage } from '@/components/search-page'
 import { ServicePageBackground } from '@/components/service-bg-art'
 
-const PAGE_ORDER: AppPage[] = ['home', 'tracking', 'history', 'support', 'map', 'search']
+const PAGE_ORDER: AppPage[] = ['home', 'map', 'tracking', 'history', 'support']
 
 export default function Root() {
   const [active, setActive] = useState<AppPage>('home')
@@ -192,9 +190,9 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
             <div className="flex flex-col items-center">
-              {/* Logo with refined glassmorphism */}
+              {/* Logo with glass reflection animation */}
               <div
-                className="relative"
+                className="relative overflow-hidden"
                 style={{
                   width: 160, height: 160, borderRadius: 36,
                   background: 'rgba(255,255,255,0.12)',
@@ -205,7 +203,35 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
-                <OSSymbol className="h-24 w-24" color="#FFFFFF" />
+                {/* Inner glass shimmer ring */}
+                <div
+                  className="absolute inset-0 rounded-[36px] animate-glass-shimmer pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.08) 100%)',
+                  }}
+                />
+
+                <OSSymbol className="h-24 w-24 relative z-10" color="#FFFFFF" />
+
+                {/* Sweeping light beam */}
+                <div
+                  className="absolute inset-0 pointer-events-none animate-glass-sweep"
+                  style={{
+                    width: '50%',
+                    height: '200%',
+                    top: '-50%',
+                    left: 0,
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.08) 70%, transparent 100%)',
+                  }}
+                />
+
+                {/* Top edge highlight */}
+                <div
+                  className="absolute top-0 left-[10%] right-[10%] h-[1px] pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                  }}
+                />
               </div>
 
               {/* Wordmark */}
@@ -229,8 +255,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
             {/* CTA button */}
             <button
-              onClick={() => navigate('tracking')}
-              className="mt-3 flex items-center gap-2.5 rounded-2xl bg-white/85 backdrop-blur-sm px-8 py-3.5 font-bold text-[#3a5e10] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all hover:bg-white hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() => navigate('map')}
+              className="mt-8 flex items-center gap-2.5 rounded-2xl bg-white/85 backdrop-blur-sm px-8 py-3.5 font-bold text-[#3a5e10] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all hover:bg-white hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -239,7 +265,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             </button>
 
             {/* Trust indicators — right below CTA */}
-            <div className="mt-3 flex items-center gap-5 text-[11px] font-medium text-white/70">
+            <div className="mt-4 flex items-center gap-5 text-[11px] font-medium text-white/70">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
@@ -256,8 +282,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
               </span>
             </div>
 
-            {/* Join link — same spacing as trust indicators */}
-            <div className="mt-3 flex items-center justify-center">
+            {/* Join link */}
+            <div className="mt-4 flex items-center justify-center">
               <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm px-5 py-1.5 text-[11px] font-medium text-white/70 transition-all hover:bg-white/20 hover:text-white">
                 <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 Are you a service provider? Join our network
@@ -275,27 +301,15 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
         </div>
       )}
 
-      {/* ══ REQUEST FORM ══ */}
+      {/* ══ TRACKING (only when active request) ══ */}
       {page === 'tracking' && !request && (
-        <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
-          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
-            <HeroIcon>
-              <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75" />
-              </svg>
-            </HeroIcon>
-            <div className="text-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">Request help</h1>
-              <p className="mt-1 text-sm text-[#64748B]">Select a service and we handle the rest.</p>
-            </div>
+        <div className="flex h-full items-center justify-center">
+          <div className="text-center">
+            <p className="text-sm text-[#64748B]">No active request.</p>
+            <button onClick={() => navigate('map')} className="mt-3 text-sm font-semibold text-[#8FB34A] hover:underline">Request a Pro</button>
           </div>
-          <section className="flex flex-1 flex-col items-center px-5 pb-28 pt-2 sm:px-8">
-            <IntakeForm onSubmit={onSubmit} />
-          </section>
         </div>
       )}
-
-      {/* ══ TRACKING ══ */}
       {page === 'tracking' && request && (
         <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
           <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
@@ -366,8 +380,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
               </svg>
             </HeroIcon>
             <div className="text-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">Nearby Pros</h1>
-              <p className="mt-1 text-sm text-[#64748B]">Find professionals near your location.</p>
+              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">Request a Pro</h1>
+              <p className="mt-1 text-sm text-[#64748B]">Find and call a pro near you.</p>
             </div>
           </div>
           {/* Mobile: full-bleed map, Desktop: padded */}
@@ -375,23 +389,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
         </div>
       )}
 
-      {/* ══ SEARCH ══ */}
-      {page === 'search' && (
-        <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
-          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
-            <HeroIcon>
-              <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-              </svg>
-            </HeroIcon>
-            <div className="text-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">Search</h1>
-              <p className="mt-1 text-sm text-[#64748B]">Find any service or issue instantly.</p>
-            </div>
-          </div>
-          <div className="flex-1 px-5 pb-28 sm:px-8"><SearchPage /></div>
-        </div>
-      )}
+
     </div>
   )
 }

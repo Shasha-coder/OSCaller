@@ -137,6 +137,40 @@ html {
 
 
 
+/* ── Glass light sweep on OS logo ── */
+@keyframes glass-sweep {
+  0% {
+    transform: translateX(-120%) rotate(25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(120%) rotate(25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(120%) rotate(25deg);
+    opacity: 0;
+  }
+}
+
+.animate-glass-sweep {
+  animation: glass-sweep 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  animation-delay: 1s;
+}
+
+@keyframes glass-shimmer {
+  0% { opacity: 0.12; }
+  50% { opacity: 0.22; }
+  100% { opacity: 0.12; }
+}
+
+.animate-glass-shimmer {
+  animation: glass-shimmer 3s ease-in-out infinite;
+}
+
 /* ── Services ticker ── */
 @keyframes ticker {
   0% { transform: translateX(0); }
