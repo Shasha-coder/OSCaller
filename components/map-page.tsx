@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload } from 'lucide-react'
 
 /* ─── Countries (3 supported, rest locked) ─── */
 const COUNTRIES = [
@@ -434,13 +434,18 @@ export function MapPage() {
               </button>
             )}
             {inputMode === 'photo' && (
-              <label className="flex items-center gap-2 w-full cursor-pointer">
-                <div className="flex items-center justify-center h-5 w-5 rounded-md border border-dashed border-[#CBD5E1] bg-[#F8FAFB]">
-                  <Camera className="h-3 w-3 text-[#94A3B8]" strokeWidth={2} />
-                </div>
-                <span className="text-[13px] font-semibold text-[#94A3B8]">Upload photo</span>
-                <input type="file" accept="image/*" capture="environment" className="hidden" />
-              </label>
+              <div className="flex items-center gap-1.5 w-full">
+                <label className="flex items-center gap-1.5 cursor-pointer rounded-full px-2.5 py-1 bg-[#F1F5F9] hover:bg-[#E2E8F0] transition-colors">
+                  <Upload className="h-3 w-3 text-[#64748B]" strokeWidth={2.5} />
+                  <span className="text-[12px] font-semibold text-[#475569]">Upload</span>
+                  <input type="file" accept="image/*" className="hidden" />
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer rounded-full px-2.5 py-1 bg-[#F1F5F9] hover:bg-[#E2E8F0] transition-colors">
+                  <Camera className="h-3 w-3 text-[#64748B]" strokeWidth={2.5} />
+                  <span className="text-[12px] font-semibold text-[#475569]">Take picture</span>
+                  <input type="file" accept="image/*" capture="environment" className="hidden" />
+                </label>
+              </div>
             )}
           </div>
         </div>
