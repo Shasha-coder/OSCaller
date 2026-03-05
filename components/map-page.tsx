@@ -63,18 +63,9 @@ export function MapPage() {
   }, [isLiveLocation])
 
   return (
-    <div className="flex flex-col h-full w-full p-4 gap-4 pb-[80px]">
+    <div className="flex flex-col h-full w-full p-4 gap-2 pb-[80px]">
 
-      {/* ─── Top Header Text ─── */}
-      <div className="flex flex-col items-center pt-2">
-        <h1 className="text-lg font-extrabold tracking-tight text-[#0F172A] leading-tight flex items-center gap-2">
-          OSCaller AI
-          <div className="flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[#8FB34A] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8FB34A]"></span>
-          </div>
-        </h1>
-      </div>
+
 
       {/* ─── Tiny Horizontal Filter Pills Row ─── */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 pb-1 -mx-4 px-4 scroll-smooth">

@@ -125,7 +125,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
                 isHomePage
-                  ? active ? 'text-white' : 'text-white/40 active:text-white/80'
+                  ? active ? 'text-white' : 'text-white/65 active:text-white/90'
                   : active ? 'text-[#8FB34A]' : 'text-[#94a3b8] active:text-[#64748b]'
               )}
             >

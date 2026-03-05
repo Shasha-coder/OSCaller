@@ -312,7 +312,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
       {/* ══ MAP ══ */}
       {page === 'map' && (
         <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
-          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
+          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-2 pt-10 sm:px-8">
             <HeroIcon>
               <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
