@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Search } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type } from 'lucide-react'
 
 /* ─── Countries (3 supported, rest locked) ─── */
 const COUNTRIES = [
@@ -126,10 +126,10 @@ function CountryPhoneInput({
   }, [open])
 
   return (
-    <div ref={triggerRef} className="relative shrink-0">
+    <div ref={triggerRef} className="relative shrink-0 w-[220px]">
       <div
         className={cn(
-          'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all duration-200',
+          'flex items-center h-[38px] w-full rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all duration-200',
           open ? 'border-[#8FB34A]/50 shadow-[0_0_0_3px_rgba(143,179,74,0.08)]' : 'border-[#E2E8F0]'
         )}
       >
@@ -140,7 +140,7 @@ function CountryPhoneInput({
           className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0] cursor-pointer shrink-0 outline-none"
         >
           <span className="text-[15px] leading-none">{selected.flag}</span>
-          <span className="text-[12px] font-semibold text-[#334155] w-[36px] text-center">{selected.dial}</span>
+          <span className="text-[12px] font-semibold text-[#334155] w-[40px] text-center tabular-nums">{selected.dial}</span>
           <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
         </button>
         <input
@@ -150,7 +150,7 @@ function CountryPhoneInput({
           value={phone}
           onChange={e => onPhoneChange(e.target.value)}
           placeholder="(555) 000-0000"
-          className="w-[110px] h-full bg-transparent text-[13px] font-semibold text-[#0F172A] pl-2 pr-2.5 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+          className="flex-1 min-w-0 h-full bg-transparent text-[13px] font-semibold text-[#0F172A] pl-2 pr-2.5 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
         />
       </div>
 
@@ -295,6 +295,8 @@ export function MapPage() {
   const [language, setLanguage] = useState('English')
   const [country, setCountry] = useState('CA')
   const [phone, setPhone] = useState('')
+  const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text')
+  const [isRecording, setIsRecording] = useState(false)
 
   const requestLocation = useCallback(() => {
     setLoading(true)
@@ -347,22 +349,100 @@ export function MapPage() {
         {/* Language */}
         <LanguageDropdown value={language} onChange={setLanguage} />
 
-        {/* Describe Problem */}
+        {/* Describe Problem - Multi-mode */}
         <div
           className={cn(
-            'flex items-center h-[38px] pl-3 pr-2 rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[200px] flex-1 max-w-[280px] transition-all duration-200',
+            'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[240px] flex-1 max-w-[340px] transition-all duration-200',
             'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
           )}
         >
-          <Search className="h-3.5 w-3.5 text-[#94A3B8] mr-2 shrink-0" strokeWidth={2.5} />
-          <input
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            type="text"
-            data-no-focus-ring
-            placeholder="Describe problem..."
-            className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
-          />
+          {/* Mode buttons */}
+          <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]">
+            <button
+              type="button"
+              data-no-focus-ring
+              onClick={() => { setInputMode('voice'); setIsRecording(false) }}
+              className={cn(
+                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
+                inputMode === 'voice'
+                  ? 'bg-[#8FB34A] text-white shadow-sm'
+                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
+              )}
+              aria-label="Voice input"
+            >
+              <Mic className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              data-no-focus-ring
+              onClick={() => setInputMode('photo')}
+              className={cn(
+                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
+                inputMode === 'photo'
+                  ? 'bg-[#8FB34A] text-white shadow-sm'
+                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
+              )}
+              aria-label="Photo input"
+            >
+              <Camera className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              data-no-focus-ring
+              onClick={() => setInputMode('text')}
+              className={cn(
+                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none mr-0.5',
+                inputMode === 'text'
+                  ? 'bg-[#8FB34A] text-white shadow-sm'
+                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
+              )}
+              aria-label="Text input"
+            >
+              <Type className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Input area */}
+          <div className="flex-1 min-w-0 h-full flex items-center px-2.5">
+            {inputMode === 'text' && (
+              <input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                type="text"
+                data-no-focus-ring
+                placeholder="Describe problem..."
+                className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+              />
+            )}
+            {inputMode === 'voice' && (
+              <button
+                type="button"
+                data-no-focus-ring
+                onClick={() => setIsRecording(r => !r)}
+                className="flex items-center gap-2 w-full outline-none"
+              >
+                <span className={cn(
+                  'relative flex h-5 w-5 items-center justify-center',
+                  isRecording && 'animate-pulse'
+                )}>
+                  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                  <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
+                </span>
+                <span className={cn('text-[13px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
+                  {isRecording ? 'Recording...' : 'Tap to speak'}
+                </span>
+              </button>
+            )}
+            {inputMode === 'photo' && (
+              <label className="flex items-center gap-2 w-full cursor-pointer">
+                <div className="flex items-center justify-center h-5 w-5 rounded-md border border-dashed border-[#CBD5E1] bg-[#F8FAFB]">
+                  <Camera className="h-3 w-3 text-[#94A3B8]" strokeWidth={2} />
+                </div>
+                <span className="text-[13px] font-semibold text-[#94A3B8]">Upload photo</span>
+                <input type="file" accept="image/*" capture="environment" className="hidden" />
+              </label>
+            )}
+          </div>
         </div>
 
         {/* Phone */}
@@ -404,7 +484,7 @@ export function MapPage() {
       </div>
 
       {/* ─── Map ─── */}
-      <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] border border-[#E2E8F0]/40 isolate min-h-[400px]">
+      <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.10),0_4px_16px_rgba(15,23,42,0.05),0_0_0_1px_rgba(226,232,240,0.6)] isolate min-h-[400px]">
         <GoogleMap
           center={coords || undefined}
           zoom={14}
