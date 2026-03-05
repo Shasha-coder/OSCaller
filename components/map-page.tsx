@@ -65,8 +65,9 @@ function FloatingDropdown({
   useEffect(() => {
     if (!open || !anchorRef.current) return
     const rect = anchorRef.current.getBoundingClientRect()
-    setPos({ top: rect.bottom + 6, left: rect.left })
-  }, [open, anchorRef])
+    const left = Math.min(rect.left, window.innerWidth - width - 12)
+    setPos({ top: rect.bottom + 6, left: Math.max(8, left) })
+  }, [open, anchorRef, width])
 
   if (!open) return null
 
@@ -126,22 +127,22 @@ function CountryPhoneInput({
   }, [open])
 
   return (
-    <div ref={triggerRef} className="relative shrink-0 w-[220px]">
+    <div ref={triggerRef} className="relative shrink-0 w-[200px]">
       <div
         className={cn(
-          'flex items-center h-[38px] w-full rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all duration-200',
-          open ? 'border-[#8FB34A]/50 shadow-[0_0_0_3px_rgba(143,179,74,0.08)]' : 'border-[#E2E8F0]'
+          'flex items-center h-[36px] w-full rounded-full bg-white/95 backdrop-blur-md border transition-all duration-200',
+          open ? 'border-[#8FB34A]/50 shadow-[0_0_0_3px_rgba(143,179,74,0.08)]' : 'border-white/60 shadow-sm'
         )}
       >
         <button
           type="button"
           data-no-focus-ring
           onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
-          className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0] cursor-pointer shrink-0 outline-none"
+          className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0]/60 cursor-pointer shrink-0 outline-none"
         >
-          <span className="text-[15px] leading-none">{selected.flag}</span>
-          <span className="text-[12px] font-semibold text-[#334155] w-[40px] text-center tabular-nums">{selected.dial}</span>
-          <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
+          <span className="text-[14px] leading-none">{selected.flag}</span>
+          <span className="text-[11px] font-semibold text-[#334155] w-[36px] text-center tabular-nums">{selected.dial}</span>
+          <ChevronDown className={cn('h-2.5 w-2.5 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
         </button>
         <input
           type="tel"
@@ -150,7 +151,7 @@ function CountryPhoneInput({
           value={phone}
           onChange={e => onPhoneChange(e.target.value)}
           placeholder="(555) 000-0000"
-          className="flex-1 min-w-0 h-full bg-transparent text-[13px] font-semibold text-[#0F172A] pl-2 pr-2.5 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+          className="flex-1 min-w-0 h-full bg-transparent text-[12px] font-semibold text-[#0F172A] pl-2 pr-2 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
         />
       </div>
 
@@ -237,18 +238,18 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
         data-no-focus-ring
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
         className={cn(
-          'flex items-center gap-1.5 h-[38px] px-3 rounded-full border text-[13px] font-semibold transition-all cursor-pointer outline-none',
+          'flex items-center gap-1.5 h-[36px] px-3 rounded-full border text-[12px] font-semibold transition-all cursor-pointer outline-none',
           open
             ? 'border-[#8FB34A] bg-white shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
-            : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm hover:border-[#CBD5E1] shadow-sm'
+            : 'border-white/60 bg-white/95 backdrop-blur-md hover:border-[#CBD5E1] shadow-sm'
         )}
       >
-        <svg className="h-4 w-4 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="h-3.5 w-3.5 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
         <span className="text-[#0F172A] whitespace-nowrap">{value}</span>
-        <ChevronDown className={cn('h-3.5 w-3.5 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
       </button>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={200}>
@@ -283,7 +284,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
 }
 
 /* ═══════════════════════════════════════════
-   MapPage
+   MapPage - Immersive mobile, classic desktop
    ═══════════════════════════════════════════ */
 export function MapPage() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -341,194 +342,321 @@ export function MapPage() {
   }, [isLiveLocation, requestLocation])
 
   return (
-    <div className="flex flex-col h-full w-full px-4 pt-2 pb-[80px] gap-2">
+    <div className="relative h-full w-full flex flex-col">
 
-      {/* ─── Filter Row ─── */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 -mx-4 px-4 pb-1">
+      {/* ─── MOBILE: Full-bleed immersive map ─── */}
+      <div className="flex flex-col h-full sm:hidden">
+        {/* Map takes full screen */}
+        <div className="relative flex-1 min-h-0">
+          <GoogleMap
+            center={coords || undefined}
+            zoom={14}
+            markers={markers}
+            className="h-full w-full"
+          />
 
-        {/* Language */}
-        <LanguageDropdown value={language} onChange={setLanguage} />
-
-        {/* Describe Problem - Multi-mode */}
-        <div
-          className={cn(
-            'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[240px] flex-1 max-w-[340px] transition-all duration-200',
-            'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
-          )}
-        >
-          {/* Mode buttons */}
-          <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]">
-            <button
-              type="button"
-              data-no-focus-ring
-              onClick={() => { setInputMode('voice'); setIsRecording(false) }}
-              className={cn(
-                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
-                inputMode === 'voice'
-                  ? 'bg-[#8FB34A] text-white shadow-sm'
-                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
-              )}
-              aria-label="Voice input"
-            >
-              <Mic className="h-3.5 w-3.5" strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              data-no-focus-ring
-              onClick={() => setInputMode('photo')}
-              className={cn(
-                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
-                inputMode === 'photo'
-                  ? 'bg-[#8FB34A] text-white shadow-sm'
-                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
-              )}
-              aria-label="Photo input"
-            >
-              <Camera className="h-3.5 w-3.5" strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              data-no-focus-ring
-              onClick={() => setInputMode('text')}
-              className={cn(
-                'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none mr-0.5',
-                inputMode === 'text'
-                  ? 'bg-[#8FB34A] text-white shadow-sm'
-                  : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]'
-              )}
-              aria-label="Text input"
-            >
-              <Type className="h-3.5 w-3.5" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Input area */}
-          <div className="flex-1 min-w-0 h-full flex items-center px-2.5">
-            {inputMode === 'text' && (
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                type="text"
-                data-no-focus-ring
-                placeholder="Describe problem..."
-                className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
-              />
-            )}
-            {inputMode === 'voice' && (
-              <button
-                type="button"
-                data-no-focus-ring
-                onClick={() => setIsRecording(r => !r)}
-                className="flex items-center gap-2 w-full outline-none"
-              >
-                <span className={cn(
-                  'relative flex h-5 w-5 items-center justify-center',
-                  isRecording && 'animate-pulse'
-                )}>
-                  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                  <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
-                </span>
-                <span className={cn('text-[13px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
-                  {isRecording ? 'Recording...' : 'Tap to speak'}
-                </span>
-              </button>
-            )}
-            {inputMode === 'photo' && (
-              <div className="flex items-center gap-3 w-full">
-                <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                  <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                  <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                  <input type="file" accept="image/*" className="hidden" />
-                </label>
-                <span className="text-[#CBD5E1] text-[10px]">|</span>
-                <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                  <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                  <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
-                  <input type="file" accept="image/*" capture="environment" className="hidden" />
-                </label>
+          {/* Floating header */}
+          <div className="absolute top-0 inset-x-0 z-10 pt-3 px-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-xl px-3 py-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white/60">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                <span className="text-[13px] font-bold text-[#0F172A]">Nearby Pros</span>
               </div>
-            )}
+
+              {/* GPS + Recenter */}
+              <div className="flex items-center gap-2">
+                <button
+                  data-no-focus-ring
+                  onClick={() => setIsLiveLocation(v => !v)}
+                  className={cn(
+                    'flex items-center gap-1.5 h-[34px] px-2.5 rounded-full border transition-all outline-none shadow-sm',
+                    isLiveLocation
+                      ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/90 backdrop-blur-md'
+                      : 'border-white/60 bg-white/90 backdrop-blur-md'
+                  )}
+                >
+                  <LocateFixed className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2.5} />
+                  <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
+                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px]' : 'translate-x-[2px]')} />
+                  </div>
+                </button>
+                <button
+                  data-no-focus-ring
+                  onClick={requestLocation}
+                  className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-white/90 backdrop-blur-xl shadow-sm border border-white/60 outline-none active:scale-95 transition-transform"
+                  aria-label="Recenter"
+                >
+                  {loading ? (
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#8FB34A]" />
+                  ) : (
+                    <LocateFixed className="h-3.5 w-3.5 text-[#334155]" strokeWidth={2.5} />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Error toast */}
+          {error && isLiveLocation && (
+            <div className="absolute top-14 left-3 right-3 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] justify-center">
+              <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <span className="truncate">{error}</span>
+            </div>
+          )}
+
+          {/* Status badge */}
+          {!loading && !error && (
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
+              <div className="flex items-center justify-center p-0.5 rounded-sm bg-[#8FB34A] text-white">
+                <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <span className="text-[11px] font-bold text-[#334155] tracking-wide uppercase">Track Pro On Map</span>
+            </div>
+          )}
         </div>
 
-        {/* Phone */}
-        <CountryPhoneInput
-          country={country}
-          onCountryChange={setCountry}
-          phone={phone}
-          onPhoneChange={setPhone}
-        />
-
-        {/* GPS Toggle */}
-        <button
-          type="button"
-          data-no-focus-ring
-          onClick={() => setIsLiveLocation(v => !v)}
-          className={cn(
-            'flex items-center gap-2 h-[38px] px-3 rounded-full border shadow-sm shrink-0 cursor-pointer transition-all outline-none',
-            isLiveLocation
-              ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/60'
-              : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm'
-          )}
-        >
-          <LocateFixed className={cn('h-4 w-4 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2.5} />
-          <span className="text-[13px] font-bold text-[#334155]">GPS</span>
-          <div className={cn('relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors duration-200 ml-0.5', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
-            <span className={cn('inline-block h-[14px] w-[14px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[14px]' : 'translate-x-[2px]')} />
+        {/* ─── Bottom floating panel with fields ─── */}
+        <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-[#E2E8F0]/40 px-3 pt-2.5 pb-[76px]">
+          {/* Row 1: Language + Describe Problem */}
+          <div className="flex items-center gap-2">
+            <LanguageDropdown value={language} onChange={setLanguage} />
+            <div
+              className={cn(
+                'flex items-center h-[36px] flex-1 min-w-0 rounded-full bg-white border transition-all duration-200',
+                'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
+              )}
+            >
+              <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]/60">
+                {(['voice', 'photo', 'text'] as const).map(mode => (
+                  <button
+                    key={mode}
+                    type="button"
+                    data-no-focus-ring
+                    onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
+                    className={cn(
+                      'flex items-center justify-center h-[26px] w-[26px] rounded-full transition-all duration-200 outline-none',
+                      inputMode === mode
+                        ? 'bg-[#8FB34A] text-white shadow-sm'
+                        : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]',
+                      mode === 'text' && 'mr-0.5'
+                    )}
+                    aria-label={`${mode} input`}
+                  >
+                    {mode === 'voice' && <Mic className="h-3 w-3" strokeWidth={2.5} />}
+                    {mode === 'photo' && <Camera className="h-3 w-3" strokeWidth={2.5} />}
+                    {mode === 'text' && <Type className="h-3 w-3" strokeWidth={2.5} />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1 min-w-0 h-full flex items-center px-2">
+                {inputMode === 'text' && (
+                  <input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    type="text"
+                    data-no-focus-ring
+                    placeholder="Describe problem..."
+                    className="w-full h-full bg-transparent text-[12px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+                  />
+                )}
+                {inputMode === 'voice' && (
+                  <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2 w-full outline-none">
+                    <span className={cn('relative flex h-4 w-4 items-center justify-center', isRecording && 'animate-pulse')}>
+                      {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                      <span className={cn('relative h-2 w-2 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
+                    </span>
+                    <span className={cn('text-[12px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
+                      {isRecording ? 'Recording...' : 'Tap to speak'}
+                    </span>
+                  </button>
+                )}
+                {inputMode === 'photo' && (
+                  <div className="flex items-center gap-3 w-full">
+                    <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                      <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                      <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                      <input type="file" accept="image/*" className="hidden" />
+                    </label>
+                    <span className="text-[#CBD5E1] text-[10px]">|</span>
+                    <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                      <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                      <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
+                      <input type="file" accept="image/*" capture="environment" className="hidden" />
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </button>
 
-        {/* Aria Button */}
-        <button
-          type="button"
-          data-no-focus-ring
-          className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none"
-        >
-          <Phone className="h-4 w-4" strokeWidth={2.5} />
-          Aria
-        </button>
+          {/* Row 2: Phone + Aria */}
+          <div className="flex items-center gap-2 mt-2">
+            <CountryPhoneInput
+              country={country}
+              onCountryChange={setCountry}
+              phone={phone}
+              onPhoneChange={setPhone}
+            />
+            <button
+              type="button"
+              data-no-focus-ring
+              className="flex-1 flex items-center justify-center gap-1.5 h-[36px] rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] transition-all hover:bg-[#7da33f] active:scale-[0.97] outline-none"
+            >
+              <Phone className="h-3.5 w-3.5" strokeWidth={2.5} />
+              Aria
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* ─── Map ─── */}
-      <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.10),0_4px_16px_rgba(15,23,42,0.05),0_0_0_1px_rgba(226,232,240,0.6)] isolate min-h-[400px]">
-        <GoogleMap
-          center={coords || undefined}
-          zoom={14}
-          markers={markers}
-          className="h-full w-full object-cover"
-        />
+      {/* ─── DESKTOP: Classic layout ─── */}
+      <div className="hidden sm:flex sm:flex-col sm:h-full sm:gap-2">
+        {/* Filter Row */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 pb-1">
+          <LanguageDropdown value={language} onChange={setLanguage} />
 
-        {/* Status badge */}
-        {!loading && !error && (
-          <div className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50">
-            <div className="flex items-center justify-center p-0.5 rounded-sm bg-[#8FB34A] text-white">
-              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          {/* Describe Problem */}
+          <div
+            className={cn(
+              'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[240px] flex-1 max-w-[340px] transition-all duration-200',
+              'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
+            )}
+          >
+            <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]">
+              {(['voice', 'photo', 'text'] as const).map(mode => (
+                <button
+                  key={mode}
+                  type="button"
+                  data-no-focus-ring
+                  onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
+                  className={cn(
+                    'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
+                    inputMode === mode
+                      ? 'bg-[#8FB34A] text-white shadow-sm'
+                      : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]',
+                    mode === 'text' && 'mr-0.5'
+                  )}
+                  aria-label={`${mode} input`}
+                >
+                  {mode === 'voice' && <Mic className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                  {mode === 'photo' && <Camera className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                  {mode === 'text' && <Type className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                </button>
+              ))}
             </div>
-            <span className="text-[12px] font-bold text-[#334155] tracking-wide uppercase">Track Pro On Map</span>
+            <div className="flex-1 min-w-0 h-full flex items-center px-2.5">
+              {inputMode === 'text' && (
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  type="text"
+                  data-no-focus-ring
+                  placeholder="Describe problem..."
+                  className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+                />
+              )}
+              {inputMode === 'voice' && (
+                <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2 w-full outline-none">
+                  <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
+                    {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                    <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
+                  </span>
+                  <span className={cn('text-[13px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
+                    {isRecording ? 'Recording...' : 'Tap to speak'}
+                  </span>
+                </button>
+              )}
+              {inputMode === 'photo' && (
+                <div className="flex items-center gap-3 w-full">
+                  <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                    <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                    <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                    <input type="file" accept="image/*" className="hidden" />
+                  </label>
+                  <span className="text-[#CBD5E1] text-[10px]">|</span>
+                  <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                    <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                    <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
+                    <input type="file" accept="image/*" capture="environment" className="hidden" />
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Error */}
-        {error && isLiveLocation && (
-          <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-4 py-2 text-[12px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] w-11/12 max-w-sm justify-center">
-            <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <span className="truncate">{error}</span>
-          </div>
-        )}
+          <CountryPhoneInput country={country} onCountryChange={setCountry} phone={phone} onPhoneChange={setPhone} />
 
-        {/* Recenter button */}
-        <button
-          data-no-focus-ring
-          onClick={requestLocation}
-          className="absolute top-5 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50 transition-transform hover:scale-105 active:scale-95 text-[#334155] outline-none"
-          aria-label="Use my current GPS location"
-        >
-          {loading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-[2.5px] border-[#E2E8F0] border-t-[#8FB34A]" />
-          ) : (
-            <LocateFixed className="h-4 w-4" strokeWidth={2.5} />
+          {/* GPS Toggle */}
+          <button
+            type="button"
+            data-no-focus-ring
+            onClick={() => setIsLiveLocation(v => !v)}
+            className={cn(
+              'flex items-center gap-2 h-[38px] px-3 rounded-full border shadow-sm shrink-0 cursor-pointer transition-all outline-none',
+              isLiveLocation
+                ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/60'
+                : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm'
+            )}
+          >
+            <LocateFixed className={cn('h-4 w-4 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2.5} />
+            <span className="text-[13px] font-bold text-[#334155]">GPS</span>
+            <div className={cn('relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors duration-200 ml-0.5', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
+              <span className={cn('inline-block h-[14px] w-[14px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[14px]' : 'translate-x-[2px]')} />
+            </div>
+          </button>
+
+          {/* Aria Button */}
+          <button
+            type="button"
+            data-no-focus-ring
+            className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none"
+          >
+            <Phone className="h-4 w-4" strokeWidth={2.5} />
+            Aria
+          </button>
+        </div>
+
+        {/* Map */}
+        <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.10),0_4px_16px_rgba(15,23,42,0.05),0_0_0_1px_rgba(226,232,240,0.6)] isolate min-h-[400px]">
+          <GoogleMap
+            center={coords || undefined}
+            zoom={14}
+            markers={markers}
+            className="h-full w-full object-cover"
+          />
+
+          {!loading && !error && (
+            <div className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50">
+              <div className="flex items-center justify-center p-0.5 rounded-sm bg-[#8FB34A] text-white">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <span className="text-[12px] font-bold text-[#334155] tracking-wide uppercase">Track Pro On Map</span>
+            </div>
           )}
-        </button>
+
+          {error && isLiveLocation && (
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-4 py-2 text-[12px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] w-11/12 max-w-sm justify-center">
+              <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <span className="truncate">{error}</span>
+            </div>
+          )}
+
+          <button
+            data-no-focus-ring
+            onClick={requestLocation}
+            className="absolute top-5 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50 transition-transform hover:scale-105 active:scale-95 text-[#334155] outline-none"
+            aria-label="Use my current GPS location"
+          >
+            {loading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-[2.5px] border-[#E2E8F0] border-t-[#8FB34A]" />
+            ) : (
+              <LocateFixed className="h-4 w-4" strokeWidth={2.5} />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
