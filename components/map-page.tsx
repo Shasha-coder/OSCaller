@@ -361,7 +361,7 @@ export function MapPage() {
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
         {/* Map takes most of the screen, leaves room for bottom panel */}
-        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-220px)]">
+        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-180px)]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
