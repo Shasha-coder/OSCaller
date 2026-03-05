@@ -87,13 +87,13 @@ export function MapPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Describe your emergency... (e.g. basement flooding)"
-            className="w-full h-14 pl-12 pr-4 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-200 text-[#0F172A] font-medium text-[15px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8FB34A]/50 transition-all"
+            className="w-full h-12 pl-12 pr-4 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-200 text-[#0F172A] font-medium text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8FB34A]/50 transition-all"
           />
         </div>
       </div>
 
       {/* GPS Location Toggle Bar */}
-      <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+      <div className="flex items-center justify-between bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-3">
           {/* Toggle Switch */}
           <button
@@ -141,7 +141,7 @@ export function MapPage() {
       )}
 
       {/* Map Container */}
-      <div className="relative flex-1 min-h-[50vh] w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.08)] border border-slate-200/50 mt-2">
+      <div className="relative flex-1 min-h-[60vh] w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.08)] border border-slate-200/50 mt-2">
         <GoogleMap
           center={coords || undefined}
           zoom={14}
