@@ -15,6 +15,7 @@ import { SupportPage } from '@/components/support-page'
 import { MapPage } from '@/components/map-page'
 import { SearchPage } from '@/components/search-page'
 import { ServicePageBackground } from '@/components/service-bg-art'
+import { supabase } from '@/lib/supabase'
 
 const PAGE_ORDER: AppPage[] = ['home', 'tracking', 'history', 'support', 'map', 'search']
 
@@ -22,6 +23,24 @@ export default function Root() {
   const [active, setActive] = useState<AppPage>('home')
   const [request, setRequest] = useState<ServiceRequest | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [hasHistory, setHasHistory] = useState(false)
+
+  /* Check if user has any history */
+  useEffect(() => {
+    async function checkHistory() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { count } = await supabase
+          .from('service_requests')
+          .select('id', { count: 'exact', head: true })
+          .eq('customer_id', user.id)
+          .in('status', ['completed', 'cancelled', 'disputed'])
+        setHasHistory((count ?? 0) > 0)
+      } catch {}
+    }
+    checkHistory()
+  }, [])
 
   const enterRef = useRef<HTMLDivElement>(null)
   const exitRef = useRef<HTMLDivElement>(null)
@@ -147,7 +166,7 @@ export default function Root() {
 
       {/* Sidebar always on top */}
       <div className="pointer-events-none absolute inset-0 z-50">
-        <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} />
+        <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} hasHistory={hasHistory} />
       </div>
     </div>
   )
@@ -235,11 +254,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               Request a Pro Now
             </button>
 
-          </div>
-
-          {/* Trust indicators */}
-          <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-3 px-4">
-            <div className="flex items-center gap-5 text-[11px] font-medium text-white/70">
+            {/* Trust indicators — right below CTA */}
+            <div className="mt-4 flex items-center gap-5 text-[11px] font-medium text-white/70">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
@@ -255,6 +271,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
                 Licensed Pros
               </span>
             </div>
+
           </div>
 
           {/* Services ticker + Join link — above mobile nav bar */}
