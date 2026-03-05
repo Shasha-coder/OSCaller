@@ -82,7 +82,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                 active
                   ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
-                  : 'text-[#94a3b8] hover:bg-[#f1f5f0] hover:text-[#64748b]'
+                  : 'text-[#64748b] hover:bg-[#f1f5f0] hover:text-[#475569]'
               )}
             >
               {/* Active indicator dot */}
@@ -125,8 +125,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               className={cn(
                 'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
                 isHomePage
-                  ? active ? 'text-white' : 'text-white/65 active:text-white/90'
-                  : active ? 'text-[#8FB34A]' : 'text-[#94a3b8] active:text-[#64748b]'
+                  ? active ? 'text-white' : 'text-white/80 active:text-white/95'
+                  : active ? 'text-[#8FB34A]' : 'text-[#64748b] active:text-[#475569]'
               )}
             >
               <div className="relative">

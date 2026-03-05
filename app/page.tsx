@@ -239,7 +239,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
 
           {/* Trust indicators */}
           <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-3 px-4">
-            <div className="flex items-center gap-5 text-[11px] font-medium text-white/50">
+            <div className="flex items-center gap-5 text-[11px] font-medium text-white/70">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
