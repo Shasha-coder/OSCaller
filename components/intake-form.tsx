@@ -217,7 +217,8 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
   const canSubmit =
     form.address.trim().length > 0 &&
     form.service !== null &&
-    form.emergencyLevel !== null
+    form.emergencyLevel !== null &&
+    form.consent
 
   const handleSubmit = () => {
     if (canSubmit) onSubmit(form)
@@ -250,11 +251,11 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Phone</label>
             <div className="relative">
               <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-              <Input type="tel" placeholder="(555) 123-4567" value={form.phone || ''} onChange={e => update('phone' as any, e.target.value)} autoComplete="tel"
+              <Input type="tel" placeholder="(555) 123-4567" value={form.phone} onChange={e => update('phone', e.target.value)} autoComplete="tel"
                 className="h-12 rounded-2xl border-border/60 bg-muted/40 pl-9 text-sm font-medium placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/30" />
             </div>
           </div>
-          <LanguageDropdown value={form.language || 'English'} onChange={v => update('language' as any, v)} />
+          <LanguageDropdown value={form.language} onChange={v => update('language', v)} />
         </div>
 
         {/* Service selection -- polished cards */}
@@ -361,6 +362,22 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
             rows={2}
             className="resize-none rounded-2xl text-sm bg-muted/40 border-border/60 placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-primary/30"
           />
+        </div>
+
+        {/* Consent Checkbox */}
+        <div className="mb-6 flex items-start gap-3">
+          <div className="flex h-5 items-center">
+            <input
+              id="consent"
+              type="checkbox"
+              checked={form.consent}
+              onChange={(e) => update('consent', e.target.checked)}
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40 cursor-pointer"
+            />
+          </div>
+          <label htmlFor="consent" className="text-xs leading-tight text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+            I agree to the <a href="/terms" className="underline hover:text-primary transition-colors">Terms of Service</a> and <a href="/privacy" className="underline hover:text-primary transition-colors">Privacy Policy</a>, and I consent to being contacted at the phone number provided above via SMS and voice calls.
+          </label>
         </div>
 
         {/* CTA */}

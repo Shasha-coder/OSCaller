@@ -28,6 +28,9 @@ export interface RequestFormData {
   service: ServiceType | null
   emergencyLevel: EmergencyLevel | null
   description: string
+  phone: string
+  language: string
+  consent: boolean
 }
 
 export interface Provider {
@@ -85,5 +88,8 @@ export function createEmptyForm(): RequestFormData {
     service: null,
     emergencyLevel: null,
     description: '',
+    phone: '',
+    language: 'English',
+    consent: false,
   }
 }
