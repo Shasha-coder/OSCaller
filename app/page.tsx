@@ -15,7 +15,6 @@ import { SupportPage } from '@/components/support-page'
 import { MapPage } from '@/components/map-page'
 import { SearchPage } from '@/components/search-page'
 import { ServicePageBackground } from '@/components/service-bg-art'
-import { supabase } from '@/lib/supabase'
 
 const PAGE_ORDER: AppPage[] = ['home', 'tracking', 'history', 'support', 'map', 'search']
 
@@ -23,24 +22,7 @@ export default function Root() {
   const [active, setActive] = useState<AppPage>('home')
   const [request, setRequest] = useState<ServiceRequest | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [hasHistory, setHasHistory] = useState(false)
-
-  /* Check if user has any history */
-  useEffect(() => {
-    async function checkHistory() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
-        const { count } = await supabase
-          .from('service_requests')
-          .select('id', { count: 'exact', head: true })
-          .eq('customer_id', user.id)
-          .in('status', ['completed', 'cancelled', 'disputed'])
-        setHasHistory((count ?? 0) > 0)
-      } catch {}
-    }
-    checkHistory()
-  }, [])
+  const [historyHasData, setHistoryHasData] = useState<boolean | null>(null)
 
   const enterRef = useRef<HTMLDivElement>(null)
   const exitRef = useRef<HTMLDivElement>(null)
@@ -150,7 +132,7 @@ export default function Root() {
           className="absolute inset-0"
           style={{ zIndex: 1, willChange: 'transform, opacity' }}
         >
-          <PageContent page={exitPage} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} />
+          <PageContent page={exitPage} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} />
         </div>
       )}
 
@@ -161,12 +143,12 @@ export default function Root() {
         className="absolute inset-0"
         style={{ zIndex: 2, willChange: 'transform, opacity' }}
       >
-        <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} />
+        <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} />
       </div>
 
       {/* Sidebar always on top */}
       <div className="pointer-events-none absolute inset-0 z-50">
-        <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} hasHistory={hasHistory} />
+        <AppSidebar currentPage={active} onNavigate={navigate} isHomePage={active === 'home'} />
       </div>
     </div>
   )
@@ -182,12 +164,14 @@ function HeroIcon({ children }: { children: React.ReactNode }) {
 }
 
 // ─── Page content renderer ───────────────────────────────────
-function PageContent({ page, request, navigate, onSubmit, onCancel }: {
+function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasData, onHistoryDataLoaded }: {
   page: AppPage
   request: ServiceRequest | null
   navigate: (p: AppPage) => void
   onSubmit: (f: RequestFormData) => void
   onCancel: () => void
+  historyHasData: boolean | null
+  onHistoryDataLoaded: (v: boolean) => void
 }) {
   const isHome = page === 'home'
 
@@ -255,7 +239,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
             </button>
 
             {/* Trust indicators — right below CTA */}
-            <div className="mt-4 flex items-center gap-5 text-[11px] font-medium text-white/70">
+            <div className="mt-3 flex items-center gap-5 text-[11px] font-medium text-white/70">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
@@ -272,16 +256,18 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               </span>
             </div>
 
-          </div>
-
-          {/* Services ticker + Join link — above mobile nav bar */}
-          <div className="relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
-            <div className="mb-2 flex items-center justify-center px-4">
+            {/* Join link — same spacing as trust indicators */}
+            <div className="mt-3 flex items-center justify-center">
               <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm px-5 py-1.5 text-[11px] font-medium text-white/70 transition-all hover:bg-white/20 hover:text-white">
                 <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 Are you a service provider? Join our network
               </a>
             </div>
+
+          </div>
+
+          {/* Services ticker — above mobile nav bar */}
+          <div className="relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
             <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>
@@ -333,18 +319,20 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
       {/* ══ HISTORY ══ */}
       {page === 'history' && (
         <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
-          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
-            <HeroIcon>
-              <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" />
-              </svg>
-            </HeroIcon>
-            <div className="text-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">History</h1>
-              <p className="mt-1 text-sm text-[#64748B]">Your past requests and receipts.</p>
+          {historyHasData && (
+            <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
+              <HeroIcon>
+                <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" />
+                </svg>
+              </HeroIcon>
+              <div className="text-center">
+                <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">History</h1>
+                <p className="mt-1 text-sm text-[#64748B]">Your past requests and receipts.</p>
+              </div>
             </div>
-          </div>
-          <div className="flex-1 px-5 pb-28 sm:px-8"><HistoryPage /></div>
+          )}
+          <div className={cn('flex-1 px-5 pb-28 sm:px-8', !historyHasData && 'flex items-center justify-center')}><HistoryPage onDataLoaded={onHistoryDataLoaded} /></div>
         </div>
       )}
 

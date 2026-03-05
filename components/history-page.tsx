@@ -79,7 +79,7 @@ function HistoryCard({ item }: { item: HistoryItem }) {
   )
 }
 
-export function HistoryPage() {
+export function HistoryPage({ onDataLoaded }: { onDataLoaded?: (hasData: boolean) => void }) {
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -120,8 +120,10 @@ export function HistoryPage() {
         }))
 
         setHistory(items)
+        onDataLoaded?.(items.length > 0)
       } catch (err) {
         console.error('[v0] History fetch exception:', err)
+        onDataLoaded?.(false)
       } finally {
         setLoading(false)
       }
