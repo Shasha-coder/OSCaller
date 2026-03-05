@@ -19,6 +19,7 @@ export function MapPage() {
   const [error, setError] = useState<string | null>(null)
   const [markers, setMarkers] = useState<MapMarker[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [isLiveLocation, setIsLiveLocation] = useState(true) // Track toggle state
 
   const requestLocation = () => {
     setLoading(true)
@@ -59,17 +60,25 @@ export function MapPage() {
     )
   }
 
+  // Effect to handle toggling live location
   useEffect(() => {
-    requestLocation()
-  }, [])
+    if (isLiveLocation) {
+      requestLocation()
+    } else {
+      // If toggled off, reset to a default or keep last known but stop tracking
+      setLoading(false)
+      setError(null)
+      // We keep the current coords, but we could also clear them.
+    }
+  }, [isLiveLocation])
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4 relative flex flex-col h-full">
-      {/* Search Header Overlay */}
-      <div className="relative z-10 -mb-2">
+    <div className="mx-auto w-full max-w-2xl space-y-4 relative flex flex-col h-full pt-2">
+      {/* Search Bar - No negative overlap margins */}
+      <div className="relative z-10">
         <label htmlFor="service-search" className="sr-only">Which home service?</label>
         <div className="relative flex items-center w-full">
-          <div className="absolute left-4 flex items-center justify-center h-full">
+          <div className="absolute left-4 flex items-center justify-center h-full pointer-events-none">
             <Search className="h-5 w-5 text-slate-400" />
           </div>
           <input
@@ -77,31 +86,56 @@ export function MapPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Which home service?"
-            className="w-full h-14 pl-12 pr-4 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-slate-100 text-[#0F172A] font-semibold text-lg placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8FB34A]/50 transition-all"
+            placeholder="Describe your emergency... (e.g. basement flooding)"
+            className="w-full h-14 pl-12 pr-4 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-200 text-[#0F172A] font-medium text-[15px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8FB34A]/50 transition-all"
           />
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={cn(
-            'h-2.5 w-2.5 rounded-full',
-            loading ? 'bg-amber-400 animate-pulse' : 'bg-[#8FB34A]'
-          )} />
-          <span className="text-sm font-semibold text-[#0F172A]">
-            {loading ? 'Getting your location…' : 'Live location'}
-          </span>
+
+      {/* GPS Location Toggle Bar */}
+      <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-3">
+          {/* Toggle Switch */}
+          <button
+            onClick={() => setIsLiveLocation(!isLiveLocation)}
+            className={cn(
+              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8FB34A] focus-visible:ring-offset-2",
+              isLiveLocation ? "bg-[#8FB34A]" : "bg-slate-200"
+            )}
+            role="switch"
+            aria-checked={isLiveLocation}
+          >
+            <span className="sr-only">Enable live location tracking</span>
+            <span
+              className={cn(
+                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                isLiveLocation ? "translate-x-6" : "translate-x-1"
+              )}
+            />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-[#0F172A] leading-tight flex items-center gap-2">
+              Share Live Location
+              {loading && <div className="h-3 w-3 animate-spin rounded-full border border-slate-300 border-t-[#8FB34A]" />}
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium">
+              {isLiveLocation ? 'AI agent has real-time access' : 'Location sharing paused'}
+            </span>
+          </div>
         </div>
-        {coords && !loading && (
-          <span className="rounded-xl bg-[#EAF4D8] px-3 py-1.5 text-[11px] font-semibold text-[#5a8a1a]">
-            {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
-          </span>
+
+        {coords && isLiveLocation && !loading && !error && (
+          <div className="flex items-center gap-1.5 rounded-lg bg-[#EAF4D8]/50 px-2.5 py-1 text-[10px] font-semibold text-[#5a8a1a] border border-[#8FB34A]/20">
+            <LocateFixed className="h-3 w-3" />
+            Active
+          </div>
         )}
       </div>
 
       {/* Error notice */}
-      {error && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+      {error && isLiveLocation && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] font-medium text-amber-800 flex items-center gap-2 shadow-sm">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
           {error}
         </div>
       )}
