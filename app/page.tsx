@@ -150,25 +150,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
           {/* Animated background — replaces static bg1.webp */}
           <HeroBackground />
 
-          {/* Top trust indicators */}
-          <div className="relative z-10 flex items-center justify-center gap-5 pt-[max(env(safe-area-inset-top),12px)] pb-2 px-6 text-[11px] font-medium text-white/50">
-            <span className="flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-              24/7
-            </span>
-            <span className="h-3 w-px bg-white/20" />
-            <span className="flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-              GPS Tracked
-            </span>
-            <span className="h-3 w-px bg-white/20" />
-            <span className="flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              Licensed Pros
-            </span>
-          </div>
-
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
             <div className="flex flex-col items-center">
               {/* Logo with refined glassmorphism */}
               <div
@@ -208,13 +190,31 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
             {/* CTA button */}
             <button
               onClick={() => navigate('tracking')}
-              className="mt-8 flex items-center gap-2.5 rounded-2xl bg-white/85 backdrop-blur-sm px-8 py-3.5 font-bold text-[#3a5e10] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all hover:bg-white hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+              className="mt-6 flex items-center gap-2.5 rounded-2xl bg-white/85 backdrop-blur-sm px-8 py-3.5 font-bold text-[#3a5e10] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all hover:bg-white hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
               Request a Pro Now
             </button>
+
+            {/* Trust indicators */}
+            <div className="mt-5 flex items-center gap-5 text-[11px] font-medium text-white/50">
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                24/7
+              </span>
+              <span className="h-3 w-px bg-white/20" />
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                GPS Tracked
+              </span>
+              <span className="h-3 w-px bg-white/20" />
+              <span className="flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                Licensed Pros
+              </span>
+            </div>
           </div>
 
           {/* Services ticker + Join link — above mobile nav bar */}
