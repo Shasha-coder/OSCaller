@@ -311,8 +311,9 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
 
       {/* ══ MAP ══ */}
       {page === 'map' && (
-        <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
-          <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-2 pt-10 sm:px-8">
+        <div className="flex h-full flex-col overflow-hidden lg:pr-[80px]">
+          {/* Desktop header -- hidden on mobile */}
+          <div className="hidden sm:flex shrink-0 flex-col items-center gap-3 px-5 pb-2 pt-10 sm:px-8">
             <HeroIcon>
               <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -324,7 +325,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               <p className="mt-1 text-sm text-[#64748B]">Find professionals near your location.</p>
             </div>
           </div>
-          <div className="flex-1 px-5 pb-28 sm:px-8"><MapPage /></div>
+          {/* Mobile: full-bleed map, Desktop: padded */}
+          <div className="flex-1 min-h-0 sm:px-5 sm:pb-28 sm:pt-0"><MapPage /></div>
         </div>
       )}
 
