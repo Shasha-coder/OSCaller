@@ -150,7 +150,25 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
           {/* Animated background — replaces static bg1.webp */}
           <HeroBackground />
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-40 sm:pb-44 lg:pb-28 pt-12">
+          {/* Top trust indicators */}
+          <div className="relative z-10 flex items-center justify-center gap-5 pt-[max(env(safe-area-inset-top),12px)] pb-2 px-6 text-[11px] font-medium text-white/50">
+            <span className="flex items-center gap-1">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+              24/7
+            </span>
+            <span className="h-3 w-px bg-white/20" />
+            <span className="flex items-center gap-1">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+              GPS Tracked
+            </span>
+            <span className="h-3 w-px bg-white/20" />
+            <span className="flex items-center gap-1">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              Licensed Pros
+            </span>
+          </div>
+
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
             <div className="flex flex-col items-center">
               {/* Logo with refined glassmorphism */}
               <div
@@ -197,35 +215,17 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               </svg>
               Request a Pro Now
             </button>
-
-            {/* Trust indicators */}
-            <div className="mt-6 flex items-center gap-5 text-[11px] font-medium text-white/50">
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-                24/7
-              </span>
-              <span className="h-3 w-px bg-white/20" />
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                GPS Tracked
-              </span>
-              <span className="h-3 w-px bg-white/20" />
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                Licensed Pros
-              </span>
-            </div>
           </div>
 
           {/* Services ticker + Join link — above mobile nav bar */}
-          <div className="absolute bottom-0 left-0 right-0 z-10">
+          <div className="relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
             <div className="mb-2 flex items-center justify-center px-4">
               <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm px-5 py-1.5 text-[11px] font-medium text-white/70 transition-all hover:bg-white/20 hover:text-white">
                 <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                Are you a service provider? Join our network →
+                Are you a service provider? Join our network
               </a>
             </div>
-            <div className="pb-[80px] lg:pb-0">
+            <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>
           </div>
