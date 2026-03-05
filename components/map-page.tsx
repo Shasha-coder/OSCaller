@@ -72,8 +72,21 @@ function FloatingDropdown({
 
   return createPortal(
     <div
-      style={{ position: 'fixed', top: pos.top, left: pos.left, width, zIndex: 9999 }}
+      style={{
+        position: 'fixed',
+        top: pos.top,
+        left: pos.left,
+        width,
+        zIndex: 9999,
+        animation: 'dropdownIn 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
     >
+      <style>{`
+        @keyframes dropdownIn {
+          from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
       {children}
     </div>,
     document.body
@@ -116,8 +129,8 @@ function CountryPhoneInput({
     <div ref={triggerRef} className="relative shrink-0">
       <div
         className={cn(
-          'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all',
-          open ? 'border-[#8FB34A] shadow-[0_0_0_3px_rgba(143,179,74,0.10)]' : 'border-[#E2E8F0]'
+          'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all duration-200',
+          open ? 'border-[#8FB34A]/50 shadow-[0_0_0_3px_rgba(143,179,74,0.08)]' : 'border-[#E2E8F0]'
         )}
       >
         <button
@@ -127,7 +140,7 @@ function CountryPhoneInput({
           className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0] cursor-pointer shrink-0 outline-none"
         >
           <span className="text-[15px] leading-none">{selected.flag}</span>
-          <span className="text-[12px] font-semibold text-[#334155]">{selected.dial}</span>
+          <span className="text-[12px] font-semibold text-[#334155] w-[36px] text-center">{selected.dial}</span>
           <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
         </button>
         <input
@@ -337,8 +350,8 @@ export function MapPage() {
         {/* Describe Problem */}
         <div
           className={cn(
-            'flex items-center h-[38px] pl-3 pr-2 rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[200px] flex-1 max-w-[280px] transition-all',
-            'border-[#E2E8F0] focus-within:border-[#8FB34A] focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
+            'flex items-center h-[38px] pl-3 pr-2 rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[200px] flex-1 max-w-[280px] transition-all duration-200',
+            'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
           )}
         >
           <Search className="h-3.5 w-3.5 text-[#94A3B8] mr-2 shrink-0" strokeWidth={2.5} />
@@ -391,7 +404,7 @@ export function MapPage() {
       </div>
 
       {/* ─── Map ─── */}
-      <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-[#E2E8F0]/60 isolate min-h-[400px]">
+      <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] border border-[#E2E8F0]/40 isolate min-h-[400px]">
         <GoogleMap
           center={coords || undefined}
           zoom={14}
