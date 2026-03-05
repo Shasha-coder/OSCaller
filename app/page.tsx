@@ -66,9 +66,11 @@ export default function Root() {
     return () => { tl.kill() }
   }, [isAnimating, active])
 
-  const handleSubmit = useCallback((form: RequestFormData) => {
+  const handleSubmit = useCallback(async (form: RequestFormData) => {
+    // Optimistically navigate to tracking
+    const tempId = `req-${Date.now()}`
     setRequest({
-      id: `req-${Date.now()}`,
+      id: tempId,
       form,
       status: 'submitted',
       timeline: [],
@@ -76,6 +78,41 @@ export default function Root() {
       paymentStatus: 'none',
     })
     navigate('tracking')
+
+    try {
+      // 1. Persist to Supabase
+      const res = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: form.address,
+          lat: form.lat || null,
+          lng: form.lng || null,
+          is_apartment: form.isApartment || false,
+          building_name: form.buildingName || null,
+          unit_number: form.unitNumber || null,
+          entry_instructions: form.entryInstructions || null,
+          service: form.service,
+          emergency_level: form.emergencyLevel,
+          description: form.description || '',
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const realId = data.request?.id || tempId
+        setRequest(prev => prev ? { ...prev, id: realId } : prev)
+
+        // 2. Trigger dispatch to find a provider
+        fetch('/api/dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requestId: realId }),
+        }).catch(() => {})
+      }
+    } catch {
+      // Request is already saved optimistically -- tracking page will poll for updates
+    }
   }, [navigate])
 
   const handleCancel = useCallback(() => {
@@ -198,8 +235,11 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               Request a Pro Now
             </button>
 
-            {/* Trust indicators */}
-            <div className="mt-3 mb-4 flex items-center gap-5 text-[11px] font-medium text-white/50">
+          </div>
+
+          {/* Trust indicators */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-3 px-4">
+            <div className="flex items-center gap-5 text-[11px] font-medium text-white/50">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7

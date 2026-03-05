@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Clock, ChevronRight, Droplets, Zap, Thermometer, KeyRound, Home, Bug, Wrench, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 const SERVICE_ICON_MAP: Record<string, typeof Droplets> = {
   plumbing: Droplets,
@@ -24,16 +26,28 @@ interface HistoryItem {
   provider: string
 }
 
-const MOCK_HISTORY: HistoryItem[] = [
-  { id: '1', service: 'plumbing', address: '123 Main St, Apt 4B', date: 'Feb 28, 2026', status: 'completed', amount: '$185', provider: 'Peter M.' },
-  { id: '2', service: 'electrical', address: '456 Oak Ave', date: 'Feb 20, 2026', status: 'completed', amount: '$120', provider: 'Sarah K.' },
-  { id: '3', service: 'locksmith', address: '789 Pine Rd', date: 'Feb 12, 2026', status: 'cancelled', amount: '$0', provider: '-' },
-]
-
 const STATUS_STYLES: Record<string, string> = {
   completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-muted text-muted-foreground',
   disputed: 'bg-destructive/10 text-destructive',
+}
+
+function HistorySkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-lg space-y-3">
+      <div className="h-3 w-24 rounded bg-muted animate-pulse mb-4" />
+      {[1, 2, 3].map(i => (
+        <div key={i} className="flex w-full items-center gap-4 rounded-2xl bg-card p-4 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+          <div className="h-12 w-12 rounded-xl bg-muted animate-pulse" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3.5 w-28 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-40 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-32 rounded bg-muted animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function HistoryCard({ item }: { item: HistoryItem }) {
@@ -66,7 +80,59 @@ function HistoryCard({ item }: { item: HistoryItem }) {
 }
 
 export function HistoryPage() {
-  if (MOCK_HISTORY.length === 0) {
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+          setLoading(false)
+          return
+        }
+
+        // Fetch completed/cancelled service requests for this user
+        const { data, error } = await supabase
+          .from('service_requests')
+          .select('*')
+          .eq('customer_id', user.id)
+          .in('status', ['completed', 'cancelled', 'disputed'])
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        if (error) {
+          console.error('[v0] History fetch error:', error)
+          setLoading(false)
+          return
+        }
+
+        const items: HistoryItem[] = (data || []).map((r: any) => ({
+          id: r.id,
+          service: r.service,
+          address: r.address,
+          date: new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          status: r.status as 'completed' | 'cancelled' | 'disputed',
+          amount: r.amount ? `$${Number(r.amount).toFixed(0)}` : '$0',
+          provider: r.technician_name || '-',
+        }))
+
+        setHistory(items)
+      } catch (err) {
+        console.error('[v0] History fetch exception:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHistory()
+  }, [])
+
+  if (loading) return <HistorySkeleton />
+
+  if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary">
@@ -83,7 +149,7 @@ export function HistoryPage() {
   return (
     <div className="mx-auto w-full max-w-lg space-y-3">
       <h2 className="mb-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Past requests</h2>
-      {MOCK_HISTORY.map(item => (
+      {history.map(item => (
         <HistoryCard key={item.id} item={item} />
       ))}
     </div>
