@@ -7,6 +7,8 @@ export type PaymentStatus = 'none' | 'authorized' | 'captured' | 'refunded' | 'p
 export type ProviderTier = 'probation' | 'standard' | 'verified_emergency'
 export type DispatchOfferStatus = 'pending' | 'accepted' | 'declined' | 'expired' | 'near_miss'
 export type DisputeStatus = 'open' | 'under_review' | 'resolved_refund' | 'resolved_no_refund' | 'resolved_redispatch'
+export type SupportedLanguage = 'en' | 'fr' | 'es' | 'ar' | 'pt' | 'zh'
+export type SupportedCountry = 'US' | 'CA' | 'MX'
 
 export interface Database {
     public: {
@@ -18,6 +20,8 @@ export interface Database {
                     phone: string | null
                     full_name: string | null
                     avatar_url: string | null
+                    locale: SupportedLanguage
+                    country: SupportedCountry
                     created_at: string
                     updated_at: string
                 }
@@ -39,6 +43,10 @@ export interface Database {
                     service: ServiceType
                     emergency_level: EmergencyLevel
                     description: string | null
+                    media_urls: string[] | null
+                    image_analysis: string | null
+                    client_locale: SupportedLanguage
+                    country: SupportedCountry
                     status: RequestStatus
                     provider_id: string | null
                     payment_status: PaymentStatus
@@ -72,6 +80,9 @@ export interface Database {
                     trade: ServiceType
                     tier: ProviderTier
                     is_active: boolean
+                    locale: SupportedLanguage
+                    languages: SupportedLanguage[]
+                    country: SupportedCountry
                     created_at: string
                     updated_at: string
                 }
