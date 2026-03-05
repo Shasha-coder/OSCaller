@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
@@ -47,20 +48,36 @@ const LANGUAGES = [
   'Croatian', 'Slovak', 'Tamil', 'Malay',
 ]
 
-/* ─── Reusable outside-click hook ─── */
-function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () => void) {
+/* ─── Floating dropdown positioned via portal ─── */
+function FloatingDropdown({
+  anchorRef,
+  open,
+  children,
+  width = 200,
+}: {
+  anchorRef: React.RefObject<HTMLElement | null>
+  open: boolean
+  children: React.ReactNode
+  width?: number
+}) {
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+
   useEffect(() => {
-    const listener = (e: MouseEvent | TouchEvent) => {
-      if (!ref.current || ref.current.contains(e.target as Node)) return
-      handler()
-    }
-    document.addEventListener('mousedown', listener)
-    document.addEventListener('touchstart', listener)
-    return () => {
-      document.removeEventListener('mousedown', listener)
-      document.removeEventListener('touchstart', listener)
-    }
-  }, [ref, handler])
+    if (!open || !anchorRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    setPos({ top: rect.bottom + 6, left: rect.left })
+  }, [open, anchorRef])
+
+  if (!open) return null
+
+  return createPortal(
+    <div
+      style={{ position: 'fixed', top: pos.top, left: pos.left, width, zIndex: 9999 }}
+    >
+      {children}
+    </div>,
+    document.body
+  )
 }
 
 /* ═══════════════════════════════════════════
@@ -75,41 +92,57 @@ function CountryPhoneInput({
   onPhoneChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const selected = COUNTRIES.find(c => c.code === country) || COUNTRIES[0]
 
-  const close = useCallback(() => setOpen(false), [])
-  useClickOutside(ref, close)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (dropdownRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler, true)
+    document.addEventListener('touchstart', handler, true)
+    return () => {
+      document.removeEventListener('mousedown', handler, true)
+      document.removeEventListener('touchstart', handler, true)
+    }
+  }, [open])
 
   return (
-    <div ref={ref} className="relative shrink-0">
-      <div className="flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border border-[#E2E8F0] shadow-sm transition-all focus-within:border-[#8FB34A] focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.12)]">
-        {/* Country trigger */}
+    <div ref={triggerRef} className="relative shrink-0">
+      <div
+        className={cn(
+          'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm transition-all',
+          open ? 'border-[#8FB34A] shadow-[0_0_0_3px_rgba(143,179,74,0.10)]' : 'border-[#E2E8F0]'
+        )}
+      >
         <button
           type="button"
-          onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0] cursor-pointer shrink-0 outline-none focus-visible:outline-none"
+          data-no-focus-ring
+          onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
+          className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0] cursor-pointer shrink-0 outline-none"
         >
           <span className="text-[15px] leading-none">{selected.flag}</span>
           <span className="text-[12px] font-semibold text-[#334155]">{selected.dial}</span>
           <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
         </button>
-
-        {/* Phone input */}
         <input
           type="tel"
           inputMode="numeric"
+          data-no-focus-ring
           value={phone}
           onChange={e => onPhoneChange(e.target.value)}
           placeholder="(555) 000-0000"
-          className="w-[110px] h-full bg-transparent text-[13px] font-semibold text-[#0F172A] pl-2 pr-2.5 outline-none focus:outline-none focus-visible:outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+          className="w-[110px] h-full bg-transparent text-[13px] font-semibold text-[#0F172A] pl-2 pr-2.5 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
         />
       </div>
 
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute left-0 top-[calc(100%+6px)] z-[60] w-[260px] rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-          {/* Available header */}
+      <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
+        <div ref={dropdownRef} className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden">
           <div className="px-3.5 py-2 text-[10px] font-bold uppercase tracking-widest text-[#8FB34A] bg-[#EAF4D8]/40 border-b border-[#EAF4D8]">
             Available
           </div>
@@ -118,6 +151,7 @@ function CountryPhoneInput({
               <button
                 key={c.code}
                 type="button"
+                data-no-focus-ring
                 onClick={() => { onCountryChange(c.code); setOpen(false) }}
                 className={cn(
                   'flex w-full items-center gap-2.5 px-3.5 py-2.5 text-[13px] transition-colors outline-none',
@@ -135,7 +169,6 @@ function CountryPhoneInput({
               </button>
             ))}
           </div>
-          {/* Coming soon header */}
           <div className="px-3.5 py-2 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] bg-[#F8FAFB] border-y border-[#E2E8F0] flex items-center gap-1.5">
             <Lock className="h-3 w-3" />
             Coming Soon
@@ -154,50 +187,68 @@ function CountryPhoneInput({
             ))}
           </div>
         </div>
-      )}
+      </FloatingDropdown>
     </div>
   )
 }
 
 /* ═══════════════════════════════════════════
-   Language Dropdown (matching join page style)
+   Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const close = useCallback(() => setOpen(false), [])
-  useClickOutside(ref, close)
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (dropdownRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler, true)
+    document.addEventListener('touchstart', handler, true)
+    return () => {
+      document.removeEventListener('mousedown', handler, true)
+      document.removeEventListener('touchstart', handler, true)
+    }
+  }, [open])
 
   return (
-    <div ref={ref} className="relative shrink-0">
+    <div className="relative shrink-0">
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen(o => !o)}
+        data-no-focus-ring
+        onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
         className={cn(
-          'flex items-center gap-1.5 h-[38px] px-3 rounded-full border text-[13px] font-semibold transition-all cursor-pointer outline-none focus-visible:outline-none',
+          'flex items-center gap-1.5 h-[38px] px-3 rounded-full border text-[13px] font-semibold transition-all cursor-pointer outline-none',
           open
-            ? 'border-[#8FB34A] bg-white shadow-[0_0_0_3px_rgba(143,179,74,0.12)]'
+            ? 'border-[#8FB34A] bg-white shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
             : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm hover:border-[#CBD5E1] shadow-sm'
         )}
       >
-        <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="h-4 w-4 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
-        <span className="text-[#0F172A]">{value}</span>
+        <span className="text-[#0F172A] whitespace-nowrap">{value}</span>
         <ChevronDown className={cn('h-3.5 w-3.5 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
       </button>
 
-      {open && (
+      <FloatingDropdown anchorRef={triggerRef} open={open} width={200}>
         <div
-          className="absolute left-0 top-[calc(100%+6px)] z-[60] w-[200px] max-h-[220px] overflow-y-auto rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-150"
+          ref={dropdownRef}
+          className="max-h-[220px] overflow-y-auto rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
           style={{ scrollbarWidth: 'thin' }}
         >
           {LANGUAGES.map(lang => (
             <button
               key={lang}
               type="button"
+              data-no-focus-ring
               onClick={() => { onChange(lang); setOpen(false) }}
               className={cn(
                 'flex w-full items-center justify-between px-3.5 py-2.5 text-[13px] transition-colors outline-none',
@@ -213,7 +264,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
             </button>
           ))}
         </div>
-      )}
+      </FloatingDropdown>
     </div>
   )
 }
@@ -284,14 +335,20 @@ export function MapPage() {
         <LanguageDropdown value={language} onChange={setLanguage} />
 
         {/* Describe Problem */}
-        <div className="flex items-center h-[38px] pl-3 pr-2 rounded-full bg-white/90 backdrop-blur-sm border border-[#E2E8F0] shadow-sm shrink-0 min-w-[200px] flex-1 max-w-[280px] transition-all focus-within:border-[#8FB34A] focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.12)]">
+        <div
+          className={cn(
+            'flex items-center h-[38px] pl-3 pr-2 rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[200px] flex-1 max-w-[280px] transition-all',
+            'border-[#E2E8F0] focus-within:border-[#8FB34A] focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
+          )}
+        >
           <Search className="h-3.5 w-3.5 text-[#94A3B8] mr-2 shrink-0" strokeWidth={2.5} />
           <input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             type="text"
+            data-no-focus-ring
             placeholder="Describe problem..."
-            className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none focus:outline-none focus-visible:outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+            className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
           />
         </div>
 
@@ -306,9 +363,10 @@ export function MapPage() {
         {/* GPS Toggle */}
         <button
           type="button"
+          data-no-focus-ring
           onClick={() => setIsLiveLocation(v => !v)}
           className={cn(
-            'flex items-center gap-2 h-[38px] px-3 rounded-full border shadow-sm shrink-0 cursor-pointer transition-all outline-none focus-visible:outline-none',
+            'flex items-center gap-2 h-[38px] px-3 rounded-full border shadow-sm shrink-0 cursor-pointer transition-all outline-none',
             isLiveLocation
               ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/60'
               : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm'
@@ -324,7 +382,8 @@ export function MapPage() {
         {/* Aria Button */}
         <button
           type="button"
-          className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none focus-visible:outline-none"
+          data-no-focus-ring
+          className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none"
         >
           <Phone className="h-4 w-4" strokeWidth={2.5} />
           Aria
@@ -360,8 +419,9 @@ export function MapPage() {
 
         {/* Recenter button */}
         <button
+          data-no-focus-ring
           onClick={requestLocation}
-          className="absolute top-5 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50 transition-transform hover:scale-105 active:scale-95 text-[#334155] outline-none focus-visible:outline-none"
+          className="absolute top-5 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50 transition-transform hover:scale-105 active:scale-95 text-[#334155] outline-none"
           aria-label="Use my current GPS location"
         >
           {loading ? (
