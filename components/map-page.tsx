@@ -73,8 +73,31 @@ export function MapPage() {
   }, [isLiveLocation])
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4 relative flex flex-col h-full pt-2">
-      {/* Search Bar - No negative overlap margins */}
+    <div className="mx-auto w-full max-w-2xl space-y-4 relative flex flex-col h-full pt-2 pb-6">
+      {/* Map Container - Now First */}
+      <div className="relative w-full h-[50dvh] min-h-[400px] rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.08)] border border-slate-200/50">
+        <GoogleMap
+          center={coords || undefined}
+          zoom={14}
+          markers={markers}
+          className="h-full w-full"
+        />
+
+        {/* Floating GPS Button */}
+        <button
+          onClick={requestLocation}
+          className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 transition-transform hover:scale-105 active:scale-95 text-[#0F172A]"
+          aria-label="Use my current GPS location"
+        >
+          {loading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-[#8FB34A]" />
+          ) : (
+            <LocateFixed className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+
+      {/* Search Bar - Now Below Map */}
       <div className="relative z-10">
         <label htmlFor="service-search" className="sr-only">Which home service?</label>
         <div className="relative flex items-center w-full">
@@ -139,29 +162,6 @@ export function MapPage() {
           {error}
         </div>
       )}
-
-      {/* Map Container */}
-      <div className="relative flex-1 min-h-[60vh] w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.08)] border border-slate-200/50 mt-2">
-        <GoogleMap
-          center={coords || undefined}
-          zoom={14}
-          markers={markers}
-          className="h-full w-full"
-        />
-
-        {/* Floating GPS Button */}
-        <button
-          onClick={requestLocation}
-          className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 transition-transform hover:scale-105 active:scale-95 text-[#0F172A]"
-          aria-label="Use my current GPS location"
-        >
-          {loading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-[#8FB34A]" />
-          ) : (
-            <LocateFixed className="h-5 w-5" />
-          )}
-        </button>
-      </div>
 
       {/* Nearby services grid */}
       <div className="grid grid-cols-2 gap-3">
