@@ -15,7 +15,7 @@ export type RequestStatus =
   | 'arrived'
   | 'completed'
 
-export type AppPage = 'home' | 'tracking' | 'history' | 'support' | 'map' | 'search'
+export type AppPage = 'home' | 'tracking' | 'history' | 'support' | 'map'
 
 export interface RequestFormData {
   address: string
