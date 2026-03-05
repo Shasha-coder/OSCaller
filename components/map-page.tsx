@@ -63,7 +63,7 @@ export function MapPage() {
   }, [isLiveLocation])
 
   return (
-    <div className="flex flex-col h-full w-full bg-background p-4 gap-4 pb-[80px]">
+    <div className="flex flex-col h-full w-full bg-slate-50 p-4 gap-4 pb-[80px]">
 
       {/* ─── Top Header Text ─── */}
       <div className="flex flex-col items-center pt-2">
@@ -140,7 +140,7 @@ export function MapPage() {
       </div>
 
       {/* ─── Map Container (Large Square Shape Rounded Corner) ─── */}
-      <div className="flex-1 w-full relative rounded-[32px] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] isolate min-h-[400px]">
+      <div className="flex-1 w-full relative rounded-[32px] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-[6px] border-white bg-slate-100 isolate min-h-[400px]">
 
         <GoogleMap
           center={coords || undefined}
