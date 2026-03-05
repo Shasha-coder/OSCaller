@@ -7,6 +7,7 @@ interface Props {
   currentPage: AppPage
   onNavigate: (page: AppPage) => void
   isHomePage?: boolean
+  hasHistory?: boolean
 }
 
 const NAV: { page: AppPage; label: string; path: string; extraPath?: string }[] = [
@@ -54,7 +55,9 @@ function NavIcon({ path, extraPath, active }: { path: string; extraPath?: string
   )
 }
 
-export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
+export function AppSidebar({ currentPage, onNavigate, isHomePage, hasHistory }: Props) {
+  const visibleNav = NAV.filter(item => item.page !== 'history' || hasHistory)
+
   return (
     <>
       {/* ─── Desktop right rail ─── */}
@@ -68,7 +71,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         style={{ width: 80 }}
         aria-label="Main navigation"
       >
-        {NAV.map(({ page, label, path, extraPath }) => {
+        {visibleNav.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
             <button
@@ -114,7 +117,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         )}
         aria-label="Main navigation"
       >
-        {NAV.map(({ page, label, path, extraPath }) => {
+        {visibleNav.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
             <button
