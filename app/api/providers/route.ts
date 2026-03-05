@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 /**
@@ -19,7 +18,7 @@ export async function GET(request: Request) {
     const country = searchParams.get('country')
     const status = searchParams.get('status')
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createServerClient()
 
     let query = supabase
         .from('profiles')
