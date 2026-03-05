@@ -82,11 +82,27 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Opt-in focus ring for standard interactive elements */
+a:focus-visible,
+button:focus-visible:not([data-no-focus-ring]),
+[role="button"]:focus-visible:not([data-no-focus-ring]),
+select:focus-visible:not([data-no-focus-ring]) {
+  outline: 2px solid rgba(143, 179, 74, 0.4);
+  outline-offset: 2px;
+}
+
+/* Kill focus ring on anything opted out */
+[data-no-focus-ring]:focus,
+[data-no-focus-ring]:focus-visible {
+  outline: none !important;
+  box-shadow: none;
 }
 
 /* OSCaller custom utilities */
@@ -119,11 +135,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus visible — branded */
-*:focus-visible {
-  outline: 2px solid rgba(143, 179, 74, 0.4);
-  outline-offset: 2px;
-}
+
 
 /* ── Services ticker ── */
 @keyframes ticker {
