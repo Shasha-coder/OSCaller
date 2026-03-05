@@ -61,12 +61,20 @@ function FloatingDropdown({
   width?: number
 }) {
   const [pos, setPos] = useState({ top: 0, left: 0 })
+  const [flipUp, setFlipUp] = useState(false)
 
   useEffect(() => {
     if (!open || !anchorRef.current) return
     const rect = anchorRef.current.getBoundingClientRect()
     const left = Math.min(rect.left, window.innerWidth - width - 12)
-    setPos({ top: rect.bottom + 6, left: Math.max(8, left) })
+    const spaceBelow = window.innerHeight - rect.bottom
+    const shouldFlip = spaceBelow < 260
+    setFlipUp(shouldFlip)
+    if (shouldFlip) {
+      setPos({ top: rect.top - 6, left: Math.max(8, left) })
+    } else {
+      setPos({ top: rect.bottom + 6, left: Math.max(8, left) })
+    }
   }, [open, anchorRef, width])
 
   if (!open) return null
@@ -75,16 +83,22 @@ function FloatingDropdown({
     <div
       style={{
         position: 'fixed',
-        top: pos.top,
+        ...(flipUp ? { bottom: window.innerHeight - pos.top } : { top: pos.top }),
         left: pos.left,
         width,
         zIndex: 9999,
-        animation: 'dropdownIn 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+        animation: flipUp
+          ? 'dropdownInUp 180ms cubic-bezier(0.16, 1, 0.3, 1)'
+          : 'dropdownIn 180ms cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
       <style>{`
         @keyframes dropdownIn {
           from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes dropdownInUp {
+          from { opacity: 0; transform: translateY(6px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
@@ -346,8 +360,8 @@ export function MapPage() {
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes full screen */}
-        <div className="relative flex-1 min-h-0">
+        {/* Map takes most of the screen, leaves room for bottom panel */}
+        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-220px)]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -419,7 +433,7 @@ export function MapPage() {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-[#E2E8F0]/40 px-3 pt-2.5 pb-[76px]">
+        <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-[#E2E8F0]/40 px-3 pt-3 pb-[78px]">
           {/* Row 1: Language + Describe Problem */}
           <div className="flex items-center gap-2">
             <LanguageDropdown value={language} onChange={setLanguage} />
