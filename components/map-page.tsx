@@ -312,6 +312,56 @@ export function MapPage() {
   const [phone, setPhone] = useState('')
   const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text')
   const [isRecording, setIsRecording] = useState(false)
+  const [callingAria, setCallingAria] = useState(false)
+
+  // Fetch nearby providers from API and set as markers
+  const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(`/api/providers/nearby?lat=${lat}&lng=${lng}&radius=15`)
+      if (res.ok) {
+        const data = await res.json()
+        const providerMarkers = (data.providers || []).map((p: any, i: number) => ({
+          id: `prov-${p.id || i}`,
+          lat: p.lat,
+          lng: p.lng,
+          type: 'service' as const,
+          label: p.trade || p.name || 'Pro',
+        }))
+        setMarkers([
+          { id: 'user', lat, lng, type: 'user', pulse: true },
+          ...providerMarkers,
+        ])
+      }
+    } catch {
+      // Silently fall back to just user marker
+    }
+  }, [])
+
+  // Call Aria: push context to agent endpoint, then initiate call
+  const callAria = useCallback(async () => {
+    if (callingAria) return
+    setCallingAria(true)
+    try {
+      const payload = {
+        client_location: coords,
+        language,
+        country,
+        phone,
+        description: searchQuery,
+        input_mode: inputMode,
+      }
+      await fetch('/api/agent/context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      // TODO: Initiate actual call via Twilio/RetellAI after context is set
+    } catch (err) {
+      console.error('Failed to push context to Aria:', err)
+    } finally {
+      setCallingAria(false)
+    }
+  }, [callingAria, coords, language, country, phone, searchQuery, inputMode])
 
   const requestLocation = useCallback(() => {
     setLoading(true)
@@ -327,24 +377,17 @@ export function MapPage() {
         const userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         setCoords(userCoords)
         setLoading(false)
-        setMarkers([
-          { id: 'user', lat: userCoords.lat, lng: userCoords.lng, type: 'user', pulse: true },
-          { id: 'svc1', lat: userCoords.lat + 0.008, lng: userCoords.lng + 0.005, type: 'service', label: 'Plumber' },
-          { id: 'svc2', lat: userCoords.lat - 0.004, lng: userCoords.lng + 0.009, type: 'service', label: 'Electrician' },
-          { id: 'svc3', lat: userCoords.lat + 0.003, lng: userCoords.lng - 0.007, type: 'service', label: 'HVAC' },
-          { id: 'svc4', lat: userCoords.lat - 0.006, lng: userCoords.lng - 0.004, type: 'service', label: 'Locksmith' },
-        ])
+        // Set user marker immediately, then fetch real providers
+        setMarkers([{ id: 'user', lat: userCoords.lat, lng: userCoords.lng, type: 'user', pulse: true }])
+        fetchNearbyProviders(userCoords.lat, userCoords.lng)
       },
       () => {
         const fallback = { lat: 40.7128, lng: -74.006 }
         setCoords(fallback)
         setLoading(false)
         setError('Location access denied \u2014 showing default location.')
-        setMarkers([
-          { id: 'user', lat: fallback.lat, lng: fallback.lng, type: 'user', pulse: true },
-          { id: 'svc1', lat: fallback.lat + 0.008, lng: fallback.lng + 0.005, type: 'service', label: 'Plumber' },
-          { id: 'svc2', lat: fallback.lat - 0.004, lng: fallback.lng + 0.009, type: 'service', label: 'Electrician' },
-        ])
+        setMarkers([{ id: 'user', lat: fallback.lat, lng: fallback.lng, type: 'user', pulse: true }])
+        fetchNearbyProviders(fallback.lat, fallback.lng)
       },
       { timeout: 8000, enableHighAccuracy: true }
     )
@@ -514,14 +557,16 @@ export function MapPage() {
               phone={phone}
               onPhoneChange={setPhone}
             />
-            <button
-              type="button"
-              data-no-focus-ring
-              className="flex-1 flex items-center justify-center gap-1.5 h-[36px] rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] transition-all hover:bg-[#7da33f] active:scale-[0.97] outline-none"
-            >
-              <Phone className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Aria
-            </button>
+  <button
+  type="button"
+  data-no-focus-ring
+  onClick={callAria}
+  disabled={callingAria}
+  className="flex-1 flex items-center justify-center gap-1.5 h-[36px] rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] transition-all hover:bg-[#7da33f] active:scale-[0.97] outline-none disabled:opacity-60"
+  >
+  <Phone className={cn("h-3.5 w-3.5", callingAria && "animate-pulse")} strokeWidth={2.5} />
+  {callingAria ? 'Calling...' : 'Aria'}
+  </button>
           </div>
         </div>
       </div>
@@ -626,10 +671,12 @@ export function MapPage() {
           <button
             type="button"
             data-no-focus-ring
-            className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none"
+            onClick={callAria}
+            disabled={callingAria}
+            className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none disabled:opacity-60"
           >
-            <Phone className="h-4 w-4" strokeWidth={2.5} />
-            Aria
+            <Phone className={cn("h-4 w-4", callingAria && "animate-pulse")} strokeWidth={2.5} />
+            {callingAria ? 'Calling...' : 'Aria'}
           </button>
         </div>
 

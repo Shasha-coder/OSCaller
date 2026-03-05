@@ -66,9 +66,11 @@ export default function Root() {
     return () => { tl.kill() }
   }, [isAnimating, active])
 
-  const handleSubmit = useCallback((form: RequestFormData) => {
+  const handleSubmit = useCallback(async (form: RequestFormData) => {
+    // Optimistically navigate to tracking
+    const tempId = `req-${Date.now()}`
     setRequest({
-      id: `req-${Date.now()}`,
+      id: tempId,
       form,
       status: 'submitted',
       timeline: [],
@@ -76,6 +78,41 @@ export default function Root() {
       paymentStatus: 'none',
     })
     navigate('tracking')
+
+    try {
+      // 1. Persist to Supabase
+      const res = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: form.address,
+          lat: form.lat || null,
+          lng: form.lng || null,
+          is_apartment: form.isApartment || false,
+          building_name: form.buildingName || null,
+          unit_number: form.unitNumber || null,
+          entry_instructions: form.entryInstructions || null,
+          service: form.service,
+          emergency_level: form.emergencyLevel,
+          description: form.description || '',
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const realId = data.request?.id || tempId
+        setRequest(prev => prev ? { ...prev, id: realId } : prev)
+
+        // 2. Trigger dispatch to find a provider
+        fetch('/api/dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requestId: realId }),
+        }).catch(() => {})
+      }
+    } catch {
+      // Request is already saved optimistically -- tracking page will poll for updates
+    }
   }, [navigate])
 
   const handleCancel = useCallback(() => {
