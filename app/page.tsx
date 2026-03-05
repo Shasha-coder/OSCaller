@@ -198,8 +198,12 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
               Request a Pro Now
             </button>
 
+          </div>
+
+          {/* Bottom group: trust indicators + join link + ticker — stacked, no overlap */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center gap-3 px-4">
             {/* Trust indicators */}
-            <div className="mt-6 flex items-center gap-5 text-[11px] font-medium text-white/50">
+            <div className="flex items-center gap-5 text-[11px] font-medium text-white/50">
               <span className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
@@ -215,17 +219,13 @@ function PageContent({ page, request, navigate, onSubmit, onCancel }: {
                 Licensed Pros
               </span>
             </div>
-          </div>
-
-          {/* Services ticker + Join link — above mobile nav bar */}
-          <div className="absolute bottom-0 left-0 right-0 z-10">
-            <div className="mb-2 flex items-center justify-center px-4">
-              <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm px-5 py-1.5 text-[11px] font-medium text-white/70 transition-all hover:bg-white/20 hover:text-white">
-                <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                Are you a service provider? Join our network →
-              </a>
-            </div>
-            <div className="pb-[80px] lg:pb-0">
+            {/* Join link */}
+            <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm px-5 py-1.5 text-[11px] font-medium text-white/70 transition-all hover:bg-white/20 hover:text-white">
+              <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              Are you a service provider? Join our network →
+            </a>
+            {/* Services ticker */}
+            <div className="w-full pb-[80px] lg:pb-0">
               <ServicesTicker variant="dark" />
             </div>
           </div>
