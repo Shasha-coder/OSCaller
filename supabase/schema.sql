@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   full_name TEXT,
   avatar_url TEXT,
+  locale VARCHAR(10) DEFAULT 'en',
+  country VARCHAR(3) DEFAULT 'US',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -27,6 +29,9 @@ CREATE TABLE IF NOT EXISTS providers (
   trade TEXT NOT NULL CHECK (trade IN ('plumbing','electrical','hvac','locksmith','appliance','roofing','glass','pest')),
   tier TEXT NOT NULL DEFAULT 'probation' CHECK (tier IN ('probation','standard','verified_emergency')),
   is_active BOOLEAN DEFAULT TRUE,
+  locale VARCHAR(10) DEFAULT 'en',
+  languages TEXT[] DEFAULT ARRAY['en'],
+  country VARCHAR(3) DEFAULT 'US',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -45,6 +50,10 @@ CREATE TABLE IF NOT EXISTS requests (
   service TEXT NOT NULL CHECK (service IN ('plumbing','electrical','hvac','locksmith','appliance','roofing','glass','pest')),
   emergency_level TEXT NOT NULL CHECK (emergency_level IN ('emergency','urgent','standard')),
   description TEXT,
+  media_urls TEXT[],
+  image_analysis TEXT,
+  client_locale VARCHAR(10) DEFAULT 'en',
+  country VARCHAR(3) DEFAULT 'US',
   status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted','searching','expanding','found','pre-authorized','en-route','arrived','completed','cancelled')),
   provider_id UUID REFERENCES providers(id) ON DELETE SET NULL,
   payment_status TEXT NOT NULL DEFAULT 'none' CHECK (payment_status IN ('none','authorized','captured','refunded','pending')),
@@ -155,6 +164,41 @@ CREATE TABLE IF NOT EXISTS dispatch_offers (
 CREATE INDEX idx_dispatch_offers_request ON dispatch_offers(request_id);
 CREATE INDEX idx_dispatch_offers_provider ON dispatch_offers(provider_id);
 
+-- ── Twilio Number Pool (multi-country routing) ──
+CREATE TABLE IF NOT EXISTS twilio_numbers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  phone_number TEXT NOT NULL UNIQUE,
+  country_code VARCHAR(3) NOT NULL,
+  capabilities JSONB DEFAULT '{"voice": true, "sms": true}'::jsonb,
+  is_active BOOLEAN DEFAULT TRUE,
+  assigned_to TEXT,
+  label TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_twilio_numbers_country ON twilio_numbers(country_code);
+
+-- ── Call Records (AI call audit trail with language tracking) ──
+CREATE TABLE IF NOT EXISTS call_records (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
+  direction TEXT NOT NULL CHECK (direction IN ('client_inbound', 'client_outbound', 'provider_outbound')),
+  participant_role TEXT NOT NULL CHECK (participant_role IN ('client', 'provider')),
+  participant_id UUID,
+  twilio_call_sid TEXT,
+  twilio_number_id UUID REFERENCES twilio_numbers(id),
+  agent_session_id TEXT,
+  language_used VARCHAR(10),
+  recording_url TEXT,
+  transcript JSONB,
+  duration_seconds INT,
+  call_status TEXT DEFAULT 'initiated' CHECK (call_status IN ('initiated', 'ringing', 'in_progress', 'completed', 'failed', 'no_answer', 'busy')),
+  started_at TIMESTAMPTZ DEFAULT NOW(),
+  ended_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_call_records_request ON call_records(request_id);
+
 -- ══════════════════════════════════════════════════════════════
 -- ROW LEVEL SECURITY
 -- ══════════════════════════════════════════════════════════════
@@ -170,6 +214,8 @@ ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE disputes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE dispatch_offers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE twilio_numbers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE call_records ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role full access (API routes use this)
 -- Users can read their own data
