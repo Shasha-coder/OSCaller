@@ -434,15 +434,16 @@ export function MapPage() {
               </button>
             )}
             {inputMode === 'photo' && (
-              <div className="flex items-center gap-1.5 w-full">
-                <label className="flex items-center gap-1.5 cursor-pointer rounded-full px-2.5 py-1 bg-[#F1F5F9] hover:bg-[#E2E8F0] transition-colors">
-                  <Upload className="h-3 w-3 text-[#64748B]" strokeWidth={2.5} />
-                  <span className="text-[12px] font-semibold text-[#475569]">Upload</span>
+              <div className="flex items-center gap-3 w-full">
+                <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                  <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                  <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
                   <input type="file" accept="image/*" className="hidden" />
                 </label>
-                <label className="flex items-center gap-1.5 cursor-pointer rounded-full px-2.5 py-1 bg-[#F1F5F9] hover:bg-[#E2E8F0] transition-colors">
-                  <Camera className="h-3 w-3 text-[#64748B]" strokeWidth={2.5} />
-                  <span className="text-[12px] font-semibold text-[#475569]">Take picture</span>
+                <span className="text-[#CBD5E1] text-[10px]">|</span>
+                <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                  <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                  <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
                   <input type="file" accept="image/*" capture="environment" className="hidden" />
                 </label>
               </div>
