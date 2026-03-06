@@ -54,18 +54,13 @@ CREATE INDEX IF NOT EXISTS idx_service_requests_call_id ON public.service_reques
 -- ── 3. RLS Policies ──────────────────────────────────────────────────────────
 ALTER TABLE public.retell_agents ENABLE ROW LEVEL SECURITY;
 
--- Admin can manage agents (check is_admin function exists)
-DROP POLICY IF EXISTS admin_manage_agents ON public.retell_agents;
-CREATE POLICY admin_manage_agents ON public.retell_agents 
-  FOR ALL TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users 
-      WHERE users.id = auth.uid() AND users.role = 'admin'
-    )
-  );
+-- Read access for all authenticated users (agents are not secret)
+DROP POLICY IF EXISTS read_agents ON public.retell_agents;
+CREATE POLICY read_agents ON public.retell_agents 
+  FOR SELECT TO authenticated
+  USING (true);
 
--- Service role full access
+-- Service role full access (for API routes)
 DROP POLICY IF EXISTS service_role_agents ON public.retell_agents;
 CREATE POLICY service_role_agents ON public.retell_agents 
   FOR ALL TO service_role
