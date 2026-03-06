@@ -119,6 +119,19 @@ export default function Root() {
     navigate('home')
   }, [navigate])
 
+  // Handle request created from MapPage (new flow via callAria)
+  const handleMapRequestCreated = useCallback((requestId: string) => {
+    setRequest({
+      id: requestId,
+      form: {} as RequestFormData, // Form data is already in DB
+      status: 'searching',
+      timeline: [],
+      createdAt: new Date(),
+      paymentStatus: 'none',
+    })
+    navigate('tracking')
+  }, [navigate])
+
   return (
     <div className="relative flex h-dvh w-full overflow-hidden bg-white">
 
@@ -130,7 +143,7 @@ export default function Root() {
           className="absolute inset-0"
           style={{ zIndex: 1, willChange: 'transform, opacity' }}
         >
-          <PageContent page={exitPage} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} />
+          <PageContent page={exitPage} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} onMapRequestCreated={handleMapRequestCreated} />
         </div>
       )}
 
@@ -141,7 +154,7 @@ export default function Root() {
         className="absolute inset-0"
         style={{ zIndex: 2, willChange: 'transform, opacity' }}
       >
-        <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} />
+        <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} onMapRequestCreated={handleMapRequestCreated} />
       </div>
 
       {/* Sidebar always on top */}
@@ -162,7 +175,7 @@ function HeroIcon({ children }: { children: React.ReactNode }) {
 }
 
 // ─── Page content renderer ───────────────────────────────────
-function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasData, onHistoryDataLoaded }: {
+function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasData, onHistoryDataLoaded, onMapRequestCreated }: {
   page: AppPage
   request: ServiceRequest | null
   navigate: (p: AppPage) => void
@@ -170,6 +183,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
   onCancel: () => void
   historyHasData: boolean | null
   onHistoryDataLoaded: (v: boolean) => void
+  onMapRequestCreated: (requestId: string) => void
 }) {
   const isHome = page === 'home'
 
@@ -385,7 +399,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             </div>
           </div>
           {/* Mobile: full-bleed map, Desktop: padded */}
-          <div className="flex-1 min-h-0 sm:px-5 sm:pb-28 sm:pt-0"><MapPage /></div>
+          <div className="flex-1 min-h-0 sm:px-5 sm:pb-28 sm:pt-0"><MapPage onRequestCreated={onMapRequestCreated} /></div>
         </div>
       )}
 

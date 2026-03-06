@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Check, Circle, MapPin, Star, Shield, Share2,
   Phone, MessageSquare, Navigation, Clock, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { ServiceRequest, TimelineEvent, RequestStatus } from '@/lib/store'
+import type { ServiceRequest, TimelineEvent as LocalTimelineEvent, RequestStatus } from '@/lib/store'
 import type { MapMarker, MapRoute } from '@/components/google-map'
 import { Button } from '@/components/ui/button'
 import { GoogleMap } from '@/components/google-map'
+import { useRealtimeRequest } from '@/hooks/use-realtime-request'
 
 /* ─── Simulated timeline (used as fallback when no live data) ─── */
 const TIMELINE_FLOW: { label: string; delay: number; status: RequestStatus }[] = [
@@ -222,15 +223,18 @@ interface TrackingPageProps {
 }
 
 export function TrackingPage({ request, onCancel }: TrackingPageProps) {
-  const [timeline, setTimeline] = useState<TimelineEvent[]>([])
-  const [currentStatus, setCurrentStatus] = useState<RequestStatus>('submitted')
+  // Use realtime subscription hook
+  const { 
+    request: realtimeRequest, 
+    providerLocation, 
+    timeline: realtimeTimeline,
+    isLoading 
+  } = useRealtimeRequest(request?.id || null)
+
+  const [localTimeline, setLocalTimeline] = useState<LocalTimelineEvent[]>([])
+  const [currentStatus, setCurrentStatus] = useState<RequestStatus>('draft')
   const [showProvider, setShowProvider] = useState(false)
-  const [liveProvider, setLiveProvider] = useState<{
-    name: string; rating: number; jobs: number; verified: boolean
-    lat?: number; lng?: number
-  } | null>(null)
   const timerRef = useRef<NodeJS.Timeout[]>([])
-  const pollRef = useRef<NodeJS.Timeout | null>(null)
 
   // Animated pro position along waypoints
   const [proPos, setProPos] = useState(PRO_START)
@@ -239,82 +243,90 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
   const [routeProgress, setRouteProgress] = useState(0)
   const animRef = useRef<NodeJS.Timeout | null>(null)
 
-  /* ── Poll API for real-time updates ── */
+  /* ── Sync realtime data to local state ── */
   useEffect(() => {
-    if (!request?.id) return
+    if (!realtimeRequest) return
 
-    const poll = async () => {
-      try {
-        const res = await fetch(`/api/requests/${request.id}`)
-        if (!res.ok) return
-        const data = await res.json()
-        const sr = data.request
-        const prov = data.provider
+    // Map DB status to local status type
+    const statusMap: Record<string, RequestStatus> = {
+      'draft': 'draft',
+      'qualified': 'qualified',
+      'searching': 'searching',
+      'assigned': 'assigned',
+      'enroute': 'enroute',
+      'arrived': 'arrived',
+      'in_progress': 'in_progress',
+      'completed': 'completed',
+      'cancelled': 'cancelled',
+      'disputed': 'disputed',
+    }
+    
+    const mappedStatus = statusMap[realtimeRequest.status] || 'draft'
+    setCurrentStatus(mappedStatus)
 
-        if (sr?.status && sr.status !== currentStatus) {
-          setCurrentStatus(sr.status as RequestStatus)
-
-          // Add to timeline
-          setTimeline(prev => {
-            const updated = prev.map(e => ({ ...e, status: 'complete' as const }))
-            return [...updated, {
-              id: `evt-${Date.now()}`,
-              label: sr.status,
-              timestamp: new Date(),
-              status: 'active' as const,
-            }]
-          })
-        }
-
-        if (sr?.eta_minutes !== undefined) setEta(sr.eta_minutes)
-
-        if (prov) {
-          setLiveProvider({
-            name: prov.name || 'Provider',
-            rating: Number(prov.rating) || 4.5,
-            jobs: prov.jobs_completed || 0,
-            verified: true,
-            lat: prov.lat,
-            lng: prov.lng,
-          })
-          setShowProvider(true)
-
-          // Update pro position from live data
-          if (prov.lat && prov.lng) {
-            setProPos(prev => {
-              setHeading(getBearing(prev, { lat: prov.lat, lng: prov.lng }))
-              return { lat: prov.lat, lng: prov.lng }
-            })
-          }
-        }
-      } catch { /* silent fail, retry on next poll */ }
+    // Show provider when assigned
+    if (['assigned', 'enroute', 'arrived', 'in_progress'].includes(realtimeRequest.status)) {
+      setShowProvider(true)
     }
 
-    poll() // immediate first poll
-    pollRef.current = setInterval(poll, 5000)
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
-  }, [request?.id])
+    // Update ETA from realtime data
+    if (realtimeRequest.eta_minutes !== null) {
+      setEta(realtimeRequest.eta_minutes)
+    }
+
+    // Update provider position from service_requests
+    if (realtimeRequest.provider_lat && realtimeRequest.provider_lng) {
+      setProPos(prev => {
+        const newPos = { lat: realtimeRequest.provider_lat!, lng: realtimeRequest.provider_lng! }
+        setHeading(getBearing(prev, newPos))
+        return newPos
+      })
+    }
+  }, [realtimeRequest])
+
+  /* ── Sync provider location from realtime subscription ── */
+  useEffect(() => {
+    if (!providerLocation) return
+    
+    setProPos(prev => {
+      setHeading(providerLocation.heading || getBearing(prev, providerLocation))
+      return { lat: providerLocation.lat, lng: providerLocation.lng }
+    })
+  }, [providerLocation])
+
+  /* ── Convert realtime timeline to local format ── */
+  useEffect(() => {
+    if (realtimeTimeline.length === 0) return
+
+    const converted: LocalTimelineEvent[] = realtimeTimeline.map((evt, idx) => ({
+      id: evt.id,
+      label: evt.label,
+      timestamp: new Date(evt.created_at),
+      status: idx === realtimeTimeline.length - 1 ? 'active' : 'complete',
+    }))
+    setLocalTimeline(converted)
+  }, [realtimeTimeline])
 
   /* ── Fallback: Timeline simulation when no live data is flowing ── */
   useEffect(() => {
     // Only run simulation if we haven't received real data after 3s
     const fallbackTimer = setTimeout(() => {
-      if (timeline.length > 0) return // Real data already arrived
+      if (localTimeline.length > 0 || realtimeTimeline.length > 0) return // Real data already arrived
 
       timerRef.current.forEach(t => clearTimeout(t))
       timerRef.current = []
 
       TIMELINE_FLOW.forEach(({ label, delay, status }, idx) => {
         const timer = setTimeout(() => {
-          const event: TimelineEvent = {
+          const event: LocalTimelineEvent = {
             id: `evt-${idx}`, label, timestamp: new Date(), status: 'active',
           }
-          setTimeline(prev => {
+          setLocalTimeline(prev => {
             const updated = prev.map(e => ({ ...e, status: 'complete' as const }))
             return [...updated, event]
           })
-          setCurrentStatus(status)
-          if (status === 'found' || status === 'pre-authorized' || status === 'en-route') {
+          setCurrentStatus(status as RequestStatus)
+          if (status === 'assigned' || status === 'enroute') {
             setShowProvider(true)
           }
         }, delay)
@@ -326,13 +338,13 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
       clearTimeout(fallbackTimer)
       timerRef.current.forEach(t => clearTimeout(t))
     }
-  }, [])
+  }, [localTimeline.length, realtimeTimeline.length])
 
   /* ── Uber-style trajectory animation along waypoints ── */
   useEffect(() => {
-    if (currentStatus !== 'en-route') return
+    if (currentStatus !== 'enroute') return
     // Skip animation if we have live provider location
-    if (liveProvider?.lat) return
+    if (providerLocation?.lat) return
 
     const totalWaypoints = ROUTE_WAYPOINTS.length - 1
     const totalDuration = 12 * 60 * 1000
@@ -373,18 +385,19 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
 
     animate()
     return () => { if (animRef.current) clearTimeout(animRef.current) }
-  }, [currentStatus, liveProvider?.lat])
+  }, [currentStatus, providerLocation?.lat])
 
   const statusLabel =
-    currentStatus === 'submitted' ? 'Request received' :
-      currentStatus === 'searching' ? 'Searching within 5 km...' :
-        currentStatus === 'expanding' ? 'Expanding search...' :
-          currentStatus === 'found' ? 'Pro found!' :
-            currentStatus === 'pre-authorized' ? 'Pre-authorized' :
-              currentStatus === 'en-route' ? `Pro en route -- ${eta} min` :
-                currentStatus === 'arrived' ? 'Pro arrived' :
+    currentStatus === 'draft' ? 'Request created' :
+      currentStatus === 'qualified' ? 'Request qualified' :
+        currentStatus === 'searching' ? 'Searching for pros...' :
+          currentStatus === 'assigned' ? 'Pro assigned!' :
+            currentStatus === 'enroute' ? `Pro en route - ${eta} min` :
+              currentStatus === 'arrived' ? 'Pro arrived' :
+                currentStatus === 'in_progress' ? 'Work in progress' :
                   currentStatus === 'completed' ? 'Job completed' :
-                    'Processing...'
+                    currentStatus === 'cancelled' ? 'Request cancelled' :
+                      'Processing...'
 
   const userLocation = request?.form?.lat && request?.form?.lng
     ? { lat: request.form.lat, lng: request.form.lng }
@@ -409,7 +422,9 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
     ? { lat: (proPos.lat + userLocation.lat) / 2, lng: (proPos.lng + userLocation.lng) / 2 }
     : userLocation
 
-  const providerInfo = liveProvider || { name: 'Peter M.', rating: 4.8, jobs: 218, verified: true }
+  const providerInfo = realtimeRequest?.technician_name 
+    ? { name: realtimeRequest.technician_name, rating: 4.8, jobs: 100, verified: true }
+    : { name: 'Provider', rating: 4.8, jobs: 100, verified: true }
 
   if (!request) {
     return (
@@ -428,7 +443,7 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
   return (
     <div className="mx-auto w-full max-w-lg space-y-5">
       <div className="flex items-center justify-center">
-        <StatusPill label={statusLabel} pulse={currentStatus !== 'en-route' && currentStatus !== 'completed'} />
+        <StatusPill label={statusLabel} pulse={!['enroute', 'completed', 'cancelled'].includes(currentStatus)} />
       </div>
 
       <div className="relative overflow-hidden rounded-3xl shadow-[0_8px_40px_rgba(15,23,42,0.08)]">
@@ -453,8 +468,8 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
       <div className="rounded-3xl bg-white p-5 shadow-[0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-[#E5E7EB]/50">
         <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#94a3b8]">Live updates</h3>
         <div className="flex flex-col">
-          {timeline.map((event, idx) => (
-            <TimelineItem key={event.id} event={event} isLast={idx === timeline.length - 1} />
+          {localTimeline.map((event, idx) => (
+            <TimelineItem key={event.id} event={event} isLast={idx === localTimeline.length - 1} />
           ))}
         </div>
       </div>

@@ -56,17 +56,74 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/requests
  * Create a new service request — persists to both Supabase and Redis.
- * Body: { customer_name, phone, address, service, priority, description, lat?, lng?, language?, country?, customer_id? }
+ * 
+ * Two modes:
+ * 1. Full mode: { customer_name, phone, address, service, priority, description, ... }
+ * 2. MapPage mode: { lat, lng, description, input_mode, language, phone, country, status }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const {
-      customer_name, phone, address, service, priority, description,
-      lat, lng, language, country, customer_id,
+      // Full mode fields
+      customer_name, address, service, priority,
+      // Shared fields
+      phone, description, lat, lng, language, country, customer_id,
       is_apartment, building_name, unit_number, entry_instructions,
+      // MapPage mode fields
+      input_mode, status,
     } = body
 
+    const requestId = `REQ-${Date.now().toString(36).toUpperCase()}`
+    const db = createServerClient()
+
+    // Determine if this is MapPage mode (minimal fields) or full mode
+    const isMapPageMode = lat && lng && !address && !service
+
+    if (isMapPageMode) {
+      // MapPage mode: Create with GPS location, status qualified, minimal fields
+      const { data: srData, error: srError } = await db
+        .from('service_requests')
+        .insert({
+          id: requestId,
+          customer_name: customer_name || 'Customer',
+          customer_phone: phone || null,
+          customer_id: customer_id || null,
+          address: `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+          lat,
+          lng,
+          client_lat: lat,
+          client_lng: lng,
+          client_location_updated_at: new Date().toISOString(),
+          service: service || 'general',
+          priority: priority || 'urgent',
+          description: description || '',
+          status: status || 'qualified',
+          language: language || 'English',
+          input_mode: input_mode || 'text',
+        })
+        .select()
+        .single()
+
+      if (srError) {
+        console.error('[v0] service_requests insert error:', srError)
+        return NextResponse.json({ error: 'Failed to create request', detail: srError.message }, { status: 500 })
+      }
+
+      // Cache in Redis
+      const redisPayload = { ...srData, country: country || 'CA' }
+      await redis.set(KEYS.requestDetail(requestId), JSON.stringify(redisPayload), { ex: 86400 })
+      await redis.lpush(KEYS.activeRequests, requestId)
+
+      return NextResponse.json({
+        success: true,
+        request: redisPayload,
+        message: `Request ${requestId} created. Ready for dispatch.`,
+        timestamp: new Date().toISOString(),
+      }, { status: 201 })
+    }
+
+    // Full mode: Require all fields
     if (!customer_name || !phone || !address || !service || !priority) {
       return NextResponse.json(
         { error: 'Missing required fields: customer_name, phone, address, service, priority' },
@@ -74,7 +131,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validServices = ['plumbing', 'electrical', 'hvac', 'locksmith', 'appliance', 'roofing', 'glass', 'pest']
+    const validServices = ['plumbing', 'electrical', 'hvac', 'locksmith', 'appliance', 'roofing', 'glass', 'pest', 'general']
     if (!validServices.includes(service)) {
       return NextResponse.json(
         { error: `Invalid service. Must be one of: ${validServices.join(', ')}` },
@@ -90,9 +147,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const requestId = `REQ-${Date.now().toString(36).toUpperCase()}`
-    const db = createServerClient()
-
     // 1. Insert into service_requests (the dispatch/tracking table)
     const { data: srData, error: srError } = await db
       .from('service_requests')
@@ -104,10 +158,13 @@ export async function POST(request: NextRequest) {
         address,
         lat: lat || null,
         lng: lng || null,
+        client_lat: lat || null,
+        client_lng: lng || null,
         service,
         priority,
         description: description || '',
         status: 'submitted',
+        language: language || 'English',
       })
       .select()
       .single()
