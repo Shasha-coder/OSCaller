@@ -9,6 +9,11 @@
 
 ALTER TABLE client_locations ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first to avoid conflicts
+DROP POLICY IF EXISTS "Users can insert own locations" ON client_locations;
+DROP POLICY IF EXISTS "Users can view own locations" ON client_locations;
+DROP POLICY IF EXISTS "Service role full access client_locations" ON client_locations;
+
 -- Users can insert/select their own location data
 CREATE POLICY "Users can insert own locations"
   ON client_locations FOR INSERT
