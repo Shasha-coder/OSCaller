@@ -320,6 +320,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+  
+  // Validation and call state
+  const [validationError, setValidationError] = useState<string | null>(null)
+  const [callStatus, setCallStatus] = useState<'idle' | 'connecting' | 'ringing' | 'active' | 'ended'>('idle')
 
   // Fetch nearby providers from API and set as markers
   const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
@@ -344,10 +348,38 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     }
   }, [])
 
-  // Call Aria: Create service_request in Supabase, analyze media, trigger dispatch
+  // Validate before call
+  const validateCall = useCallback((): string | null => {
+    if (!coords) return 'Please enable GPS location'
+    if (!language) return 'Please select your language'
+    if (!phone || phone.length < 7) return 'Please enter your phone number'
+    const selectedCountry = COUNTRIES.find(c => c.code === country)
+    if (!selectedCountry?.supported) return 'Service not available in this country yet'
+    // Check if user has provided some input (text, voice, or photo)
+    if (inputMode === 'text' && !searchQuery.trim()) {
+      // Text mode but no description - that's okay, agent will ask
+    }
+    if (inputMode === 'photo' && !uploadedFile) {
+      // Photo mode but no file - warn but allow
+    }
+    return null
+  }, [coords, language, phone, country, inputMode, searchQuery, uploadedFile])
+
+  // Call Aria: Validate, Create request, Trigger Retell call, Navigate to tracking
   const callAria = useCallback(async () => {
-    if (callingAria || !coords) return
+    if (callingAria) return
+    
+    // Validate first
+    const error = validateCall()
+    if (error) {
+      setValidationError(error)
+      setTimeout(() => setValidationError(null), 3000)
+      return
+    }
+    
     setCallingAria(true)
+    setCallStatus('connecting')
+    setValidationError(null)
     
     try {
       const selectedCountry = COUNTRIES.find(c => c.code === country)
@@ -358,14 +390,14 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lat: coords.lat,
-          lng: coords.lng,
+          lat: coords!.lat,
+          lng: coords!.lng,
           description: searchQuery || `${inputMode} request`,
           input_mode: inputMode,
           language,
           phone: fullPhone,
           country,
-          status: 'qualified', // Ready for dispatch
+          status: 'qualified',
         }),
       })
       
@@ -394,7 +426,31 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         reader.readAsDataURL(uploadedFile)
       }
       
-      // 3. Start GPS streaming for this request
+      // 3. Trigger Retell AI call to client
+      setCallStatus('ringing')
+      const callRes = await fetch('/api/retell/call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request_id: requestId,
+          phone: fullPhone,
+          country_code: country,
+          language,
+          lat: coords!.lat,
+          lng: coords!.lng,
+          customer_name: 'Customer',
+        }),
+      })
+      
+      if (!callRes.ok) {
+        const err = await callRes.json()
+        console.error('Call failed:', err)
+        // Continue anyway - dispatch will still work
+      } else {
+        setCallStatus('active')
+      }
+      
+      // 4. Start GPS streaming
       const streamGps = () => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
@@ -409,37 +465,39 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 }),
               })
             },
-            () => {}, // Ignore errors silently
+            () => {},
             { enableHighAccuracy: true }
           )
         }
       }
       streamGps()
-      // Continue streaming every 30s (will stop when user navigates away)
       const gpsInterval = setInterval(streamGps, 30000)
       
-      // 4. Trigger dispatch to find providers
+      // 5. Trigger dispatch
       await fetch('/api/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),
       })
       
-      // 5. Notify parent to navigate to tracking
-      if (onRequestCreated) {
-        onRequestCreated(requestId)
-      }
+      // 6. Navigate to tracking after brief animation
+      setTimeout(() => {
+        if (onRequestCreated) {
+          onRequestCreated(requestId)
+        }
+        setCallStatus('idle')
+      }, 1500)
       
-      // Cleanup interval on unmount (handled by React)
       return () => clearInterval(gpsInterval)
       
     } catch (err) {
       console.error('Failed to create request:', err)
-      // Could show toast here
+      setValidationError(err instanceof Error ? err.message : 'Something went wrong')
+      setCallStatus('idle')
     } finally {
       setCallingAria(false)
     }
-  }, [callingAria, coords, language, country, phone, searchQuery, inputMode, uploadedFile, onRequestCreated])
+  }, [callingAria, validateCall, coords, language, country, phone, searchQuery, inputMode, uploadedFile, onRequestCreated])
 
   const requestLocation = useCallback(() => {
     setLoading(true)
@@ -539,6 +597,54 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             <div className="absolute top-14 left-3 right-3 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] justify-center">
               <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               <span className="truncate">{error}</span>
+            </div>
+          )}
+
+          {/* Validation error toast */}
+          {validationError && (
+            <div className="absolute top-14 left-3 right-3 z-20 rounded-full border border-red-200 bg-red-50/95 backdrop-blur-md px-3 py-2 text-[12px] font-semibold text-red-700 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.08)] justify-center animate-in fade-in slide-in-from-top-2 duration-200">
+              <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <span>{validationError}</span>
+            </div>
+          )}
+
+          {/* Calling Aria overlay */}
+          {callStatus !== 'idle' && (
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
+              {/* Pulsing rings */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/20 animate-ping" />
+                <div className="absolute inset-0 -m-4 rounded-full bg-[#8FB34A]/30 animate-pulse" />
+                <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-xl shadow-[#8FB34A]/30">
+                  <Phone className="h-8 w-8 text-white animate-pulse" />
+                </div>
+              </div>
+              
+              {/* Status text */}
+              <p className="text-white font-bold text-lg mb-1">
+                {callStatus === 'connecting' && 'Connecting...'}
+                {callStatus === 'ringing' && 'Calling you now...'}
+                {callStatus === 'active' && 'Aria is calling'}
+              </p>
+              <p className="text-white/60 text-sm">
+                {callStatus === 'connecting' && 'Setting up your request'}
+                {callStatus === 'ringing' && 'Answer the call from Aria'}
+                {callStatus === 'active' && 'Describe your problem to Aria'}
+              </p>
+              
+              {/* Soft connecting sound indicator */}
+              <div className="flex items-center gap-1 mt-6">
+                {[0, 1, 2, 3, 4].map(i => (
+                  <div
+                    key={i}
+                    className="w-1 bg-[#8FB34A] rounded-full animate-pulse"
+                    style={{
+                      height: `${12 + Math.random() * 16}px`,
+                      animationDelay: `${i * 150}ms`,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           )}
 
