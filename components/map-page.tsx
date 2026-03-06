@@ -300,7 +300,11 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
 /* ═══════════════════════════════════════════
    MapPage - Immersive mobile, classic desktop
    ═══════════════════════════════════════════ */
-export function MapPage() {
+interface MapPageProps {
+  onRequestCreated?: (requestId: string) => void
+}
+
+export function MapPage({ onRequestCreated }: MapPageProps) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -313,6 +317,9 @@ export function MapPage() {
   const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text')
   const [isRecording, setIsRecording] = useState(false)
   const [callingAria, setCallingAria] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch nearby providers from API and set as markers
   const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
@@ -337,31 +344,102 @@ export function MapPage() {
     }
   }, [])
 
-  // Call Aria: push context to agent endpoint, then initiate call
+  // Call Aria: Create service_request in Supabase, analyze media, trigger dispatch
   const callAria = useCallback(async () => {
-    if (callingAria) return
+    if (callingAria || !coords) return
     setCallingAria(true)
+    
     try {
-      const payload = {
-        client_location: coords,
-        language,
-        country,
-        phone,
-        description: searchQuery,
-        input_mode: inputMode,
-      }
-      await fetch('/api/agent/context', {
+      const selectedCountry = COUNTRIES.find(c => c.code === country)
+      const fullPhone = `${selectedCountry?.dial || '+1'}${phone.replace(/\D/g, '')}`
+      
+      // 1. Create service_request in Supabase
+      const createRes = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          lat: coords.lat,
+          lng: coords.lng,
+          description: searchQuery || `${inputMode} request`,
+          input_mode: inputMode,
+          language,
+          phone: fullPhone,
+          country,
+          status: 'qualified', // Ready for dispatch
+        }),
       })
-      // TODO: Initiate actual call via Twilio/RetellAI after context is set
+      
+      if (!createRes.ok) {
+        const err = await createRes.json()
+        throw new Error(err.error || 'Failed to create request')
+      }
+      
+      const { request } = await createRes.json()
+      const requestId = request.id
+      
+      // 2. If photo was uploaded, analyze it with Gemini
+      if (uploadedFile && inputMode === 'photo') {
+        const reader = new FileReader()
+        reader.onload = async () => {
+          const base64 = (reader.result as string).split(',')[1]
+          await fetch(`/api/requests/${requestId}/analyze-media`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              input_type: 'image',
+              image_base64: base64,
+            }),
+          })
+        }
+        reader.readAsDataURL(uploadedFile)
+      }
+      
+      // 3. Start GPS streaming for this request
+      const streamGps = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+              await fetch(`/api/requests/${requestId}/location`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude,
+                  role: 'client',
+                }),
+              })
+            },
+            () => {}, // Ignore errors silently
+            { enableHighAccuracy: true }
+          )
+        }
+      }
+      streamGps()
+      // Continue streaming every 30s (will stop when user navigates away)
+      const gpsInterval = setInterval(streamGps, 30000)
+      
+      // 4. Trigger dispatch to find providers
+      await fetch('/api/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId }),
+      })
+      
+      // 5. Notify parent to navigate to tracking
+      if (onRequestCreated) {
+        onRequestCreated(requestId)
+      }
+      
+      // Cleanup interval on unmount (handled by React)
+      return () => clearInterval(gpsInterval)
+      
     } catch (err) {
-      console.error('Failed to push context to Aria:', err)
+      console.error('Failed to create request:', err)
+      // Could show toast here
     } finally {
       setCallingAria(false)
     }
-  }, [callingAria, coords, language, country, phone, searchQuery, inputMode])
+  }, [callingAria, coords, language, country, phone, searchQuery, inputMode, uploadedFile, onRequestCreated])
 
   const requestLocation = useCallback(() => {
     setLoading(true)
@@ -532,17 +610,37 @@ export function MapPage() {
                 )}
                 {inputMode === 'photo' && (
                   <div className="flex items-center gap-3 w-full">
-                    <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                      <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                      <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                      <input type="file" accept="image/*" className="hidden" />
-                    </label>
-                    <span className="text-[#CBD5E1] text-[10px]">|</span>
-                    <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                      <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                      <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
-                      <input type="file" accept="image/*" capture="environment" className="hidden" />
-                    </label>
+                    {uploadedFile ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-[11px] font-semibold text-[#8FB34A] truncate max-w-[120px]">{uploadedFile.name}</span>
+                        <button type="button" onClick={() => setUploadedFile(null)} className="text-[10px] text-[#94A3B8] hover:text-red-500">Remove</button>
+                      </div>
+                    ) : (
+                      <>
+                        <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                          <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                          <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                          />
+                        </label>
+                        <span className="text-[#CBD5E1] text-[10px]">|</span>
+                        <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                          <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                          <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            capture="environment" 
+                            className="hidden"
+                            onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                          />
+                        </label>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -630,17 +728,37 @@ export function MapPage() {
               )}
               {inputMode === 'photo' && (
                 <div className="flex items-center gap-3 w-full">
-                  <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                    <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                    <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                    <input type="file" accept="image/*" className="hidden" />
-                  </label>
-                  <span className="text-[#CBD5E1] text-[10px]">|</span>
-                  <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                    <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                    <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
-                    <input type="file" accept="image/*" capture="environment" className="hidden" />
-                  </label>
+                  {uploadedFile ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <span className="text-[12px] font-semibold text-[#8FB34A] truncate max-w-[140px]">{uploadedFile.name}</span>
+                      <button type="button" onClick={() => setUploadedFile(null)} className="text-[11px] text-[#94A3B8] hover:text-red-500">Remove</button>
+                    </div>
+                  ) : (
+                    <>
+                      <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                        <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                        <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden"
+                          onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                        />
+                      </label>
+                      <span className="text-[#CBD5E1] text-[10px]">|</span>
+                      <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
+                        <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
+                        <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          capture="environment" 
+                          className="hidden"
+                          onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                        />
+                      </label>
+                    </>
+                  )}
                 </div>
               )}
             </div>
