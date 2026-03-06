@@ -32,7 +32,11 @@ CREATE POLICY "Service role full access client_locations"
 --    Drop and recreate functions with SET search_path = public
 -- ─────────────────────────────────────────────────────────────────────────────────
 
--- Drop existing functions first (required when changing return types or attributes)
+-- Drop policies that depend on is_admin() first
+DROP POLICY IF EXISTS "Admins can read all profiles" ON profiles;
+DROP POLICY IF EXISTS "Admins can read all requests" ON service_requests;
+
+-- Drop existing functions (required when changing return types or attributes)
 DROP FUNCTION IF EXISTS generate_service_code();
 DROP FUNCTION IF EXISTS set_service_code_on_assign() CASCADE;
 DROP FUNCTION IF EXISTS log_status_change() CASCADE;
@@ -238,6 +242,17 @@ BEGIN
   );
 END;
 $$;
+
+-- Recreate admin policies that depended on is_admin()
+CREATE POLICY "Admins can read all profiles"
+  ON profiles FOR SELECT
+  TO authenticated
+  USING (is_admin() = true);
+
+CREATE POLICY "Admins can read all requests"
+  ON service_requests FOR SELECT
+  TO authenticated
+  USING (is_admin() = true);
 
 -- ─────────────────────────────────────────────────────────────────────────────────
 -- 3. RECREATE TRIGGERS (dropped with CASCADE)
