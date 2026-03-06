@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import { retellClient } from '@/lib/retell-client'
 
 // GET /api/retell/agents - List all agents

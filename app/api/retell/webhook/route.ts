@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import { redis } from '@/lib/redis'
 
 // Retell webhook event types

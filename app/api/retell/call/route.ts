@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { retellClient, toE164, detectCountryFromCoords, DEFAULT_COUNTRY_CONFIGS } from '@/lib/retell-client'
-import { createServerClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import { redis, KEYS } from '@/lib/redis'
 
 export async function POST(request: NextRequest) {

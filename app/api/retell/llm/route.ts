@@ -8,7 +8,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import { redis } from '@/lib/redis'
 
 // Note: Vercel doesn't support native WebSocket in serverless functions.

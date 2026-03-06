@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { streamText } from 'ai'
 import { gateway } from '@ai-sdk/gateway'
-import { createServerClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import { redis } from '@/lib/redis'
 
 interface Utterance {
