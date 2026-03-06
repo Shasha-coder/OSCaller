@@ -39,10 +39,10 @@ ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS cancelled_by TEXT; -- 'cli
 
 -- Dispatch metadata
 ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS dispatch_attempts INTEGER DEFAULT 0;
-ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS current_offer_id UUID;
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS current_offer_id TEXT;
 
--- Call session reference
-ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS call_record_id UUID REFERENCES call_records(id);
+-- Call session reference (call_records.id is TEXT)
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS call_record_id TEXT;
 
 -- Create index on status for fast queries
 CREATE INDEX IF NOT EXISTS idx_service_requests_status ON service_requests(status);
@@ -82,9 +82,9 @@ ALTER TABLE payments ADD COLUMN IF NOT EXISTS provider_payout_cents INTEGER DEFA
 -- ─────────────────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS client_locations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  request_id UUID REFERENCES service_requests(id) ON DELETE SET NULL,
+  request_id TEXT REFERENCES service_requests(id) ON DELETE SET NULL,
   lat DOUBLE PRECISION NOT NULL,
   lng DOUBLE PRECISION NOT NULL,
   accuracy DOUBLE PRECISION,
@@ -101,7 +101,7 @@ CREATE INDEX IF NOT EXISTS idx_client_locations_time ON client_locations(recorde
 -- ─────────────────────────────────────────────────────────────────────────────────
 
 ALTER TABLE request_events ADD COLUMN IF NOT EXISTS actor_type TEXT; -- 'client', 'provider', 'agent', 'system'
-ALTER TABLE request_events ADD COLUMN IF NOT EXISTS actor_id UUID;
+ALTER TABLE request_events ADD COLUMN IF NOT EXISTS actor_id TEXT;
 ALTER TABLE request_events ADD COLUMN IF NOT EXISTS previous_status TEXT;
 ALTER TABLE request_events ADD COLUMN IF NOT EXISTS new_status TEXT;
 
@@ -301,7 +301,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ─────────────────────────────────────────────────────────────────────────────────
+-- ──────────────────────────────────────────────────────────────��──────────────────
 -- 11. REALTIME: Enable realtime for key tables
 --     Note: Run these individually. If table already exists in publication, skip it.
 -- ─────────────────────────────────────────────────────────────────────────────────
