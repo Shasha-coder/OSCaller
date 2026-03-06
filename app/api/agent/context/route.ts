@@ -91,9 +91,9 @@ export async function GET(req: NextRequest) {
 
     const db = createServerClient()
 
-    // ── 1. Get request with all new fields ──
+    // ── 1. Get request with all new fields from service_requests ──
     const { data: request, error } = await db
-      .from('requests')
+      .from('service_requests')
       .select('*')
       .eq('id', requestId)
       .single()
@@ -101,6 +101,10 @@ export async function GET(req: NextRequest) {
     if (error || !request) {
       return NextResponse.json({ error: 'Request not found' }, { status: 404 })
     }
+
+    // Use client_lat/lng if available (GPS streaming), fallback to lat/lng
+    const clientLat = request.client_lat || request.lat
+    const clientLng = request.client_lng || request.lng
 
     // ── 2. Get client user info (with language + country) ──
     let user = null
@@ -158,9 +162,9 @@ export async function GET(req: NextRequest) {
       }
 
       // ── Build live map data if provider has location ──
-      if (location && request.lat && request.lng) {
+      if (location && clientLat && clientLng) {
         const distanceKm = haversineKm(
-          request.lat, request.lng,
+          clientLat, clientLng,
           location.lat, location.lng
         )
         const speedKmH = location.speed ? location.speed * 3.6 : null // m/s -> km/h
@@ -242,10 +246,35 @@ export async function GET(req: NextRequest) {
     }
 
     // ── 9. Media / image context for visual understanding ──
+    // Now includes structured analysis from GPT vision
+    const mediaUrls = request.media_urls as string[] || []
+    const mediaAnalyses = request.media_analysis as Array<{
+      input_type: string
+      summary: string
+      detected_issue: string | null
+      severity: string | null
+      service_suggestion: string | null
+      key_details: string[]
+      location_hints: string[]
+      safety_concerns: string[]
+    }> || []
+    
+    // Get the most recent/relevant analysis
+    const latestAnalysis = mediaAnalyses[mediaAnalyses.length - 1]
+    
     const mediaContext = {
-      media_urls: (request as Record<string, unknown>).media_urls as string[] || [],
-      image_analysis: (request as Record<string, unknown>).image_analysis as string || null,
-      has_media: !!((request as Record<string, unknown>).media_urls as string[])?.length,
+      media_urls: mediaUrls,
+      has_media: mediaUrls.length > 0,
+      analysis_count: mediaAnalyses.length,
+      // Structured analysis for agent to read
+      latest_analysis: latestAnalysis || null,
+      // Pre-formatted prompt the agent can speak
+      agent_readable_summary: latestAnalysis 
+        ? `The customer ${latestAnalysis.input_type === 'image' ? 'sent a photo showing' : 'described'}: ${latestAnalysis.summary}${latestAnalysis.safety_concerns?.length > 0 ? ` IMPORTANT SAFETY NOTE: ${latestAnalysis.safety_concerns.join(', ')}` : ''}`
+        : null,
+      detected_issue: latestAnalysis?.detected_issue || null,
+      severity: latestAnalysis?.severity || null,
+      safety_concerns: latestAnalysis?.safety_concerns || [],
     }
 
     // ── Build final agent context ──
@@ -261,16 +290,22 @@ export async function GET(req: NextRequest) {
         language: clientLanguage,
       },
 
-      // Location
+      // Location (with live GPS if available)
       location: {
         address: request.address,
         unit: request.unit_number || null,
         building: request.building_name || null,
         entry_instructions: request.entry_instructions || null,
-        lat: request.lat,
-        lng: request.lng,
+        lat: clientLat,
+        lng: clientLng,
         is_apartment: request.is_apartment,
+        client_gps_fresh: request.client_location_updated_at 
+          ? (Date.now() - new Date(request.client_location_updated_at).getTime()) < 120_000
+          : false,
       },
+      
+      // Service verification code (for arrival confirmation)
+      service_code: request.service_code || null,
 
       // Service details
       service: {
