@@ -303,12 +303,43 @@ $$ LANGUAGE plpgsql;
 
 -- ─────────────────────────────────────────────────────────────────────────────────
 -- 11. REALTIME: Enable realtime for key tables
+--     Note: Run these individually. If table already exists in publication, skip it.
 -- ─────────────────────────────────────────────────────────────────────────────────
 
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS service_requests;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS dispatch_offers;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS provider_locations;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS client_locations;
+DO $$ 
+BEGIN
+  -- service_requests
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'service_requests'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE service_requests;
+  END IF;
+  
+  -- dispatch_offers
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'dispatch_offers'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE dispatch_offers;
+  END IF;
+  
+  -- provider_locations
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'provider_locations'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE provider_locations;
+  END IF;
+  
+  -- client_locations
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'client_locations'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE client_locations;
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DONE - Schema now aligned with dispatch pipeline spec
