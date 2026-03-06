@@ -1,13 +1,24 @@
 /**
  * OSCaller Dispatch Engine
  * ─── Provider search, ranking, and race protocol ───
+ * 
+ * State Machine:
+ * draft → qualified → searching → assigned → enroute → arrived → in_progress → completed
+ *                                    ↓
+ *                              cancelled / disputed
  */
 
 import { createServerClient } from '@/lib/supabase/server'
 import type { ServiceType, ProviderRow, ProviderStatsRow, ProviderLocationRow } from '@/lib/supabase/types'
 
+/* ─── Generate service verification code (OS + 4 digits) ─── */
+export function generateServiceCode(): string {
+    const digits = Math.floor(1000 + Math.random() * 9000)
+    return `OS${digits}`
+}
+
 /* ─── Haversine distance (km) ─── */
-function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+export function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371
     const dLat = (lat2 - lat1) * Math.PI / 180
     const dLng = (lng2 - lng1) * Math.PI / 180
@@ -155,10 +166,11 @@ export async function findProviders(params: {
 
 /**
  * Create dispatch offers (race protocol).
- * - Top provider gets a soft reservation window (8 seconds)
- * - Backups see "pending — backup slot active"
+ * - Top provider gets a soft reservation window (20 seconds)
+ * - Backups get staggered timeouts
+ * - offer_sequence tracks the ladder order
  */
-export async function createDispatchOffers(requestId: string, candidates: RankedProvider[]): Promise<void> {
+export async function createDispatchOffers(requestId: string, candidates: RankedProvider[]): Promise<string[]> {
     const db = createServerClient()
 
     const now = new Date()
@@ -166,22 +178,34 @@ export async function createDispatchOffers(requestId: string, candidates: Ranked
         request_id: requestId,
         provider_id: c.provider.id,
         status: 'pending' as const,
+        offer_sequence: idx + 1, // 1-indexed ladder position
         distance_km: c.distanceKm,
         eta_minutes: c.etaMinutes,
         quality_score: c.qualityScore,
-        reservation_expires_at: idx === 0
-            ? new Date(now.getTime() + 8000).toISOString()  // 8s soft reservation for top
-            : new Date(now.getTime() + 15000).toISOString(), // 15s for backups
+        timeout_at: new Date(now.getTime() + (20 + idx * 10) * 1000).toISOString(), // 20s, 30s, 40s...
     }))
 
-    await db.from('dispatch_offers').insert(offers)
+    const { data } = await db.from('dispatch_offers').insert(offers).select('id')
+    
+    // Update dispatch_attempts on service_requests
+    await db.from('service_requests')
+        .update({ dispatch_attempts: candidates.length })
+        .eq('id', requestId)
+    
+    return data?.map(o => o.id) || []
 }
 
 /**
  * Handle a provider accepting an offer.
  * Returns true if accepted (first wins), false if someone else got it.
+ * On success: generates service code, updates service_requests to 'assigned'
  */
-export async function acceptOffer(offerId: string, providerId: string): Promise<{ accepted: boolean; nearMiss: boolean }> {
+export async function acceptOffer(offerId: string, providerId: string): Promise<{ 
+    accepted: boolean
+    nearMiss: boolean
+    serviceCode?: string
+    requestId?: string
+}> {
     const db = createServerClient()
 
     // Get the offer
@@ -209,20 +233,22 @@ export async function acceptOffer(offerId: string, providerId: string): Promise<
         const now = Date.now()
         const nearMiss = (now - winnerTime) <= 3000
 
-        // Mark as near_miss and add token
+        // Mark as near_miss
         await db.from('dispatch_offers')
-            .update({ status: nearMiss ? 'near_miss' : 'declined', responded_at: new Date().toISOString() })
+            .update({ 
+                status: nearMiss ? 'near_miss' : 'declined', 
+                responded_at: new Date().toISOString() 
+            })
             .eq('id', offerId)
 
         if (nearMiss) {
             // Grant near-miss token
-            await db.rpc('increment_near_miss_tokens' as never, { p_provider_id: providerId } as never)
-                .then(() => { })
-                .catch(() => {
-                    // Fallback: manual increment if RPC doesn't exist
-                    db.from('provider_stats')
-                        .update({ near_miss_tokens: (offer as Record<string, unknown>).near_miss_tokens as number + 1 || 1 })
-                        .eq('provider_id', providerId)
+            await db.from('provider_stats')
+                .update({ near_miss_tokens: 1 })
+                .eq('provider_id', providerId)
+                .then(() => {
+                    // Increment if update worked
+                    db.rpc('increment', { x: 1, row_id: providerId } as never).catch(() => {})
                 })
         }
 
@@ -241,10 +267,154 @@ export async function acceptOffer(offerId: string, providerId: string): Promise<
         .neq('id', offerId)
         .eq('status', 'pending')
 
-    // Update request with assigned provider
-    await db.from('requests')
-        .update({ provider_id: providerId, status: 'found' })
+    // Generate service code
+    const serviceCode = generateServiceCode()
+
+    // Update service_requests with assigned provider + service code + timestamps
+    await db.from('service_requests')
+        .update({ 
+            provider_id: providerId, 
+            status: 'assigned',
+            service_code: serviceCode,
+            assigned_at: new Date().toISOString(),
+            current_offer_id: offerId,
+            eta_minutes: offer.eta_minutes,
+        })
         .eq('id', offer.request_id)
 
-    return { accepted: true, nearMiss: false }
+    // Log event
+    await db.from('request_events').insert({
+        request_id: offer.request_id,
+        label: `Provider assigned. Code: ${serviceCode}`,
+        status: 'completed',
+        actor_type: 'system',
+        new_status: 'assigned',
+        previous_status: 'searching',
+    })
+
+    return { accepted: true, nearMiss: false, serviceCode, requestId: offer.request_id }
+}
+
+/**
+ * Update request status with proper state machine validation + timestamps
+ */
+export async function updateRequestStatus(
+    requestId: string, 
+    newStatus: string,
+    actorType: 'client' | 'provider' | 'agent' | 'system' = 'system',
+    actorId?: string,
+    metadata?: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> {
+    const db = createServerClient()
+
+    // Get current request
+    const { data: request, error } = await db
+        .from('service_requests')
+        .select('status')
+        .eq('id', requestId)
+        .single()
+
+    if (error || !request) {
+        return { success: false, error: 'Request not found' }
+    }
+
+    const currentStatus = request.status
+
+    // State machine validation
+    const validTransitions: Record<string, string[]> = {
+        'draft': ['qualified', 'cancelled'],
+        'qualified': ['searching', 'cancelled'],
+        'searching': ['assigned', 'cancelled'],
+        'assigned': ['enroute', 'cancelled'],
+        'enroute': ['arrived', 'cancelled'],
+        'arrived': ['in_progress', 'cancelled', 'disputed'],
+        'in_progress': ['completed', 'cancelled', 'disputed'],
+        'completed': ['disputed'],
+        'cancelled': [],
+        'disputed': ['completed', 'cancelled'],
+    }
+
+    if (!validTransitions[currentStatus]?.includes(newStatus)) {
+        return { success: false, error: `Invalid transition: ${currentStatus} → ${newStatus}` }
+    }
+
+    // Build update object with appropriate timestamps
+    const update: Record<string, unknown> = { status: newStatus }
+    const now = new Date().toISOString()
+
+    switch (newStatus) {
+        case 'enroute':
+            update.enroute_at = now
+            break
+        case 'arrived':
+            update.arrival_confirmed_at = now
+            break
+        case 'in_progress':
+            update.work_started_at = now
+            break
+        case 'completed':
+            update.work_completed_at = now
+            break
+        case 'cancelled':
+            update.cancelled_at = now
+            if (metadata?.reason) update.cancellation_reason = metadata.reason
+            if (metadata?.cancelledBy) update.cancelled_by = metadata.cancelledBy
+            break
+    }
+
+    await db.from('service_requests')
+        .update(update)
+        .eq('id', requestId)
+
+    // Log event
+    await db.from('request_events').insert({
+        request_id: requestId,
+        label: `Status: ${newStatus}`,
+        status: 'completed',
+        actor_type: actorType,
+        actor_id: actorId,
+        new_status: newStatus,
+        previous_status: currentStatus,
+        metadata: metadata ? JSON.stringify(metadata) : null,
+    })
+
+    return { success: true }
+}
+
+/**
+ * Verify service code at arrival
+ */
+export async function verifyServiceCode(
+    requestId: string, 
+    code: string, 
+    providerId: string
+): Promise<{ verified: boolean; error?: string }> {
+    const db = createServerClient()
+
+    const { data: request, error } = await db
+        .from('service_requests')
+        .select('service_code, status, provider_id')
+        .eq('id', requestId)
+        .single()
+
+    if (error || !request) {
+        return { verified: false, error: 'Request not found' }
+    }
+
+    if (request.provider_id !== providerId) {
+        return { verified: false, error: 'Not assigned to this provider' }
+    }
+
+    if (request.status !== 'arrived') {
+        return { verified: false, error: 'Must be in arrived status to verify code' }
+    }
+
+    if (request.service_code?.toUpperCase() !== code.toUpperCase()) {
+        return { verified: false, error: 'Invalid code' }
+    }
+
+    // Code verified - transition to in_progress
+    await updateRequestStatus(requestId, 'in_progress', 'provider', providerId)
+
+    return { verified: true }
 }

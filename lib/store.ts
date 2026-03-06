@@ -4,16 +4,18 @@ export type ServiceType = 'plumbing' | 'electrical' | 'hvac' | 'locksmith' | 'ap
 
 export type EmergencyLevel = 'emergency' | 'urgent' | 'standard'
 
+// Full state machine per dispatch pipeline spec
 export type RequestStatus =
-  | 'idle'
-  | 'submitted'
-  | 'searching'
-  | 'expanding'
-  | 'found'
-  | 'pre-authorized'
-  | 'en-route'
-  | 'arrived'
-  | 'completed'
+  | 'draft'           // Initial creation, incomplete info
+  | 'qualified'       // All info collected, ready for dispatch
+  | 'searching'       // Actively looking for provider (offers being sent)
+  | 'assigned'        // Provider accepted, not yet moving
+  | 'enroute'         // Provider is traveling to client
+  | 'arrived'         // Provider at location, waiting for code verification
+  | 'in_progress'     // Work has started (code verified)
+  | 'completed'       // Work finished, payment captured
+  | 'cancelled'       // Cancelled by client/provider/system
+  | 'disputed'        // Under review due to issue
 
 export type AppPage = 'home' | 'tracking' | 'history' | 'support' | 'map'
 
@@ -58,7 +60,39 @@ export interface ServiceRequest {
   provider?: Provider
   timeline: TimelineEvent[]
   createdAt: Date
-  paymentStatus: 'none' | 'authorized' | 'captured' | 'refunded'
+  
+  // Service verification code (e.g., OS3460)
+  serviceCode?: string
+  
+  // Pricing
+  estimatedPriceCents?: number
+  finalPriceCents?: number
+  
+  // GPS tracking
+  clientLat?: number
+  clientLng?: number
+  providerLat?: number
+  providerLng?: number
+  etaMinutes?: number
+  
+  // Timestamps
+  assignedAt?: Date
+  enrouteAt?: Date
+  arrivalConfirmedAt?: Date
+  workStartedAt?: Date
+  workCompletedAt?: Date
+  cancelledAt?: Date
+  
+  // Cancellation
+  cancellationReason?: string
+  cancelledBy?: 'client' | 'provider' | 'system'
+  
+  // Dispatch
+  dispatchAttempts?: number
+  currentOfferId?: string
+  
+  // Payment
+  paymentStatus: 'none' | 'hold_created' | 'hold_captured' | 'refunded'
 }
 
 export const SERVICE_OPTIONS: { type: ServiceType; label: string; icon: string }[] = [

@@ -59,43 +59,64 @@ export async function POST(req: NextRequest) {
 
         const db = createServerClient()
 
-        // 4. Handle event types
+        // 4. Handle event types (using service_requests table)
         switch (type) {
             case 'conversation.started':
                 await db.from('request_events').insert({
                     request_id,
                     label: 'AI agent connected',
                     status: 'active',
-                    metadata: { agent_id: data?.agent_id },
+                    actor_type: 'agent',
+                    metadata: JSON.stringify({ agent_id: data?.agent_id }),
                 })
                 break
 
             case 'conversation.status_update':
                 if (data?.status) {
-                    await db.from('requests')
-                        .update({ status: data.status })
+                    // Map to our state machine statuses
+                    const statusMap: Record<string, string> = {
+                        'searching': 'searching',
+                        'found': 'assigned',
+                        'en-route': 'enroute',
+                        'arrived': 'arrived',
+                        'in-progress': 'in_progress',
+                        'completed': 'completed',
+                        'cancelled': 'cancelled',
+                    }
+                    const mappedStatus = statusMap[data.status] || data.status
+
+                    await db.from('service_requests')
+                        .update({ status: mappedStatus })
                         .eq('id', request_id)
 
                     await db.from('request_events').insert({
                         request_id,
-                        label: data.label || `Status: ${data.status}`,
+                        label: data.label || `Status: ${mappedStatus}`,
                         status: 'active',
-                        metadata: data,
+                        actor_type: 'agent',
+                        new_status: mappedStatus,
+                        metadata: JSON.stringify(data),
                     })
                 }
                 break
 
             case 'conversation.provider_found':
                 if (data?.provider_id) {
-                    await db.from('requests')
-                        .update({ status: 'found', provider_id: data.provider_id })
+                    await db.from('service_requests')
+                        .update({ 
+                            status: 'assigned', 
+                            provider_id: data.provider_id,
+                            assigned_at: new Date().toISOString(),
+                        })
                         .eq('id', request_id)
 
                     await db.from('request_events').insert({
                         request_id,
-                        label: `Found: ${data.provider_name || 'Provider'} (${data.rating || ''}⭐, ${data.jobs || ''} jobs)`,
+                        label: `Assigned: ${data.provider_name || 'Provider'} (${data.rating || ''}★, ${data.jobs || ''} jobs)`,
                         status: 'active',
-                        metadata: data,
+                        actor_type: 'agent',
+                        new_status: 'assigned',
+                        metadata: JSON.stringify(data),
                     })
                 }
                 break
@@ -105,7 +126,8 @@ export async function POST(req: NextRequest) {
                     request_id,
                     label: 'AI agent disconnected',
                     status: 'complete',
-                    metadata: { duration_seconds: data?.duration },
+                    actor_type: 'agent',
+                    metadata: JSON.stringify({ duration_seconds: data?.duration }),
                 })
                 break
 
@@ -115,7 +137,8 @@ export async function POST(req: NextRequest) {
                     request_id,
                     label: `Agent event: ${type}`,
                     status: 'active',
-                    metadata: event,
+                    actor_type: 'agent',
+                    metadata: JSON.stringify(event),
                 })
         }
 
