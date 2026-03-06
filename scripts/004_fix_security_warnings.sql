@@ -29,11 +29,21 @@ CREATE POLICY "Service role full access client_locations"
 
 -- ─────────────────────────────────────────────────────────────────────────────────
 -- 2. FIX FUNCTION search_path WARNINGS
---    Recreate functions with SET search_path = public
+--    Drop and recreate functions with SET search_path = public
 -- ─────────────────────────────────────────────────────────────────────────────────
 
--- Fix generate_service_code
-CREATE OR REPLACE FUNCTION generate_service_code()
+-- Drop existing functions first (required when changing return types or attributes)
+DROP FUNCTION IF EXISTS generate_service_code();
+DROP FUNCTION IF EXISTS set_service_code_on_assign() CASCADE;
+DROP FUNCTION IF EXISTS log_status_change() CASCADE;
+DROP FUNCTION IF EXISTS find_nearest_providers(DOUBLE PRECISION, DOUBLE PRECISION, TEXT, DOUBLE PRECISION, INTEGER);
+DROP FUNCTION IF EXISTS update_updated_at() CASCADE;
+DROP FUNCTION IF EXISTS handle_updated_at() CASCADE;
+DROP FUNCTION IF EXISTS handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS is_admin();
+
+-- Recreate generate_service_code
+CREATE FUNCTION generate_service_code()
 RETURNS TEXT
 LANGUAGE plpgsql
 SET search_path = public
@@ -51,8 +61,8 @@ BEGIN
 END;
 $$;
 
--- Fix set_service_code_on_assign
-CREATE OR REPLACE FUNCTION set_service_code_on_assign()
+-- Recreate set_service_code_on_assign
+CREATE FUNCTION set_service_code_on_assign()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SET search_path = public
@@ -87,8 +97,8 @@ BEGIN
 END;
 $$;
 
--- Fix log_status_change
-CREATE OR REPLACE FUNCTION log_status_change()
+-- Recreate log_status_change
+CREATE FUNCTION log_status_change()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SET search_path = public
@@ -108,8 +118,8 @@ BEGIN
 END;
 $$;
 
--- Fix find_nearest_providers
-CREATE OR REPLACE FUNCTION find_nearest_providers(
+-- Recreate find_nearest_providers
+CREATE FUNCTION find_nearest_providers(
   p_lat DOUBLE PRECISION,
   p_lng DOUBLE PRECISION,
   p_service_type TEXT DEFAULT NULL,
@@ -164,8 +174,8 @@ BEGIN
 END;
 $$;
 
--- Fix update_updated_at (if it exists)
-CREATE OR REPLACE FUNCTION update_updated_at()
+-- Recreate update_updated_at
+CREATE FUNCTION update_updated_at()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SET search_path = public
@@ -176,8 +186,8 @@ BEGIN
 END;
 $$;
 
--- Fix handle_updated_at (if it exists)
-CREATE OR REPLACE FUNCTION handle_updated_at()
+-- Recreate handle_updated_at
+CREATE FUNCTION handle_updated_at()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SET search_path = public
@@ -188,8 +198,8 @@ BEGIN
 END;
 $$;
 
--- Fix handle_new_user
-CREATE OR REPLACE FUNCTION handle_new_user()
+-- Recreate handle_new_user
+CREATE FUNCTION handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -214,8 +224,8 @@ BEGIN
 END;
 $$;
 
--- Fix is_admin
-CREATE OR REPLACE FUNCTION is_admin()
+-- Recreate is_admin
+CREATE FUNCTION is_admin()
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -230,7 +240,29 @@ END;
 $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────────
--- 3. NOTE ON REMAINING WARNINGS
+-- 3. RECREATE TRIGGERS (dropped with CASCADE)
+-- ─────────────────────────────────────────────────────────────────────────────────
+
+-- Trigger for auto-generating service code and timestamps on status change
+DROP TRIGGER IF EXISTS trg_set_service_code ON service_requests;
+CREATE TRIGGER trg_set_service_code
+  BEFORE UPDATE ON service_requests
+  FOR EACH ROW EXECUTE FUNCTION set_service_code_on_assign();
+
+-- Trigger for logging status changes to audit trail
+DROP TRIGGER IF EXISTS trg_log_status_change ON service_requests;
+CREATE TRIGGER trg_log_status_change
+  AFTER UPDATE ON service_requests
+  FOR EACH ROW EXECUTE FUNCTION log_status_change();
+
+-- Trigger for handle_new_user on auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- ─────────────────────────────────────────────────────────────────────────────────
+-- 4. NOTE ON REMAINING WARNINGS
 -- ─────────────────────────────────────────────────────────────────────────────────
 -- 
 -- The following warnings are INTENTIONAL and should NOT be fixed:
