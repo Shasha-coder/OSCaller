@@ -5,12 +5,22 @@
 
 ---
 
+## Quick Reference (Copy-Paste Ready)
+
+| Configuration | Value |
+|---------------|-------|
+| **Webhook URL** | `https://oscaller.com/api/retell/webhook` |
+| **Custom LLM URL** | `https://oscaller.com/api/retell/llm-stream` |
+| **Outbound Call API** | `https://oscaller.com/api/retell/call` |
+
+---
+
 ## Overview
 
 OSCaller uses RetellAI to power "Aria" - an AI voice agent that:
 1. Receives service requests (photo, audio, text) from customers
 2. Calls the customer to clarify the problem and gather details
-3. Finds the nearest available service provider
+3. Finds the nearest available service provider based on location
 4. Dispatches the provider and provides ETA to the customer
 
 ---
@@ -338,6 +348,42 @@ The database has been seeded with 7 test providers for testing:
 - Verify `request_id` is passed when initiating call
 - Check service_request exists in database
 - Check media_analysis field is populated
+
+---
+
+## Security
+
+### Webhook Signature Verification
+
+All incoming webhooks are verified using HMAC-SHA256 signatures. The implementation:
+
+1. Extracts `x-retell-signature` header from request
+2. Computes HMAC-SHA256 of raw request body using `RETELL_API_KEY`
+3. Compares signatures using timing-safe comparison
+4. Rejects requests with invalid/missing signatures (returns 401)
+
+**Important:** Never disable signature verification in production.
+
+### Database Tables Created
+
+The integration creates these tables for audit and tracking:
+
+| Table | Purpose |
+|-------|---------|
+| `retell_webhook_events` | Raw webhook event storage for audit/debugging |
+| `call_attempts` | Track each call attempt with status and outcome |
+
+### Service Request Updates
+
+When calls complete, these fields are updated on `service_requests`:
+
+- `retell_call_id` - The active call ID
+- `call_status` - pending/ringing/in_progress/completed/failed/no_answer
+- `call_transcript` - Full conversation transcript
+- `call_recording_url` - Link to call recording
+- `call_summary` - AI-generated summary
+- `call_sentiment` - positive/negative/neutral/unknown
+- `customer_confirmed_dispatch` - Boolean if customer said yes
 
 ---
 
