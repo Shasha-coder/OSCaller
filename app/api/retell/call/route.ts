@@ -139,6 +139,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Create the call via Retell API
+    console.log('[v0] Retell dynamic variables:', JSON.stringify(retell_llm_dynamic_variables, null, 2))
+    
     const callResponse = await retellClient.createPhoneCall({
       from_number: fromNumber,
       to_number: clientPhone,

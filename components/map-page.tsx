@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════���════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -524,12 +524,17 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       const { request } = await createRes.json()
       const requestId = request.id
       
-      // 2. If photo was uploaded, analyze it with Gemini
+      // 2. If photo was uploaded, analyze it with Gemini FIRST (before call)
+      let photoSummary = ''
       if (uploadedFile && inputMode === 'photo') {
-        const reader = new FileReader()
-        reader.onload = async () => {
-          const base64 = (reader.result as string).split(',')[1]
-          await fetch(`/api/requests/${requestId}/analyze-media`, {
+        try {
+          const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve((reader.result as string).split(',')[1])
+            reader.readAsDataURL(uploadedFile)
+          })
+          
+          const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -537,24 +542,40 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               image_base64: base64,
             }),
           })
+          
+          if (analyzeRes.ok) {
+            const analyzeData = await analyzeRes.json()
+            photoSummary = analyzeData.summary || analyzeData.analysis || ''
+          }
+        } catch (e) {
+          console.error('Photo analysis failed:', e)
         }
-        reader.readAsDataURL(uploadedFile)
       }
       
-      // 3. Trigger Retell AI call to client
+      // 3. Trigger Retell AI call to client with full context
       setCallStatus('ringing')
+      
+      const callPayload = {
+        request_id: requestId,
+        phone: fullPhone,
+        country_code: country,
+        language,
+        lat: coords!.lat,
+        lng: coords!.lng,
+        customer_name: 'Customer',
+        // Pass context for Aria's dynamic variables
+        issue_description: inputMode === 'text' ? searchQuery : '',
+        photo_summary: photoSummary,
+        service_type: 'general',
+        urgency: 'standard',
+      }
+      
+      console.log('[v0] Calling Retell with payload:', callPayload)
+      
       const callRes = await fetch('/api/retell/call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          request_id: requestId,
-          phone: fullPhone,
-          country_code: country,
-          language,
-          lat: coords!.lat,
-          lng: coords!.lng,
-          customer_name: 'Customer',
-        }),
+        body: JSON.stringify(callPayload),
       })
       
       if (!callRes.ok) {
