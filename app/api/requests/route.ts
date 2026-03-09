@@ -82,12 +82,17 @@ export async function POST(request: NextRequest) {
 
     if (isMapPageMode) {
       // MapPage mode: Create with GPS location, status qualified, minimal fields
+      // Note: language and input_mode are stored in description metadata since columns don't exist
+      const descWithMeta = description 
+        ? `${description}\n---\nLanguage: ${language || 'English'}, Input: ${input_mode || 'text'}`
+        : `Language: ${language || 'English'}, Input: ${input_mode || 'text'}`
+      
       const { data: srData, error: srError } = await db
         .from('service_requests')
         .insert({
           id: requestId,
           customer_name: customer_name || 'Customer',
-          customer_phone: phone || null,
+          customer_phone: phone || '',
           customer_id: customer_id || null,
           address: `GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
           lat,
@@ -97,10 +102,8 @@ export async function POST(request: NextRequest) {
           client_location_updated_at: new Date().toISOString(),
           service: service || 'general',
           priority: priority || 'urgent',
-          description: description || '',
+          description: descWithMeta,
           status: status || 'qualified',
-          language: language || 'English',
-          input_mode: input_mode || 'text',
         })
         .select()
         .single()
@@ -148,6 +151,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Insert into service_requests (the dispatch/tracking table)
+    const descWithLang = description 
+      ? `${description}\n---\nLanguage: ${language || 'English'}`
+      : ''
+    
     const { data: srData, error: srError } = await db
       .from('service_requests')
       .insert({
@@ -162,9 +169,8 @@ export async function POST(request: NextRequest) {
         client_lng: lng || null,
         service,
         priority,
-        description: description || '',
+        description: descWithLang,
         status: 'submitted',
-        language: language || 'English',
       })
       .select()
       .single()

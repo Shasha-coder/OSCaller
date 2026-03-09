@@ -57,9 +57,10 @@ export interface RankedProvider {
 
 /**
  * Find and rank providers by trade, availability, distance, and quality.
+ * If trade is not specified, returns all active providers near the location.
  */
 export async function findProviders(params: {
-    trade: ServiceType
+    trade?: ServiceType
     lat: number
     lng: number
     radiusKm?: number
@@ -69,12 +70,17 @@ export async function findProviders(params: {
     const { trade, lat, lng, radiusKm = 5, emergencyLevel = 'standard', limit = 10 } = params
     const db = createServerClient()
 
-    // 1. Get active providers for this trade who are online
-    const { data: providers } = await db
+    // 1. Get active providers (filter by trade if specified)
+    let query = db
         .from('providers')
         .select('*')
-        .eq('trade', trade)
         .eq('is_active', true)
+    
+    if (trade) {
+        query = query.eq('trade', trade)
+    }
+    
+    const { data: providers } = await query
 
     if (!providers?.length) return []
 

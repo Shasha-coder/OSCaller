@@ -8,17 +8,18 @@ import type { ServiceType } from '@/lib/supabase/types'
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url)
-        const trade = searchParams.get('trade') as ServiceType
+        const trade = searchParams.get('trade') as ServiceType | null
         const lat = parseFloat(searchParams.get('lat') || '0')
         const lng = parseFloat(searchParams.get('lng') || '0')
         const radius = parseFloat(searchParams.get('radius') || '5')
 
-        if (!trade || !lat || !lng) {
-            return NextResponse.json({ error: 'Missing query params: trade, lat, lng' }, { status: 400 })
+        // lat and lng are required, trade is optional (shows all providers if not specified)
+        if (!lat || !lng) {
+            return NextResponse.json({ error: 'Missing query params: lat, lng' }, { status: 400 })
         }
 
         const providers = await findProviders({
-            trade,
+            trade: trade || undefined,
             lat,
             lng,
             radiusKm: radius,
