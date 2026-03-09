@@ -1,20 +1,20 @@
 /**
  * Retell Webhook Signature Verification
- * Verifies the x-retell-signature header to ensure webhook authenticity
+ * Uses Retell SDK's official verify method for webhook authenticity
  */
-import crypto from 'crypto'
+import Retell from 'retell-sdk'
 
 export function verifyRetellWebhookSignature(args: {
   rawBody: string
   signature: string | null
-  secret: string | undefined
+  apiKey: string | undefined
 }): boolean {
-  const { rawBody, signature, secret } = args
+  const { rawBody, signature, apiKey } = args
 
-  // If no secret configured, skip verification (dev mode)
-  // In production, ALWAYS set RETELL_WEBHOOK_SECRET
-  if (!secret) {
-    console.warn('[Retell Webhook] No RETELL_WEBHOOK_SECRET configured - skipping signature verification')
+  // If no API key configured, skip verification (dev mode only)
+  // In production, ALWAYS set RETELL_API_KEY
+  if (!apiKey) {
+    console.warn('[Retell Webhook] No RETELL_API_KEY configured - skipping signature verification')
     return true
   }
 
@@ -24,21 +24,14 @@ export function verifyRetellWebhookSignature(args: {
   }
 
   try {
-    // Retell uses HMAC SHA-256 for webhook signatures
-    const expected = crypto
-      .createHmac('sha256', secret)
-      .update(rawBody, 'utf8')
-      .digest('hex')
-
-    // Use timing-safe comparison to prevent timing attacks
-    const signatureBuffer = Buffer.from(signature)
-    const expectedBuffer = Buffer.from(expected)
-
-    if (signatureBuffer.length !== expectedBuffer.length) {
-      return false
+    // Use Retell SDK's official verification method
+    const isValid = Retell.verify(rawBody, apiKey, signature)
+    
+    if (!isValid) {
+      console.error('[Retell Webhook] Signature verification failed')
     }
-
-    return crypto.timingSafeEqual(signatureBuffer, expectedBuffer)
+    
+    return isValid
   } catch (error) {
     console.error('[Retell Webhook] Signature verification error:', error)
     return false
