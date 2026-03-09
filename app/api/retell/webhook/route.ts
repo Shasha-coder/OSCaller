@@ -67,11 +67,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // Verify webhook signature
+  // Verify webhook signature using Retell SDK
+  // Uses RETELL_API_KEY (the key with webhook badge in Retell dashboard)
   const isValid = verifyRetellWebhookSignature({
     rawBody,
     signature,
-    secret: process.env.RETELL_WEBHOOK_SECRET,
+    apiKey: process.env.RETELL_API_KEY,
   })
 
   if (!isValid) {
