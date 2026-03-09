@@ -360,6 +360,16 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(143, 179, 74, 0.1);
 }
 
+/* Phone wiggle animation for calling state */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-15deg); }
+  20% { transform: rotate(15deg); }
+  30% { transform: rotate(-15deg); }
+  40% { transform: rotate(15deg); }
+  50% { transform: rotate(0deg); }
+}
+
 /* Dark mode overrides for admin */
 .dark {
   --background: #0B0F1A;
