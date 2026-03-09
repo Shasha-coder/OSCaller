@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { RETELL_LANGUAGES, RETELL_VOICES } from '@/lib/retell-types'
+import { RETELL_LANGUAGES, RETELL_VOICES, RETELL_COUNTRIES } from '@/lib/retell-types'
 
 interface Agent {
   id: string
@@ -37,20 +37,7 @@ interface Agent {
   updated_at: string
 }
 
-const COUNTRIES = [
-  { code: 'CA', name: 'Canada', dial: '+1' },
-  { code: 'US', name: 'United States', dial: '+1' },
-  { code: 'GB', name: 'United Kingdom', dial: '+44' },
-  { code: 'FR', name: 'France', dial: '+33' },
-  { code: 'DE', name: 'Germany', dial: '+49' },
-  { code: 'ES', name: 'Spain', dial: '+34' },
-  { code: 'IT', name: 'Italy', dial: '+39' },
-  { code: 'AU', name: 'Australia', dial: '+61' },
-  { code: 'BR', name: 'Brazil', dial: '+55' },
-  { code: 'MX', name: 'Mexico', dial: '+52' },
-  { code: 'JP', name: 'Japan', dial: '+81' },
-  { code: 'IN', name: 'India', dial: '+91' },
-]
+
 
 function getCountryFlag(code: string) {
   return code.toUpperCase().replace(/./g, c => 
@@ -230,7 +217,7 @@ export default function AgentsAdminPage() {
                   <div>
                     <h3 className="text-base font-semibold text-white">{agent.name}</h3>
                     <p className="text-sm text-white/40">
-                      {COUNTRIES.find(c => c.code === agent.country_code)?.name || agent.country_code}
+                      {RETELL_COUNTRIES.find(c => c.code === agent.country_code)?.name || agent.country_code}
                     </p>
                   </div>
                 </div>
@@ -366,7 +353,7 @@ export default function AgentsAdminPage() {
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#0D1220] border-white/[0.08]">
-                    {COUNTRIES.map(c => (
+                    {RETELL_COUNTRIES.map(c => (
                       <SelectItem key={c.code} value={c.code} className="text-white/70 focus:bg-white/[0.08] focus:text-white">
                         {getCountryFlag(c.code)} {c.name}
                       </SelectItem>

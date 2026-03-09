@@ -180,3 +180,50 @@ export const RETELL_VOICES = [
   { id: 'eleven_turbo_v2', name: 'ElevenLabs Turbo v2' },
   { id: 'eleven_flash_v2', name: 'ElevenLabs Flash v2' },
 ] as const
+
+// ── Supported Countries ──────────────────────────────────────────────────────
+export const RETELL_COUNTRIES = [
+  // North America
+  { code: 'CA', name: 'Canada', dial: '+1' },
+  { code: 'US', name: 'United States', dial: '+1' },
+  { code: 'MX', name: 'Mexico', dial: '+52' },
+  // Europe
+  { code: 'GB', name: 'United Kingdom', dial: '+44' },
+  { code: 'FR', name: 'France', dial: '+33' },
+  { code: 'DE', name: 'Germany', dial: '+49' },
+  { code: 'ES', name: 'Spain', dial: '+34' },
+  { code: 'IT', name: 'Italy', dial: '+39' },
+  { code: 'NL', name: 'Netherlands', dial: '+31' },
+  { code: 'BE', name: 'Belgium', dial: '+32' },
+  { code: 'CH', name: 'Switzerland', dial: '+41' },
+  { code: 'AT', name: 'Austria', dial: '+43' },
+  { code: 'PT', name: 'Portugal', dial: '+351' },
+  { code: 'IE', name: 'Ireland', dial: '+353' },
+  { code: 'PL', name: 'Poland', dial: '+48' },
+  { code: 'SE', name: 'Sweden', dial: '+46' },
+  { code: 'NO', name: 'Norway', dial: '+47' },
+  { code: 'DK', name: 'Denmark', dial: '+45' },
+  { code: 'FI', name: 'Finland', dial: '+358' },
+  // Asia Pacific
+  { code: 'AU', name: 'Australia', dial: '+61' },
+  { code: 'NZ', name: 'New Zealand', dial: '+64' },
+  { code: 'JP', name: 'Japan', dial: '+81' },
+  { code: 'KR', name: 'South Korea', dial: '+82' },
+  { code: 'SG', name: 'Singapore', dial: '+65' },
+  { code: 'HK', name: 'Hong Kong', dial: '+852' },
+  { code: 'IN', name: 'India', dial: '+91' },
+  { code: 'PH', name: 'Philippines', dial: '+63' },
+  // Middle East
+  { code: 'AE', name: 'United Arab Emirates', dial: '+971' },
+  { code: 'SA', name: 'Saudi Arabia', dial: '+966' },
+  { code: 'IL', name: 'Israel', dial: '+972' },
+  // South America
+  { code: 'BR', name: 'Brazil', dial: '+55' },
+  { code: 'AR', name: 'Argentina', dial: '+54' },
+  { code: 'CL', name: 'Chile', dial: '+56' },
+  { code: 'CO', name: 'Colombia', dial: '+57' },
+  // Africa
+  { code: 'ZA', name: 'South Africa', dial: '+27' },
+  { code: 'NG', name: 'Nigeria', dial: '+234' },
+  { code: 'EG', name: 'Egypt', dial: '+20' },
+] as const
