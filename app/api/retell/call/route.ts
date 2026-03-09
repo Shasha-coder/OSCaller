@@ -102,9 +102,27 @@ export async function POST(request: NextRequest) {
 
     // 4. Build dynamic variables for Aria's prompt context
     // These get injected into Aria's conversation
+    
+    // Build a natural request summary for Aria to reference
+    let requestSummary = ''
+    if (service_type && service_type !== 'general') {
+      requestSummary = `${service_type} request`
+    } else if (issue_description) {
+      // Extract first few words of description
+      const shortDesc = issue_description.split(' ').slice(0, 6).join(' ')
+      requestSummary = `request about ${shortDesc}${issue_description.split(' ').length > 6 ? '...' : ''}`
+    } else if (photo_summary) {
+      requestSummary = 'request with a photo'
+    } else if (audio_summary) {
+      requestSummary = 'voice request'
+    } else {
+      requestSummary = 'service request'
+    }
+    
     const retell_llm_dynamic_variables = {
       customer_name: customer_name || 'Customer',
       request_id,
+      request_summary: requestSummary,
       service_type: service_type || 'home service',
       urgency: urgency || 'standard',
       language: agentLanguage,
