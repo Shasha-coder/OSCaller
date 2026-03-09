@@ -462,20 +462,21 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
   // Validate before call
   const validateCall = useCallback((): string | null => {
-    if (!coords) return 'Please enable GPS location'
-    if (!language) return 'Please select your language'
-    if (!phone || phone.length < 7) return 'Please enter your phone number'
+    const missingFields: string[] = []
+    
+    if (!coords) missingFields.push('GPS location')
+    if (!language) missingFields.push('language')
+    if (!phone || phone.length < 7) missingFields.push('phone number')
+    
+    if (missingFields.length > 0) {
+      return `Please fill the form to make the call`
+    }
+    
     const selectedCountry = COUNTRIES.find(c => c.code === country)
     if (!selectedCountry?.supported) return 'Service not available in this country yet'
-    // Check if user has provided some input (text, voice, or photo)
-    if (inputMode === 'text' && !searchQuery.trim()) {
-      // Text mode but no description - that's okay, agent will ask
-    }
-    if (inputMode === 'photo' && !uploadedFile) {
-      // Photo mode but no file - warn but allow
-    }
+    
     return null
-  }, [coords, language, phone, country, inputMode, searchQuery, uploadedFile])
+  }, [coords, language, phone, country])
 
   // Call Aria: Validate, Create request, Trigger Retell call, Navigate to tracking
   const callAria = useCallback(async () => {
@@ -900,11 +901,11 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full sm:max-h-[calc(100vh-180px)]">
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full">
         
         {/* Left Panel - Request Form */}
-        <div className="flex flex-col h-full max-h-full overflow-hidden">
-          {/* Form Card */}
+        <div className="flex flex-col h-full">
+          {/* Form Card - Same height as map */}
           <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 overflow-y-auto">
             
             {/* Language */}
@@ -1054,9 +1055,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               data-no-focus-ring
               onClick={callAria}
               disabled={callingAria}
-              className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-xl bg-gradient-to-r from-[#8FB34A] to-[#7DA33F] text-white text-[16px] font-bold shadow-[0_4px_20px_rgba(143,179,74,0.35)] transition-all hover:shadow-[0_6px_28px_rgba(143,179,74,0.45)] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.99] outline-none disabled:opacity-60 disabled:hover:translate-y-0"
+              className="w-full flex items-center justify-center gap-3 h-[56px] px-6 rounded-2xl bg-gradient-to-r from-[#8FB34A] to-[#7DA33F] text-white text-[17px] font-bold shadow-[0_4px_20px_rgba(143,179,74,0.35)] transition-all hover:shadow-[0_6px_28px_rgba(143,179,74,0.45)] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.99] outline-none disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
+              <Phone className={cn("h-5 w-5", callingAria && "animate-[wiggle_0.5s_ease-in-out_infinite]")} strokeWidth={2.5} />
               {callingAria ? 'Calling Aria...' : 'Call Aria'}
             </button>
 
@@ -1075,13 +1076,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 <span className="font-semibold">Secure Payment</span>
               </div>
             </div>
-          </div>
 
-          {/* Footer branding */}
-          <div className="mt-4 flex flex-col items-center gap-2 py-3">
-            <p className="text-[12px] text-[#94A3B8] text-center leading-relaxed">
-              Powered by <span className="font-bold text-[#8FB34A]">Aria AI</span> - Your 24/7 assistant
-            </p>
+            {/* Aria AI branding - centered in card */}
+            <div className="mt-4 pt-3 border-t border-[#E2E8F0]/40">
+              <p className="text-[12px] text-[#94A3B8] text-center leading-relaxed">
+                Powered by <span className="font-bold text-[#8FB34A]">Aria AI</span> - Your 24/7 assistant
+              </p>
+            </div>
           </div>
         </div>
 
@@ -1129,32 +1130,46 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             </div>
           )}
 
-          {/* Calling Aria overlay */}
+          {/* Calling Aria overlay - premium animation */}
           {callStatus !== 'idle' && (
-            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
-              <div className="relative mb-8">
-                <div className="absolute inset-0 -m-10 rounded-full bg-[#8FB34A]/20 animate-ping" />
-                <div className="absolute inset-0 -m-5 rounded-full bg-[#8FB34A]/30 animate-pulse" />
-                <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-2xl shadow-[#8FB34A]/30">
-                  <Phone className="h-10 w-10 text-white animate-pulse" />
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-xl">
+              {/* Animated rings */}
+              <div className="relative mb-10">
+                <div className="absolute inset-0 -m-16 rounded-full border-2 border-[#8FB34A]/20 animate-[ping_2s_ease-out_infinite]" />
+                <div className="absolute inset-0 -m-12 rounded-full border-2 border-[#8FB34A]/30 animate-[ping_2s_ease-out_infinite_0.5s]" />
+                <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/10 animate-pulse" />
+                <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-[0_0_60px_rgba(143,179,74,0.4)]">
+                  <Phone className={cn(
+                    "h-12 w-12 text-white transition-transform duration-300",
+                    callStatus === 'ringing' && "animate-[wiggle_0.5s_ease-in-out_infinite]",
+                    callStatus === 'active' && "animate-pulse"
+                  )} />
                 </div>
               </div>
-              <p className="text-white font-bold text-xl mb-2">
+              
+              {/* Status text */}
+              <p className="text-white font-bold text-2xl mb-2 tracking-tight">
                 {callStatus === 'connecting' && 'Connecting...'}
                 {callStatus === 'ringing' && 'Calling you now...'}
-                {callStatus === 'active' && 'Aria is calling'}
+                {callStatus === 'active' && 'Aria is on the line'}
               </p>
-              <p className="text-white/60 text-sm">
+              <p className="text-white/50 text-sm font-medium">
                 {callStatus === 'connecting' && 'Setting up your request'}
-                {callStatus === 'ringing' && 'Answer the call from Aria'}
+                {callStatus === 'ringing' && 'Please answer the incoming call'}
                 {callStatus === 'active' && 'Describe your problem to Aria'}
               </p>
-              <div className="flex items-center gap-1.5 mt-8">
-                {[0, 1, 2, 3, 4].map(i => (
+              
+              {/* Sound wave animation */}
+              <div className="flex items-end gap-1 mt-10 h-8">
+                {[0, 1, 2, 3, 4, 5, 6].map(i => (
                   <div
                     key={i}
-                    className="w-1.5 bg-[#8FB34A] rounded-full animate-pulse"
-                    style={{ height: `${16 + Math.random() * 20}px`, animationDelay: `${i * 150}ms` }}
+                    className="w-1 bg-[#8FB34A] rounded-full transition-all duration-150"
+                    style={{ 
+                      height: callStatus === 'active' ? `${12 + Math.sin(Date.now() / 200 + i) * 16}px` : '4px',
+                      animationDelay: `${i * 100}ms`,
+                      opacity: callStatus === 'active' ? 1 : 0.3
+                    }}
                   />
                 ))}
               </div>
