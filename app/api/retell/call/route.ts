@@ -58,6 +58,23 @@ export async function POST(request: NextRequest) {
     const dialCode = countryConfig?.dial_code || '+1'
     const clientPhone = toE164(phone, dialCode)
 
+    // Reverse geocode to get readable address if we have coordinates
+    let readableAddress = address || ''
+    if (lat && lng && (!address || address.startsWith('GPS:'))) {
+      try {
+        const geoRes = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        )
+        const geoData = await geoRes.json()
+        if (geoData.results?.[0]?.formatted_address) {
+          readableAddress = geoData.results[0].formatted_address
+        }
+      } catch (e) {
+        console.error('[Geocode Error]', e)
+        readableAddress = `near coordinates ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      }
+    }
+
     // Determine agent ID and from number
     const agentId = agentConfig?.agent_id || process.env.RETELL_DEFAULT_AGENT_ID
     const fromNumber = agentConfig?.phone_number || process.env.RETELL_DEFAULT_FROM_NUMBER
@@ -85,13 +102,31 @@ export async function POST(request: NextRequest) {
 
     // 4. Build dynamic variables for Aria's prompt context
     // These get injected into Aria's conversation
+    
+    // Build a natural request summary for Aria to reference
+    let requestSummary = ''
+    if (service_type && service_type !== 'general') {
+      requestSummary = `${service_type} request`
+    } else if (issue_description) {
+      // Extract first few words of description
+      const shortDesc = issue_description.split(' ').slice(0, 6).join(' ')
+      requestSummary = `request about ${shortDesc}${issue_description.split(' ').length > 6 ? '...' : ''}`
+    } else if (photo_summary) {
+      requestSummary = 'request with a photo'
+    } else if (audio_summary) {
+      requestSummary = 'voice request'
+    } else {
+      requestSummary = 'service request'
+    }
+    
     const retell_llm_dynamic_variables = {
       customer_name: customer_name || 'Customer',
       request_id,
+      request_summary: requestSummary,
       service_type: service_type || 'home service',
       urgency: urgency || 'standard',
       language: agentLanguage,
-      address: address || 'your location',
+      address: readableAddress || 'your location',
       photo_summary: photo_summary || '',
       issue_description: issue_description || '',
       audio_summary: audio_summary || '',
@@ -104,6 +139,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Create the call via Retell API
+    console.log('[v0] Retell dynamic variables:', JSON.stringify(retell_llm_dynamic_variables, null, 2))
+    
     const callResponse = await retellClient.createPhoneCall({
       from_number: fromNumber,
       to_number: clientPhone,
