@@ -64,17 +64,19 @@ function FloatingDropdown({
   const [flipUp, setFlipUp] = useState(false)
 
   useEffect(() => {
-    if (!open || !anchorRef.current) return
-    const rect = anchorRef.current.getBoundingClientRect()
-    const left = Math.min(rect.left, window.innerWidth - width - 12)
-    const spaceBelow = window.innerHeight - rect.bottom
-    const shouldFlip = spaceBelow < 260
-    setFlipUp(shouldFlip)
-    if (shouldFlip) {
-      setPos({ top: rect.top - 6, left: Math.max(8, left) })
-    } else {
-      setPos({ top: rect.bottom + 6, left: Math.max(8, left) })
-    }
+  if (!open || !anchorRef.current) return
+  const rect = anchorRef.current.getBoundingClientRect()
+  const left = Math.min(rect.left, window.innerWidth - width - 12)
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+  // Flip up if not enough space below AND there's more space above
+  const shouldFlip = spaceBelow < 300 && spaceAbove > spaceBelow
+  setFlipUp(shouldFlip)
+  if (shouldFlip) {
+  setPos({ top: rect.top - 8, left: Math.max(8, left) })
+  } else {
+  setPos({ top: rect.bottom + 8, left: Math.max(8, left) })
+  }
   }, [open, anchorRef, width])
 
   if (!open) return null
@@ -901,12 +903,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full">
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:pb-8" style={{ height: 'calc(100% - 16px)' }}>
         
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
           {/* Form Card - Same height as map */}
-          <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 overflow-y-auto">
+          <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5">
             
             {/* Language */}
             <div className="mb-4">
@@ -1087,7 +1089,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 h-full max-h-full relative rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.08),0_0_0_1px_rgba(226,232,240,0.5)] isolate">
+        <div className="flex-1 h-full relative rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.08),0_0_0_1px_rgba(226,232,240,0.5)] isolate">
           <GoogleMap
             center={coords || undefined}
             zoom={14}

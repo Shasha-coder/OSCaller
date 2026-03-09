@@ -385,21 +385,21 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
       {/* ══ MAP ══ */}
       {page === 'map' && (
         <div className="flex h-full flex-col overflow-hidden lg:pr-[80px]">
-          {/* Desktop header -- hidden on mobile */}
-          <div className="hidden sm:flex shrink-0 flex-col items-center gap-3 px-5 pb-2 pt-10 sm:px-8">
-            <HeroIcon>
-              <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-              </svg>
-            </HeroIcon>
-            <div className="text-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">Request a Pro</h1>
-              <p className="mt-1 text-sm text-[#64748B]">Find and call a pro near you.</p>
+          {/* Desktop header -- minimal inline version */}
+          <div className="hidden sm:flex shrink-0 items-center justify-between px-5 py-3 sm:px-8">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-[#8FB34A]/10">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#8FB34A]" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+              </div>
+              <h1 className="text-[15px] font-bold text-[#0F172A]">Request a Pro</h1>
             </div>
+            <p className="text-[12px] text-[#94A3B8]">Fill the form and call Aria</p>
           </div>
           {/* Mobile: full-bleed map, Desktop: padded */}
-          <div className="flex-1 min-h-0 sm:px-5 sm:pb-28 sm:pt-0"><MapPage onRequestCreated={onMapRequestCreated} /></div>
+          <div className="flex-1 min-h-0 sm:px-5 sm:pb-6 sm:pt-0"><MapPage onRequestCreated={onMapRequestCreated} /></div>
         </div>
       )}
 
