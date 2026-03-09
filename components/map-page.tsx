@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════�����════════════════════════
+/* ══════════════════�������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -943,10 +943,23 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           {/* Form Card - Same height as map */}
           <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5">
             
-            {/* Language */}
-            <div className="mb-4">
-              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Language</label>
-              <LanguageDropdown value={language} onChange={setLanguage} />
+            {/* Name and Language row */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Your name</label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={e => setCustomerName(e.target.value)}
+                  placeholder="First name"
+                  data-no-focus-ring
+                  className="w-full h-[48px] px-4 rounded-xl bg-[#F8FAFB] border-2 border-[#E2E8F0] text-[14px] font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#8FB34A] focus:bg-white focus:shadow-[0_0_0_4px_rgba(143,179,74,0.08)] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Language</label>
+                <LanguageDropdown value={language} onChange={setLanguage} />
+              </div>
             </div>
 
             {/* Describe Problem */}
