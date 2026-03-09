@@ -84,7 +84,31 @@ ALTER TABLE public.service_requests
   ADD COLUMN IF NOT EXISTS call_transcript TEXT;
 
 
--- 5. Enable Row Level Security
+-- 5. retell_agents - Multi-country agent configuration
+CREATE TABLE IF NOT EXISTS public.retell_agents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  country_code TEXT NOT NULL,
+  service_line TEXT,
+  agent_id TEXT NOT NULL,
+  phone_number TEXT NOT NULL,
+  language TEXT NOT NULL DEFAULT 'en-US',
+  name TEXT DEFAULT 'Aria',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS retell_agents_country_service 
+ON public.retell_agents (country_code, service_line) WHERE is_active = true;
+
+-- Seed initial agent configurations
+INSERT INTO public.retell_agents (country_code, service_line, agent_id, phone_number, language, name, is_active)
+VALUES
+  ('CA', 'general', 'REPLACE_WITH_AGENT_ID', 'REPLACE_WITH_PHONE', 'en-US', 'Aria', true),
+  ('US', 'general', 'REPLACE_WITH_AGENT_ID', 'REPLACE_WITH_PHONE', 'en-US', 'Aria', true)
+ON CONFLICT DO NOTHING;
+
+
+-- 6. Enable Row Level Security
 ALTER TABLE public.retell_webhook_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.call_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.call_retry_queue ENABLE ROW LEVEL SECURITY;
@@ -97,4 +121,9 @@ CREATE POLICY "Service role full access to call_attempts" ON public.call_attempt
   FOR ALL USING (true) WITH CHECK (true);
 
 CREATE POLICY "Service role full access to call_retry_queue" ON public.call_retry_queue
+  FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE public.retell_agents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access to retell_agents" ON public.retell_agents
   FOR ALL USING (true) WITH CHECK (true);

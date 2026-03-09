@@ -1,389 +1,428 @@
-# RetellAI Setup Instructions for OSCaller
+# OSCaller - Retell AI Production Setup Guide
 
 **Last Updated:** March 2026  
-**Domain:** https://oscaller.com
+**Domain:** https://oscaller.com  
+**Primary Voice Agent:** Aria
 
 ---
 
 ## Quick Reference (Copy-Paste Ready)
 
-| Configuration | Value |
-|---------------|-------|
-| **Webhook URL** | `https://oscaller.com/api/retell/webhook` |
-| **Custom LLM URL** | `https://oscaller.com/api/retell/llm-stream` |
-| **Outbound Call API** | `https://oscaller.com/api/retell/call` |
+```
+Webhook URL:       https://oscaller.com/api/retell/webhook
+Custom LLM URL:    https://oscaller.com/api/retell/llm-stream
+Outbound Call API: https://oscaller.com/api/retell/call
+```
 
 ---
 
-## Overview
+## 1. What OSCaller Does with Retell
 
-OSCaller uses RetellAI to power "Aria" - an AI voice agent that:
-1. Receives service requests (photo, audio, text) from customers
-2. Calls the customer to clarify the problem and gather details
-3. Finds the nearest available service provider based on location
-4. Dispatches the provider and provides ETA to the customer
+OSCaller uses Retell to power **Aria**, a home-service voice agent that:
 
----
-
-## Prerequisites
-
-- RetellAI account at [dashboard.retellai.com](https://dashboard.retellai.com)
-- Access to Vercel project environment variables
-- Phone number(s) for the target country/countries
+- Calls the customer after a request is submitted
+- References uploaded media or prior analysis
+- Clarifies the issue, urgency, and address
+- Confirms whether dispatch is approved
+- Triggers provider matching and ETA updates
+- Stores the final call result for operations, follow-up, and audit
 
 ---
 
-## Step 1: Environment Variables
+## 2. Production Architecture
 
-Add these to your Vercel project (Settings > Environment Variables):
+```
+Customer submits request
+   ↓
+OSCaller stores service_request
+   ↓
+OSCaller triggers Retell outbound call
+   ↓
+Retell calls Aria using OSCaller custom LLM
+   ↓
+Aria confirms issue, urgency, address, dispatch consent
+   ↓
+Retell sends webhooks to OSCaller
+   ↓
+OSCaller updates DB, dispatches provider, sends ETA/tracking
+```
+
+**Core principle:** Webhook endpoint should verify signature, parse and store raw payload, return 204 immediately, and process business logic asynchronously.
+
+---
+
+## 3. Environment Variables
+
+Add these to Vercel (Settings > Vars):
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `RETELL_API_KEY` | Your Retell API key | `key_xxxxxxxxxx` |
-| `RETELL_DEFAULT_AGENT_ID` | Default agent ID (from Step 3) | `agent_abc123xyz` |
-| `RETELL_DEFAULT_FROM_NUMBER` | Default outbound phone number | `+14155551234` |
+| `RETELL_API_KEY` | API key from Retell dashboard | `key_xxxxxxxxx` |
+| `RETELL_WEBHOOK_SECRET` | Dedicated secret for webhook verification | `whsec_xxxxxxxxx` |
+| `RETELL_DEFAULT_AGENT_ID` | Fallback agent ID | `agent_xxxxxxxxx` |
+| `RETELL_DEFAULT_FROM_NUMBER` | Default outbound number (E.164) | `+14155551234` |
+
+**Why separate `RETELL_WEBHOOK_SECRET`?** Keep webhook verification isolated from your main API key for cleaner security model and easier rotation.
 
 ---
 
-## Step 2: Create Custom LLM in Retell Dashboard
+## 4. Retell Dashboard Setup
 
-1. Go to [Retell Dashboard](https://dashboard.retellai.com) > **LLM** > **Create LLM**
+### Step A: Create Custom LLM
 
+1. Go to Retell Dashboard > **LLM** > **Create LLM**
 2. Select **Custom LLM**
-
-3. Configure:
-   - **Name:** `OSCaller Aria LLM`
-   - **LLM URL (HTTP):**
-     ```
-     https://oscaller.com/api/retell/llm-stream
-     ```
-
-4. **Save** and copy the **LLM ID**
-
----
-
-## Step 3: Create Agent in Retell Dashboard
-
-1. Go to **Agents** > **Create Agent**
-
-2. **Basic Settings:**
-   - **Name:** `Aria - OSCaller`
-   - **Language:** `English (US)` (or your target language)
-   
-3. **Voice Settings:**
-   - **Voice Provider:** `ElevenLabs` or `Retell`
-   - **Voice:** Recommend `Marissa` or similar warm, professional voice
-   - **Speaking Speed:** 1.0 (normal)
-
-4. **LLM Configuration:**
-   - **Response Engine:** Select the Custom LLM you created in Step 2
-   - **Or** paste this URL directly:
-     ```
-     https://oscaller.com/api/retell/llm-stream
-     ```
-
-5. **General Prompt** (paste this):
+3. Name: `OSCaller Aria LLM`
+4. URL:
    ```
-   You are Aria, the AI voice assistant for OSCaller - a platform connecting customers with on-demand home service professionals.
-
-   PERSONALITY:
-   - Warm, professional, and efficient
-   - Speak naturally as if on a phone call
-   - Keep responses concise (1-3 sentences max)
-   - Be empathetic when customers describe problems
-
-   FLOW:
-   1. Greet warmly: "Hi, this is Aria from OSCaller!"
-   2. Reference their uploaded photo/description if available
-   3. Ask clarifying questions about the issue
-   4. Confirm their location
-   5. Assess urgency (emergency/urgent/standard)
-   6. Provide estimate and confirm dispatch
-   7. Give ETA and tracking info
-
-   PRICING:
-   - Service call fee: $89
-   - Labor rate: $65/hour
-   - Parts quoted separately by technician
-
-   RULES:
-   - For emergencies (gas leak, flooding, fire risk), prioritize safety
-   - Always confirm before dispatching
-   - Reference photos naturally: "I can see from the photo..."
-   - If unsure, ask clarifying questions
+   https://oscaller.com/api/retell/llm-stream
    ```
+5. Save and copy the LLM ID
 
-6. **Advanced Settings:**
-   - **Reminder Message After Silence:** 8 seconds
-   - **Reminder Message:** "Are you still there? I'm here to help."
-   - **End Call After Silence:** 30 seconds
-   - **Max Call Duration:** 600 seconds (10 minutes)
+### Step B: Create Agent
 
-7. **Save** the agent and copy the **Agent ID** (e.g., `agent_abc123xyz`)
+Create a voice agent with these settings:
 
----
+| Setting | Value |
+|---------|-------|
+| Name | `Aria - OSCaller` |
+| Language | `en-US` |
+| Voice | Warm, calm, clear (recommend Marissa or similar) |
+| Speaking speed | `1.0` |
 
-## Step 4: Purchase & Configure Phone Number
+**Voice behavior for home services:**
+- Calm during emergencies
+- Concise when confirming logistics
+- Slightly empathetic when the user sounds stressed
+- Not overly cheerful for urgent cases
 
-1. Go to **Phone Numbers** > **Buy Number**
+### Step C: Agent Prompt
 
-2. Select your target country (US, Canada, etc.)
+Use this as the base system prompt:
 
-3. Purchase a local number
+```
+You are Aria, the AI voice assistant for OSCaller, a platform that connects customers with trusted home service professionals.
 
-4. **Configure the number:**
-   - **Inbound Agent:** Select `Aria - OSCaller`
-   - **Outbound Enabled:** Yes
+Your role is to quickly understand the customer's issue, confirm the address and urgency, gather missing details, and help OSCaller dispatch the right provider.
 
-5. Copy the phone number in E.164 format (e.g., `+14155551234`)
+STYLE
+- Warm, professional, efficient
+- Speak naturally for phone conversations
+- Keep replies concise unless clarification is needed
+- Sound calm, especially during urgent home issues
+- Never sound robotic or overly salesy
 
----
+GOALS
+1. Confirm the customer's name if available
+2. Confirm the problem type
+3. Reference uploaded photo or prior analysis naturally if available
+4. Confirm exact location and access details
+5. Assess urgency: emergency, urgent, standard
+6. Confirm dispatch approval before proceeding
+7. Give realistic next-step expectations
+8. Avoid making false promises
 
-## Step 5: Configure Webhooks
+PRICING
+- Service call fee starts at $89
+- Labor starts at $65/hour
+- Parts are quoted separately by the technician
+- If exact pricing is unclear, say the technician will confirm after inspection
 
-Go to **Settings** > **Webhooks** and add these endpoints:
+SAFETY RULES
+- If the issue sounds life-threatening or dangerous, prioritize safety over dispatch
+- For gas leaks, active fire risk, major flooding near electrical systems, or suspected carbon monoxide issues:
+  - instruct the customer to move to safety
+  - advise contacting emergency services if appropriate
+  - do not delay on non-essential questions
+- Never instruct customers to perform dangerous repairs
 
-### Webhook Configuration
+CALL RULES
+- Ask only the questions needed to move the job forward
+- Confirm before dispatching a provider
+- If unsure, ask a short clarifying question
+- If the caller is upset, acknowledge the situation briefly and keep moving toward a solution
+- If a provider is not immediately available, explain that OSCaller is checking the nearest available technician
+- If dispatch is confirmed, provide the next step and ETA expectation if available
 
-| Webhook URL | Events to Subscribe |
-|-------------|---------------------|
+CONTEXT USE
+- If photo_summary exists, reference it naturally: "From the photo, it looks like..."
+- If service_type exists, use it to guide questions
+- If urgency exists, confirm it rather than assuming it
+- If address exists, read it back and verify accuracy
+
+OUTPUT INTENT
+Your job is to gather and confirm information so OSCaller can:
+- match the nearest provider
+- estimate urgency
+- confirm dispatch
+- update ETA and tracking
+```
+
+### Step D: Advanced Settings
+
+| Setting | Value |
+|---------|-------|
+| Reminder after silence | 8 seconds |
+| Reminder message | `Are you still there? I'm here to help.` |
+| End after silence | 30 seconds |
+| Max call duration | 600 seconds |
+
+### Step E: Buy and Configure Number
+
+1. Buy a number in the target country
+2. Set Inbound Agent: `Aria - OSCaller`
+3. Enable Outbound: Yes
+4. Save in E.164 format: `+14155551234`
+
+### Step F: Configure Webhooks
+
+In Retell dashboard webhook settings:
+
+| URL | Events |
+|-----|--------|
 | `https://oscaller.com/api/retell/webhook` | `call_started`, `call_ended`, `call_analyzed` |
 
-**Webhook Details:**
-
-1. Click **Add Webhook**
-2. **URL:** `https://oscaller.com/api/retell/webhook`
-3. **Events:** Check all three:
-   - `call_started` - Triggers when call connects
-   - `call_ended` - Triggers when call ends
-   - `call_analyzed` - Triggers after call analysis completes
-4. **Save**
+Optional later: `transcript_updated` for live monitoring.
 
 ---
 
-## Step 6: Test the Integration
+## 5. Outbound Call Payload
 
-### Health Check Endpoints
+When OSCaller triggers an outbound call, always pass:
 
-Verify the webhooks are accessible:
-
-```bash
-# LLM Stream endpoint
-curl https://oscaller.com/api/retell/llm-stream
-# Expected: {"status":"ok","service":"retell-llm-stream",...}
-
-# Webhook endpoint
-curl https://oscaller.com/api/retell/webhook
-# Expected: {"status":"ok","service":"retell-webhook",...}
-
-# Call endpoint
-curl https://oscaller.com/api/retell/call
-# Expected: {"error":"Missing required fields: request_id, phone"}
-```
-
-### Test Outbound Call
-
-```bash
-curl -X POST https://oscaller.com/api/retell/call \
-  -H "Content-Type: application/json" \
-  -d '{
-    "request_id": "test-123",
-    "phone": "YOUR_PHONE_NUMBER",
-    "customer_name": "Test User",
-    "lat": 43.6532,
-    "lng": -79.3832
-  }'
-```
-
----
-
-## API Endpoints Reference
-
-### 1. Trigger Outbound Call
-
-**POST** `https://oscaller.com/api/retell/call`
-
-Initiates an AI call to a customer.
-
+### metadata (for durable linkage)
 ```json
 {
-  "request_id": "uuid-of-service-request",
-  "phone": "4165551234",
-  "customer_name": "John Doe",
+  "request_id": "req_123",
+  "customer_id": "cust_456",
   "country_code": "CA",
-  "language": "en-US",
-  "lat": 43.6532,
-  "lng": -79.3832,
   "service_type": "plumbing"
 }
 ```
 
-**Response:**
+### retell_llm_dynamic_variables (for agent context)
 ```json
 {
-  "success": true,
-  "call_id": "call_xyz789",
-  "agent_id": "agent_abc123",
-  "status": "registered",
-  "message": "Call initiated. Aria will call you now."
+  "customer_name": "John Doe",
+  "service_type": "plumbing",
+  "urgency": "urgent",
+  "address": "123 King St W, Toronto",
+  "photo_summary": "Visible leak under kitchen sink",
+  "dispatch_fee": "$89",
+  "labor_rate": "$65/hour"
 }
 ```
 
-### 2. Check Call Status
+**Always include when available:**
+- request_id
+- customer_name
+- service_type
+- address
+- lat / lng
+- urgency
+- photo_summary
+- country_code
 
-**GET** `https://oscaller.com/api/retell/call?call_id=call_xyz789`
-
-### 3. LLM Stream (Retell calls this)
-
-**POST** `https://oscaller.com/api/retell/llm-stream`
-
-This is called by Retell's infrastructure - not directly by OSCaller.
-
-### 4. Webhooks (Retell calls this)
-
-**POST** `https://oscaller.com/api/retell/webhook`
-
-Receives call events from Retell.
+This is what makes Aria sound truly contextual instead of generic.
 
 ---
 
-## Call Flow Diagram
+## 6. Webhook Processing Rules
+
+### call_started
+- Mark call connected
+- Record started_at
+- Store from_number, to_number, agent_id
+- Update service_requests.call_status = `connected`
+
+### call_ended
+- Store ended_at, duration_ms
+- Map disconnection_reason to status
+- Queue retry if: `dial_failed`, `dial_no_answer`, `dial_busy`
+
+### call_analyzed
+This is your highest-value event. Use it to:
+- Save transcript
+- Save summary
+- Save structured analysis
+- Infer sentiment
+- Detect whether dispatch was confirmed
+- Trigger provider matching
+- Trigger ETA / tracking SMS
+- Update the service request record
+
+---
+
+## 7. Status Model
+
+Keep call statuses consistent everywhere:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        OSCaller Flow                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  1. Customer submits request                                     │
-│     └─> Photo/Audio/Text uploaded                                │
-│     └─> AI analyzes media (GPT-4 Vision)                         │
-│     └─> Service request created in database                      │
-│                                                                  │
-│  2. OSCaller triggers Retell call                                │
-│     └─> POST /api/retell/call                                    │
-│     └─> Retell initiates outbound call                           │
-│                                                                  │
-│  3. Retell connects to Custom LLM                                │
-│     └─> POST /api/retell/llm-stream                              │
-│     └─> Aria retrieves context (photo analysis, location)        │
-│     └─> Aria converses with customer                             │
-│                                                                  │
-│  4. During call, Aria:                                           │
-│     └─> References uploaded photo: "I see the leak..."           │
-│     └─> Asks clarifying questions                                │
-│     └─> Confirms location and urgency                            │
-│     └─> Queries nearby providers via dispatch system             │
-│     └─> Provides estimate and dispatches technician              │
-│     └─> Gives ETA and tracking info                              │
-│                                                                  │
-│  5. Call ends                                                    │
-│     └─> Retell sends call_ended webhook                          │
-│     └─> Retell sends call_analyzed webhook                       │
-│     └─> OSCaller updates service request with transcript         │
-│                                                                  │
-│  6. Technician receives job                                      │
-│     └─> Provider app shows new job with details                  │
-│     └─> Customer receives tracking link                          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+initiated
+connected
+completed
+no_answer
+busy
+failed
+voicemail
+analyzed
+```
+
+Dispatch statuses:
+
+```
+dispatch_pending
+dispatch_confirmed
+review_required
+customer_unreachable
+no_provider_available
+safety_escalation
 ```
 
 ---
 
-## Multi-Country Setup (Optional)
+## 8. Retry Policy
 
-For supporting multiple countries with different phone numbers:
+| Urgency | Retry Delay | Max Retries | Fallback |
+|---------|-------------|-------------|----------|
+| Emergency | 1 minute | 2 | Human operator |
+| Urgent | 3 minutes | 2 | SMS follow-up |
+| Standard | 10 minutes | 2 | Ops queue |
 
-1. **Database Table:** `retell_agents`
-   - Each row represents a country-specific agent
-   - Fields: `country_code`, `agent_id`, `phone_number`, `language`, `is_active`
-
-2. **Add agents for each country in Retell Dashboard**
-
-3. **Insert into database:**
-   ```sql
-   INSERT INTO retell_agents (country_code, agent_id, phone_number, name, language, is_active)
-   VALUES 
-     ('US', 'agent_us_xxx', '+14155551234', 'Aria US', 'en-US', true),
-     ('CA', 'agent_ca_xxx', '+16475551234', 'Aria CA', 'en-CA', true),
-     ('GB', 'agent_uk_xxx', '+442071234567', 'Aria UK', 'en-GB', true);
-   ```
+Do not retry forever. Cap retries and surface the request to operations.
 
 ---
 
-## Test Data
+## 9. Safety Policy for Home Services
 
-The database has been seeded with 7 test providers for testing:
+### Hard-escalation categories
+- Gas leak
+- Electrical burning smell
+- Sparking panels
+- Active flooding near electrical systems
+- Carbon monoxide suspicion
+- Active fire risk
+- No heat in extreme cold with vulnerable occupants
+- Lockout involving children, elderly, or unsafe conditions
 
-| Provider | Service | Location | Phone |
-|----------|---------|----------|-------|
-| QuickFix Plumbing | Plumbing | Toronto, ON | +1-416-555-0101 |
-| Spark Electric | Electrical | Toronto, ON | +1-416-555-0102 |
-| CoolBreeze HVAC | HVAC | North York, ON | +1-416-555-0103 |
-| KeyMaster Locksmith | Locksmith | Scarborough, ON | +1-416-555-0104 |
-| ProPipe Plumbers | Plumbing | NYC | +1-212-555-0201 |
-| Metro Electric | Electrical | Brooklyn, NY | +1-212-555-0202 |
-| NYC Climate Control | HVAC | Manhattan, NY | +1-212-555-0203 |
-
----
-
-## Troubleshooting
-
-### Call not initiating
-- Verify `RETELL_API_KEY` is set correctly
-- Verify `RETELL_DEFAULT_AGENT_ID` matches your agent
-- Check phone number format (must be E.164: `+14155551234`)
-
-### LLM not responding
-- Check `https://oscaller.com/api/retell/llm-stream` returns 200
-- Verify the agent is configured to use the Custom LLM URL
-- Check Vercel logs for errors
-
-### Webhooks not firing
-- Verify webhook URL is correct in Retell dashboard
-- Check webhook events are subscribed
-- Test endpoint: `curl https://oscaller.com/api/retell/webhook`
-
-### Context not appearing in calls
-- Verify `request_id` is passed when initiating call
-- Check service_request exists in database
-- Check media_analysis field is populated
+### Agent behavior
+In these cases:
+- Acknowledge urgency
+- Prioritize immediate safety
+- Avoid technical repair steps
+- Advise emergency services where appropriate
+- Move quickly toward safe dispatch or human escalation
 
 ---
 
-## Security
+## 10. Database Tables
+
+### retell_webhook_events
+Raw webhook storage for audit and idempotency.
+
+### call_attempts
+Track call lifecycle with status, transcript, summary.
+
+### call_retry_queue
+Handle failed call retries with backoff.
+
+### retell_agents
+Multi-country agent configuration.
+
+Run migration: `scripts/006-retell-webhook-tables.sql`
+
+---
+
+## 11. Security
 
 ### Webhook Signature Verification
 
-All incoming webhooks are verified using HMAC-SHA256 signatures. The implementation:
+All webhooks verified using HMAC-SHA256:
+1. Extract `x-retell-signature` header
+2. Compute HMAC-SHA256 of raw body using `RETELL_WEBHOOK_SECRET`
+3. Compare with timing-safe comparison
+4. Reject invalid/missing signatures (401)
 
-1. Extracts `x-retell-signature` header from request
-2. Computes HMAC-SHA256 of raw request body using `RETELL_API_KEY`
-3. Compares signatures using timing-safe comparison
-4. Rejects requests with invalid/missing signatures (returns 401)
+### Production Note
 
-**Important:** Never disable signature verification in production.
+Webhook handlers must be **idempotent**. Retell may retry webhook delivery if the endpoint does not respond successfully in time. Store each event using a unique key based on `(event, call_id)` so duplicate deliveries do not create duplicate processing.
 
-### Database Tables Created
+---
 
-The integration creates these tables for audit and tracking:
+## 12. Testing Checklist
 
-| Table | Purpose |
-|-------|---------|
-| `retell_webhook_events` | Raw webhook event storage for audit/debugging |
-| `call_attempts` | Track each call attempt with status and outcome |
+### Endpoint checks
+```bash
+curl https://oscaller.com/api/retell/llm-stream
+curl https://oscaller.com/api/retell/webhook
+curl https://oscaller.com/api/retell/call
+```
 
-### Service Request Updates
+### Scenario tests
+1. Plumbing leak, customer answers, dispatch approved
+2. Electrical issue, customer answers, dispatch approved
+3. No answer
+4. Busy
+5. Voicemail
+6. Emergency gas-leak safety escalation
+7. Unclear issue requiring manual review
+8. No provider available
 
-When calls complete, these fields are updated on `service_requests`:
+### Validate after each test
+- [ ] Service request updated
+- [ ] Call attempt row created
+- [ ] Raw webhook event stored
+- [ ] Transcript stored
+- [ ] Summary stored
+- [ ] Dispatch status correct
+- [ ] Retry queued when expected
 
-- `retell_call_id` - The active call ID
-- `call_status` - pending/ringing/in_progress/completed/failed/no_answer
-- `call_transcript` - Full conversation transcript
-- `call_recording_url` - Link to call recording
-- `call_summary` - AI-generated summary
-- `call_sentiment` - positive/negative/neutral/unknown
-- `customer_confirmed_dispatch` - Boolean if customer said yes
+---
+
+## 13. Common Failure Points
+
+### Calls never connect
+Check: `RETELL_API_KEY`, E.164 formatting, valid outbound-enabled number, correct agent ID
+
+### Webhooks not showing up
+Check: webhook URL configured, event subscriptions selected, 2xx response under 10 seconds, signature verification not failing incorrectly
+
+### Agent sounds generic
+Usually means outbound payload is not sending enough dynamic context.
+
+---
+
+## 14. Production Rollout Order
+
+1. Get outbound calls working
+2. Verify webhook signature
+3. Store raw events
+4. Update service requests from call_ended
+5. Update transcripts and summaries from call_analyzed
+6. Add retry queue
+7. Add provider dispatch trigger
+8. Add emergency safety escalation
+9. Add live ops dashboard if needed
+
+---
+
+## 15. Launch Checklist
+
+- [ ] Retell account is ready
+- [ ] Custom LLM points to production URL
+- [ ] Aria agent created and saved
+- [ ] Outbound number configured in E.164 format
+- [ ] Webhook URL configured
+- [ ] `RETELL_WEBHOOK_SECRET` set in Vercel
+- [ ] Webhook signature verification enabled
+- [ ] Raw webhook storage enabled
+- [ ] Call lifecycle storage enabled
+- [ ] service_requests mapping complete
+- [ ] Retry queue enabled
+- [ ] Safety rules documented
+- [ ] Dispatch confirmation extraction working
+- [ ] QA scenarios tested end-to-end
+- [ ] Operations team can see failures and manual-review requests
 
 ---
 
@@ -392,18 +431,3 @@ When calls complete, these fields are updated on `service_requests`:
 - **Retell AI Docs:** https://docs.retellai.com
 - **Retell Dashboard:** https://dashboard.retellai.com
 - **OSCaller Issues:** Contact development team
-
----
-
-## Checklist
-
-- [ ] Retell account created
-- [ ] `RETELL_API_KEY` added to Vercel
-- [ ] Custom LLM created pointing to `https://oscaller.com/api/retell/llm-stream`
-- [ ] Agent created with Custom LLM
-- [ ] `RETELL_DEFAULT_AGENT_ID` added to Vercel
-- [ ] Phone number purchased and configured
-- [ ] `RETELL_DEFAULT_FROM_NUMBER` added to Vercel
-- [ ] Webhooks configured for all 3 events
-- [ ] Health check endpoints verified
-- [ ] Test call completed successfully
