@@ -900,25 +900,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full">
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full sm:max-h-[calc(100vh-180px)]">
         
         {/* Left Panel - Request Form */}
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-lg shadow-[#8FB34A]/20">
-                <Phone className="h-5 w-5 text-white" strokeWidth={2} />
-              </div>
-              <div>
-                <h1 className="text-[20px] font-bold text-[#0F172A] leading-tight">Request a Pro</h1>
-                <p className="text-[13px] text-[#64748B]">Get help from nearby experts</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="flex flex-col h-full max-h-full overflow-hidden">
           {/* Form Card */}
-          <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 overflow-hidden">
+          <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 overflow-y-auto">
             
             {/* Language */}
             <div className="mb-4">
@@ -1089,10 +1076,17 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               </div>
             </div>
           </div>
+
+          {/* Footer branding */}
+          <div className="mt-4 flex flex-col items-center gap-2 py-3">
+            <p className="text-[12px] text-[#94A3B8] text-center leading-relaxed">
+              Powered by <span className="font-bold text-[#8FB34A]">Aria AI</span> - Your 24/7 assistant
+            </p>
+          </div>
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 h-full relative rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.08),0_0_0_1px_rgba(226,232,240,0.5)] isolate min-h-[500px]">
+        <div className="flex-1 h-full max-h-full relative rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.08),0_0_0_1px_rgba(226,232,240,0.5)] isolate">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
