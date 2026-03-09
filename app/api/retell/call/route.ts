@@ -64,12 +64,16 @@ export async function POST(request: NextRequest) {
     let readableAddress = address || ''
     let shortAddress = '' // For natural speech: "King Street, Toronto"
     
+    console.log('[v0] Geocode check - lat:', lat, 'lng:', lng, 'hasKey:', !!googleMapsKey, 'currentAddress:', address)
+    
     if (lat && lng && googleMapsKey && (!address || address.startsWith('GPS:') || address.startsWith('Location:'))) {
       try {
         const geoRes = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsKey}`
         )
         const geoData = await geoRes.json()
+        
+        console.log('[v0] Geocode API response status:', geoData.status, 'error:', geoData.error_message || 'none')
         
         if (geoData.status === 'OK' && geoData.results?.[0]) {
           const result = geoData.results[0]
@@ -94,7 +98,9 @@ export async function POST(request: NextRequest) {
           } else {
             shortAddress = readableAddress.split(',').slice(0, 2).join(',')
           }
+          console.log('[v0] Geocode success - shortAddress:', shortAddress)
         } else {
+          console.log('[v0] Geocode failed - status:', geoData.status)
           readableAddress = `your current location`
           shortAddress = `your current location`
         }
@@ -104,6 +110,7 @@ export async function POST(request: NextRequest) {
         shortAddress = `your current location`
       }
     } else if (lat && lng) {
+      console.log('[v0] Skipping geocode - no API key or address already set')
       readableAddress = `your current location`
       shortAddress = `your current location`
     }
