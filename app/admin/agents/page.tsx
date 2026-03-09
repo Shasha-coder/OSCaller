@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Pencil, Trash2, Phone, Globe, Volume2, Check, X, Loader2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Phone, Globe, Volume2, Check, X, Loader2, Bot, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -39,18 +38,18 @@ interface Agent {
 }
 
 const COUNTRIES = [
-  { code: 'CA', name: 'Canada', dial: '+1', flag: 'CA' },
-  { code: 'US', name: 'United States', dial: '+1', flag: 'US' },
-  { code: 'GB', name: 'United Kingdom', dial: '+44', flag: 'GB' },
-  { code: 'FR', name: 'France', dial: '+33', flag: 'FR' },
-  { code: 'DE', name: 'Germany', dial: '+49', flag: 'DE' },
-  { code: 'ES', name: 'Spain', dial: '+34', flag: 'ES' },
-  { code: 'IT', name: 'Italy', dial: '+39', flag: 'IT' },
-  { code: 'AU', name: 'Australia', dial: '+61', flag: 'AU' },
-  { code: 'BR', name: 'Brazil', dial: '+55', flag: 'BR' },
-  { code: 'MX', name: 'Mexico', dial: '+52', flag: 'MX' },
-  { code: 'JP', name: 'Japan', dial: '+81', flag: 'JP' },
-  { code: 'IN', name: 'India', dial: '+91', flag: 'IN' },
+  { code: 'CA', name: 'Canada', dial: '+1' },
+  { code: 'US', name: 'United States', dial: '+1' },
+  { code: 'GB', name: 'United Kingdom', dial: '+44' },
+  { code: 'FR', name: 'France', dial: '+33' },
+  { code: 'DE', name: 'Germany', dial: '+49' },
+  { code: 'ES', name: 'Spain', dial: '+34' },
+  { code: 'IT', name: 'Italy', dial: '+39' },
+  { code: 'AU', name: 'Australia', dial: '+61' },
+  { code: 'BR', name: 'Brazil', dial: '+55' },
+  { code: 'MX', name: 'Mexico', dial: '+52' },
+  { code: 'JP', name: 'Japan', dial: '+81' },
+  { code: 'IN', name: 'India', dial: '+91' },
 ]
 
 function getCountryFlag(code: string) {
@@ -67,7 +66,6 @@ export default function AgentsAdminPage() {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
-  // Form state
   const [form, setForm] = useState({
     name: '',
     country_code: '',
@@ -181,252 +179,299 @@ export default function AgentsAdminPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-[#8FB34A]" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500/20 border-t-emerald-500" />
+          <span className="text-sm text-white/40">Loading agents...</span>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[#0F172A]">AI Agents</h1>
-            <p className="text-sm text-[#64748B]">
-              Manage Aria AI agents for different countries and languages
-            </p>
+    <div className="p-4 lg:p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+            <Bot className="h-5 w-5 text-violet-400" />
           </div>
-          <Button onClick={openCreateDialog} className="bg-[#8FB34A] hover:bg-[#7A9B3F] text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Agent
-          </Button>
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-tight">AI Agents</h1>
+            <p className="text-sm text-white/40">Manage Aria agents by country</p>
+          </div>
         </div>
+        <Button 
+          onClick={openCreateDialog} 
+          className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-xl h-11 px-5 font-semibold shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_24px_rgba(16,185,129,0.4)] transition-all"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Agent
+        </Button>
+      </div>
 
-        {/* Agents Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {agents.map(agent => (
-            <Card key={agent.id} className={`relative ${!agent.is_active ? 'opacity-60' : ''}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{getCountryFlag(agent.country_code)}</span>
-                    <div>
-                      <CardTitle className="text-lg">{agent.name}</CardTitle>
-                      <CardDescription>
-                        {COUNTRIES.find(c => c.code === agent.country_code)?.name || agent.country_code}
-                      </CardDescription>
-                    </div>
+      {/* Agents Grid */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {agents.map(agent => (
+          <div 
+            key={agent.id} 
+            className={`group relative rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.1] ${
+              !agent.is_active ? 'opacity-60' : ''
+            }`}
+          >
+            {/* Status indicator bar */}
+            <div className={`absolute top-0 left-0 right-0 h-1 ${agent.is_active ? 'bg-emerald-500' : 'bg-white/10'}`} />
+            
+            <div className="p-5">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl">{getCountryFlag(agent.country_code)}</span>
+                  <div>
+                    <h3 className="text-base font-semibold text-white">{agent.name}</h3>
+                    <p className="text-sm text-white/40">
+                      {COUNTRIES.find(c => c.code === agent.country_code)?.name || agent.country_code}
+                    </p>
                   </div>
-                  <Switch
-                    checked={agent.is_active}
-                    onCheckedChange={() => handleToggleActive(agent)}
-                  />
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-[#64748B]">
-                  <Phone className="h-4 w-4" />
-                  <span className="font-mono">{agent.phone_number}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-[#64748B]">
-                  <Globe className="h-4 w-4" />
-                  <span>{RETELL_LANGUAGES.find(l => l.code === agent.language)?.name || agent.language}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-[#64748B]">
-                  <Volume2 className="h-4 w-4" />
-                  <span>{RETELL_VOICES.find(v => v.id === agent.voice_id)?.name || agent.voice_id}</span>
-                </div>
+                <Switch
+                  checked={agent.is_active}
+                  onCheckedChange={() => handleToggleActive(agent)}
+                  className="data-[state=checked]:bg-emerald-500"
+                />
+              </div>
 
-                {/* Agent ID */}
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-[#94A3B8]">Agent ID</p>
-                  <p className="text-xs font-mono text-[#64748B] truncate">{agent.agent_id}</p>
+              {/* Info rows */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04]">
+                    <Phone className="h-4 w-4 text-white/40" />
+                  </div>
+                  <span className="font-mono text-white/60">{agent.phone_number}</span>
                 </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04]">
+                    <Globe className="h-4 w-4 text-white/40" />
+                  </div>
+                  <span className="text-white/60">{RETELL_LANGUAGES.find(l => l.code === agent.language)?.name || agent.language}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04]">
+                    <Volume2 className="h-4 w-4 text-white/40" />
+                  </div>
+                  <span className="text-white/60">{RETELL_VOICES.find(v => v.id === agent.voice_id)?.name || agent.voice_id}</span>
+                </div>
+              </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-2">
+              {/* Agent ID */}
+              <div className="mt-5 pt-4 border-t border-white/[0.06]">
+                <p className="text-xs text-white/30 mb-1">Agent ID</p>
+                <p className="text-xs font-mono text-white/50 truncate">{agent.agent_id}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openEditDialog(agent)}
+                  className="flex-1 bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.12] rounded-xl h-10"
+                >
+                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                  Edit
+                </Button>
+                {deleteConfirmId === agent.id ? (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => handleDelete(agent.id)}
+                      className="bg-red-500 hover:bg-red-600 text-white border-0 rounded-xl h-10 px-4"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] rounded-xl h-10 px-4"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                ) : (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openEditDialog(agent)}
-                    className="flex-1"
+                    onClick={() => setDeleteConfirmId(agent.id)}
+                    className="bg-white/[0.04] border-white/[0.08] text-red-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 rounded-xl h-10 px-4"
                   >
-                    <Pencil className="h-3 w-3 mr-1" />
-                    Edit
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
-                  {deleteConfirmId === agent.id ? (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(agent.id)}
-                      >
-                        <Check className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setDeleteConfirmId(null)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setDeleteConfirmId(agent.id)}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {agents.length === 0 && (
-            <Card className="col-span-full p-12 text-center">
-              <p className="text-[#64748B]">No agents configured yet.</p>
-              <p className="text-sm text-[#94A3B8] mt-1">
-                Add an agent to enable AI calls for a country.
-              </p>
-            </Card>
-          )}
-        </div>
-
-        {/* Create/Edit Dialog */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>{editingAgent ? 'Edit Agent' : 'Add New Agent'}</DialogTitle>
-              <DialogDescription>
-                Configure an AI agent for a specific country. Each country can have one active agent.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Agent Name</Label>
-                <Input
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Aria (Canada)"
-                />
+                )}
               </div>
+            </div>
+          </div>
+        ))}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Select
-                    value={form.country_code}
-                    onValueChange={v => setForm(f => ({ ...f, country_code: v }))}
-                    disabled={!!editingAgent}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COUNTRIES.map(c => (
-                        <SelectItem key={c.code} value={c.code}>
-                          {getCountryFlag(c.code)} {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        {agents.length === 0 && (
+          <div className="col-span-full rounded-2xl bg-white/[0.03] border border-white/[0.06] border-dashed p-12 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 mx-auto mb-4">
+              <Sparkles className="h-7 w-7 text-violet-400" />
+            </div>
+            <h3 className="text-base font-semibold text-white mb-1">No agents yet</h3>
+            <p className="text-sm text-white/40 mb-5">
+              Add an agent to enable AI calls for a country
+            </p>
+            <Button 
+              onClick={openCreateDialog}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-xl"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add First Agent
+            </Button>
+          </div>
+        )}
+      </div>
 
-                <div className="space-y-2">
-                  <Label>Language</Label>
-                  <Select
-                    value={form.language}
-                    onValueChange={v => setForm(f => ({ ...f, language: v }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RETELL_LANGUAGES.map(l => (
-                        <SelectItem key={l.code} value={l.code}>
-                          {l.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+      {/* Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-[#0D1220] border-white/[0.08] text-white">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">{editingAgent ? 'Edit Agent' : 'Add New Agent'}</DialogTitle>
+            <DialogDescription className="text-white/40">
+              Configure an AI agent for a specific country
+            </DialogDescription>
+          </DialogHeader>
 
+          <div className="space-y-5 py-4">
+            <div className="space-y-2">
+              <Label className="text-white/70">Agent Name</Label>
+              <Input
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Aria (Canada)"
+                className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50 rounded-xl h-11"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Retell Phone Number (E.164)</Label>
-                <Input
-                  value={form.phone_number}
-                  onChange={e => setForm(f => ({ ...f, phone_number: e.target.value }))}
-                  placeholder="+14155551234"
-                />
-                <p className="text-xs text-[#94A3B8]">
-                  The phone number purchased from Retell for this country
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Retell Agent ID</Label>
-                <Input
-                  value={form.agent_id}
-                  onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
-                  placeholder="oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD"
-                />
-                <p className="text-xs text-[#94A3B8]">
-                  Copy from Retell Dashboard - Agents section
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Voice</Label>
+                <Label className="text-white/70">Country</Label>
                 <Select
-                  value={form.voice_id}
-                  onValueChange={v => setForm(f => ({ ...f, voice_id: v }))}
+                  value={form.country_code}
+                  onValueChange={v => setForm(f => ({ ...f, country_code: v }))}
+                  disabled={!!editingAgent}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select voice" />
+                  <SelectTrigger className="bg-white/[0.04] border-white/[0.08] text-white rounded-xl h-11 [&>span]:text-white/60">
+                    <SelectValue placeholder="Select country" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {RETELL_VOICES.map(v => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.name}
+                  <SelectContent className="bg-[#0D1220] border-white/[0.08]">
+                    {COUNTRIES.map(c => (
+                      <SelectItem key={c.code} value={c.code} className="text-white/70 focus:bg-white/[0.08] focus:text-white">
+                        {getCountryFlag(c.code)} {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <Switch
-                  checked={form.is_active}
-                  onCheckedChange={v => setForm(f => ({ ...f, is_active: v }))}
-                />
-                <Label>Active (can receive calls)</Label>
+              <div className="space-y-2">
+                <Label className="text-white/70">Language</Label>
+                <Select
+                  value={form.language}
+                  onValueChange={v => setForm(f => ({ ...f, language: v }))}
+                >
+                  <SelectTrigger className="bg-white/[0.04] border-white/[0.08] text-white rounded-xl h-11 [&>span]:text-white/60">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0D1220] border-white/[0.08]">
+                    {RETELL_LANGUAGES.map(l => (
+                      <SelectItem key={l.code} value={l.code} className="text-white/70 focus:bg-white/[0.08] focus:text-white">
+                        {l.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave} 
-                disabled={saving || !form.name || !form.country_code || !form.language || !form.phone_number}
-                className="bg-[#8FB34A] hover:bg-[#7A9B3F]"
+            <div className="space-y-2">
+              <Label className="text-white/70">Retell Phone Number (E.164)</Label>
+              <Input
+                value={form.phone_number}
+                onChange={e => setForm(f => ({ ...f, phone_number: e.target.value }))}
+                placeholder="+14155551234"
+                className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50 rounded-xl h-11 font-mono"
+              />
+              <p className="text-xs text-white/30">
+                The phone number purchased from Retell for this country
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white/70">Retell Agent ID</Label>
+              <Input
+                value={form.agent_id}
+                onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
+                placeholder="oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD"
+                className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30 focus:border-emerald-500/50 rounded-xl h-11 font-mono"
+              />
+              <p className="text-xs text-white/30">
+                Copy from Retell Dashboard - Agents section
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white/70">Voice</Label>
+              <Select
+                value={form.voice_id}
+                onValueChange={v => setForm(f => ({ ...f, voice_id: v }))}
               >
-                {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {editingAgent ? 'Save Changes' : 'Create Agent'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+                <SelectTrigger className="bg-white/[0.04] border-white/[0.08] text-white rounded-xl h-11 [&>span]:text-white/60">
+                  <SelectValue placeholder="Select voice" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0D1220] border-white/[0.08]">
+                  {RETELL_VOICES.map(v => (
+                    <SelectItem key={v.id} value={v.id} className="text-white/70 focus:bg-white/[0.08] focus:text-white">
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <Switch
+                checked={form.is_active}
+                onCheckedChange={v => setForm(f => ({ ...f, is_active: v }))}
+                className="data-[state=checked]:bg-emerald-500"
+              />
+              <div>
+                <Label className="text-white/80">Active</Label>
+                <p className="text-xs text-white/40">Agent can receive and make calls</p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setDialogOpen(false)}
+              className="bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={saving || !form.name || !form.country_code || !form.language || !form.phone_number}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-xl disabled:opacity-50"
+            >
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {editingAgent ? 'Save Changes' : 'Create Agent'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

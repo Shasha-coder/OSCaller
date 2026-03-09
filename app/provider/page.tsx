@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
 import {
-    Power, Wrench, Clock, DollarSign, Star,
-    CheckCircle2, AlertTriangle, Navigation, ChevronRight,
-    Phone, MapPin, Shield, Droplets, Zap, Thermometer,
-    KeyRound, Bug, Home, MessageSquare, RefreshCw
+    Power, Clock, DollarSign, Star,
+    AlertTriangle,
+    Phone, MapPin, Droplets, Zap, Thermometer,
+    KeyRound, Bug, Home, MessageSquare, Briefcase,
+    ChevronRight, Sparkles
 } from 'lucide-react'
 
 const SERVICE_LIST = [
@@ -16,12 +16,11 @@ const SERVICE_LIST = [
     { id: 'electrical', name: 'Electrical', icon: Zap },
     { id: 'hvac', name: 'HVAC', icon: Thermometer },
     { id: 'locksmith', name: 'Locksmith', icon: KeyRound },
-    { id: 'appliance', name: 'Appliance', icon: Wrench },
+    { id: 'appliance', name: 'Appliance', icon: Briefcase },
     { id: 'roofing', name: 'Roofing', icon: Home },
     { id: 'pest', name: 'Pest Control', icon: Bug },
 ]
 
-/* Mock data — will be replaced with Supabase real-time subscriptions */
 const MOCK_JOB = {
     id: 'REQ-001',
     customer: 'Maria S.',
@@ -46,8 +45,8 @@ export default function ProviderDashboard() {
     const [hasJob, setHasJob] = useState(false)
     const [jobStatus, setJobStatus] = useState<'assigned' | 'en-route' | 'arrived' | 'working' | null>(null)
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+    const [pulseAnimation, setPulseAnimation] = useState(false)
 
-    // Get user location
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -57,7 +56,6 @@ export default function ProviderDashboard() {
         }
     }, [])
 
-    // Simulate incoming job 5s after going online
     useEffect(() => {
         if (!isOnline) {
             setHasJob(false)
@@ -67,6 +65,8 @@ export default function ProviderDashboard() {
         const t = setTimeout(() => {
             setHasJob(true)
             setJobStatus('assigned')
+            setPulseAnimation(true)
+            setTimeout(() => setPulseAnimation(false), 2000)
         }, 5000)
         return () => clearTimeout(t)
     }, [isOnline])
@@ -87,24 +87,23 @@ export default function ProviderDashboard() {
         if (idx < flow.length - 1) {
             setJobStatus(flow[idx + 1])
         } else {
-            // Complete
             setHasJob(false)
             setJobStatus(null)
         }
     }
 
     const jobButtonText: Record<string, string> = {
-        'assigned': 'Accept & Start Navigation',
-        'en-route': 'Mark as Arrived',
-        'arrived': 'Start Working',
+        'assigned': 'Accept & Navigate',
+        'en-route': 'I\'ve Arrived',
+        'arrived': 'Start Work',
         'working': 'Complete Job',
     }
 
-    const jobStatusLabel: Record<string, string> = {
-        'assigned': '🔔 New Job Assigned',
-        'en-route': '🚗 En Route',
-        'arrived': '📍 On Site',
-        'working': '🔧 In Progress',
+    const jobStatusLabel: Record<string, { text: string; color: string }> = {
+        'assigned': { text: 'New Request', color: 'text-amber-500' },
+        'en-route': { text: 'En Route', color: 'text-blue-500' },
+        'arrived': { text: 'On Site', color: 'text-violet-500' },
+        'working': { text: 'In Progress', color: 'text-emerald-500' },
     }
 
     const mapMarkers: MapMarker[] = []
@@ -112,69 +111,114 @@ export default function ProviderDashboard() {
     if (hasJob) mapMarkers.push({ id: 'job', lat: MOCK_JOB.lat, lng: MOCK_JOB.lng, type: 'user', pulse: true })
 
     return (
-        <div className="pb-8 text-[#0F172A] relative z-10 w-full max-w-2xl mx-auto font-sans">
-            {/* Master Switch - Minimalist Light Style */}
-            <div className="px-4 pt-5 pb-6">
-                <div className={`rounded-3xl p-6 transition-all duration-500 overflow-hidden relative ${isOnline
-                    ? 'bg-white border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
-                    : 'bg-white/80 backdrop-blur-sm border border-slate-200/50 opacity-90'
-                    }`}>
-
-                    <div className="flex items-center justify-between relative z-10">
-                        <div>
-                            <h2 className={`text-2xl font-bold tracking-tight transition-colors duration-500 ${isOnline ? 'text-[#0F172A]' : 'text-slate-500'}`}>
-                                {isOnline ? 'You\u2019re Online' : 'You\u2019re Offline'}
-                            </h2>
-                            <p className={`text-sm mt-1 transition-colors duration-500 font-medium ${isOnline ? 'text-slate-500' : 'text-slate-400'}`}>
-                                {isOnline ? 'Receiving job requests' : 'Go online to start receiving jobs'}
-                            </p>
-                        </div>
-                        {/* Brand Green Toggle Button */}
-                        <button
-                            onClick={() => setIsOnline(!isOnline)}
-                            className={`relative flex h-14 w-14 items-center justify-center rounded-full transition-all duration-300 shadow-sm ${isOnline
-                                ? 'bg-[#8FB34A] text-white hover:bg-[#7da33f] shadow-[0_4px_15px_rgba(143,179,74,0.4)] hover:scale-105 active:scale-95'
-                                : 'bg-[#F8FAFC] text-slate-400 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:scale-95'
-                                }`}
-                        >
-                            <Power className="h-6 w-6" strokeWidth={isOnline ? 3 : 2.5} />
-                        </button>
-                    </div>
-
+        <div className="pb-8 relative z-10 w-full max-w-2xl mx-auto font-sans">
+            {/* Power Card */}
+            <div className="px-4 pt-2 pb-6">
+                <div className={`relative rounded-[28px] overflow-hidden transition-all duration-700 ${
+                    isOnline 
+                        ? 'bg-gradient-to-br from-white via-white to-emerald-50/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.02)]' 
+                        : 'bg-white/90 shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]'
+                }`}>
+                    {/* Animated background gradient */}
                     {isOnline && (
-                        <div className="mt-6 pt-6 border-t border-slate-100 flex gap-4 relative z-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            <div className="flex-1 text-center">
-                                <p className="text-2xl font-bold text-[#0F172A] tracking-tight">$340</p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Today</p>
-                            </div>
-                            <div className="w-px bg-slate-100"></div>
-                            <div className="flex-1 text-center">
-                                <p className="text-2xl font-bold text-[#0F172A] tracking-tight">3</p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Jobs</p>
-                            </div>
-                            <div className="w-px bg-slate-100"></div>
-                            <div className="flex-1 text-center">
-                                <p className="text-2xl font-bold text-[#0F172A] tracking-tight flex items-center justify-center gap-1">
-                                    4.8 <Star className="h-4 w-4 fill-amber-400 text-amber-400 mb-0.5" />
-                                </p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Rating</p>
-                            </div>
+                        <div className="absolute inset-0 opacity-40">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-200/50 to-transparent rounded-full blur-3xl animate-pulse" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-100/30 to-transparent rounded-full blur-2xl" />
                         </div>
                     )}
+                    
+                    <div className="relative p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h2 className={`text-[26px] font-bold tracking-tight transition-all duration-500 ${
+                                    isOnline ? 'text-slate-900' : 'text-slate-400'
+                                }`}>
+                                    {isOnline ? 'You\'re Live' : 'Go Online'}
+                                </h2>
+                                <p className={`text-sm font-medium transition-all duration-500 ${
+                                    isOnline ? 'text-emerald-600/80' : 'text-slate-400'
+                                }`}>
+                                    {isOnline ? 'Receiving job requests' : 'Tap to start earning'}
+                                </p>
+                            </div>
+                            
+                            {/* Premium Power Button */}
+                            <button
+                                onClick={() => setIsOnline(!isOnline)}
+                                className={`relative group transition-all duration-500 ${
+                                    isOnline ? 'scale-100' : 'scale-95 hover:scale-100'
+                                }`}
+                            >
+                                <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
+                                    isOnline 
+                                        ? 'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.4)]' 
+                                        : 'bg-slate-100'
+                                }`} />
+                                <div className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${
+                                    isOnline 
+                                        ? 'bg-emerald-500 text-white' 
+                                        : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600'
+                                }`}>
+                                    <Power className={`h-7 w-7 transition-all duration-300 ${
+                                        isOnline ? 'stroke-[2.5px]' : 'stroke-[2px]'
+                                    }`} />
+                                </div>
+                                {isOnline && (
+                                    <span className="absolute inset-0 rounded-full animate-ping bg-emerald-400/30" />
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Stats Row */}
+                        <div className={`grid grid-cols-3 gap-4 mt-8 pt-6 border-t transition-all duration-700 ${
+                            isOnline ? 'border-slate-100 opacity-100 translate-y-0' : 'border-transparent opacity-0 -translate-y-2 pointer-events-none h-0 mt-0 pt-0 overflow-hidden'
+                        }`}>
+                            {[
+                                { value: '$340', label: 'Today', icon: DollarSign },
+                                { value: '3', label: 'Jobs', icon: Briefcase },
+                                { value: '4.8', label: 'Rating', icon: Star, star: true },
+                            ].map((stat, i) => (
+                                <div key={i} className="text-center group">
+                                    <div className="flex items-center justify-center gap-1">
+                                        <span className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</span>
+                                        {stat.star && <Star className="h-4 w-4 fill-amber-400 text-amber-400" />}
+                                    </div>
+                                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">{stat.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Active Job Card - Minimalist Light */}
+            {/* Active Job Card */}
             {hasJob && jobStatus && (
-                <div className="px-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="rounded-3xl bg-white border border-slate-200/60 shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100/80 bg-slate-50/50">
-                            <span className="text-xs font-bold text-[#8FB34A] tracking-wider uppercase">{jobStatusLabel[jobStatus]}</span>
-                            <span className="text-xs font-bold text-slate-400 tracking-widest">{MOCK_JOB.id}</span>
+                <div className={`px-4 mb-6 ${pulseAnimation ? 'animate-in zoom-in-95 duration-500' : 'animate-in fade-in slide-in-from-top-2 duration-500'}`}>
+                    <div className="rounded-[28px] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.02)] overflow-hidden">
+                        {/* Status Header */}
+                        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                            <div className="flex items-center gap-2">
+                                <span className={`relative flex h-2.5 w-2.5`}>
+                                    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
+                                        jobStatus === 'assigned' ? 'bg-amber-400' :
+                                        jobStatus === 'en-route' ? 'bg-blue-400' :
+                                        jobStatus === 'arrived' ? 'bg-violet-400' : 'bg-emerald-400'
+                                    }`} />
+                                    <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
+                                        jobStatus === 'assigned' ? 'bg-amber-500' :
+                                        jobStatus === 'en-route' ? 'bg-blue-500' :
+                                        jobStatus === 'arrived' ? 'bg-violet-500' : 'bg-emerald-500'
+                                    }`} />
+                                </span>
+                                <span className={`text-sm font-semibold ${jobStatusLabel[jobStatus].color}`}>
+                                    {jobStatusLabel[jobStatus].text}
+                                </span>
+                            </div>
+                            <span className="text-xs font-mono text-slate-400">{MOCK_JOB.id}</span>
                         </div>
 
-                        {/* Mini map */}
-                        <div className="relative border-b border-slate-100/80">
+                        {/* Mini Map */}
+                        <div className="relative h-40 border-b border-slate-100">
                             <GoogleMap
                                 center={{ lat: MOCK_JOB.lat, lng: MOCK_JOB.lng }}
                                 zoom={14}
@@ -184,62 +228,68 @@ export default function ProviderDashboard() {
                             />
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            {/* Customer Profile */}
+                        <div className="p-6 space-y-5">
+                            {/* Customer Row */}
                             <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F8FAFC] text-lg font-bold text-[#0F172A] border border-slate-200">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 text-lg font-bold text-slate-700 shadow-inner">
                                     {MOCK_JOB.customer.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-lg font-bold text-[#0F172A] tracking-wide truncate">{MOCK_JOB.customer}</p>
-                                    <p className="text-sm font-medium text-slate-500 mt-0.5">
-                                        {MOCK_JOB.service}
-                                    </p>
+                                    <p className="text-lg font-bold text-slate-900">{MOCK_JOB.customer}</p>
+                                    <p className="text-sm text-slate-500 font-medium">{MOCK_JOB.service}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F8FAFC] text-slate-600 hover:bg-slate-100 hover:text-[#0F172A] border border-slate-200 transition-colors active:scale-95">
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95 border border-slate-100">
                                         <Phone className="h-5 w-5" />
                                     </button>
-                                    <button className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F8FAFC] text-slate-600 hover:bg-slate-100 hover:text-[#0F172A] border border-slate-200 transition-colors active:scale-95">
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95 border border-slate-100">
                                         <MessageSquare className="h-5 w-5" />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Job Details */}
-                            <div className="flex items-start gap-4">
-                                <div className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#8FB34A] shadow-[0_0_10px_rgba(143,179,74,0.3)]" />
-                                <div>
-                                    <p className="text-base font-bold text-[#0F172A] leading-snug">{MOCK_JOB.address}</p>
-                                    <p className="text-sm text-slate-500 mt-1 leading-snug">{MOCK_JOB.description}</p>
+                            {/* Address & Issue */}
+                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/80">
+                                <MapPin className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-base font-semibold text-slate-900">{MOCK_JOB.address}</p>
+                                    <p className="text-sm text-slate-500 mt-1">{MOCK_JOB.description}</p>
                                     {MOCK_JOB.priority === 'emergency' && (
-                                        <p className="text-xs text-red-600 font-bold uppercase tracking-wider mt-2.5 flex items-center gap-1.5 bg-red-50 w-max px-2.5 py-1 rounded-md">
-                                            <AlertTriangle className="h-3.5 w-3.5" /> Emergency
-                                        </p>
+                                        <div className="flex items-center gap-1.5 mt-3 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg w-fit">
+                                            <AlertTriangle className="h-4 w-4" />
+                                            <span className="text-xs font-bold uppercase tracking-wide">Emergency</span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
 
+                            {/* Action Button */}
                             <button
                                 onClick={advanceJobStatus}
-                                className={`h-14 mt-2 w-full rounded-2xl font-bold text-base transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] border ${jobStatus === 'working'
-                                    ? 'bg-[#8FB34A] text-white border-transparent hover:bg-[#7da33f] shadow-[0_4px_20px_rgba(143,179,74,0.3)]'
-                                    : 'bg-white text-[#0F172A] border-slate-200 hover:bg-slate-50 shadow-sm'
-                                    }`}
+                                className={`relative w-full h-14 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden group ${
+                                    jobStatus === 'working'
+                                        ? 'bg-emerald-500 text-white shadow-[0_8px_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_40px_-5px_rgba(16,185,129,0.6)]'
+                                        : 'bg-slate-900 text-white shadow-[0_8px_30px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.4)]'
+                                }`}
                             >
-                                {jobButtonText[jobStatus]}
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    {jobButtonText[jobStatus]}
+                                    <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                </span>
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Service Toggles - Minimalist Light */}
+            {/* Services Grid */}
             <div className="px-4 mb-6">
-                <div className="rounded-3xl bg-white border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-6">
+                <div className="rounded-[28px] bg-white shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)] p-6">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-bold tracking-wide text-[#0F172A]">Services</h3>
-                        <span className="text-[10px] text-[#8FB34A] font-bold uppercase tracking-widest bg-[#EAF4D8] px-2.5 py-1 rounded-full">{activeServices.size} Active</span>
+                        <h3 className="text-base font-bold text-slate-900">Your Services</h3>
+                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+                            {activeServices.size} Active
+                        </span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         {SERVICE_LIST.map(({ id, name, icon: Icon }) => {
@@ -249,21 +299,30 @@ export default function ProviderDashboard() {
                                     key={id}
                                     onClick={() => toggleService(id)}
                                     disabled={!isOnline}
-                                    className={`flex items-center gap-3 rounded-2xl border px-3 py-3.5 transition-all duration-300 ${active && isOnline
-                                        ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/50 text-[#0F172A]'
-                                        : 'border-slate-100 bg-slate-50 text-slate-500'
-                                        } ${!isOnline ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-slate-300 hover:bg-slate-100'}`}
+                                    className={`relative flex items-center gap-3 rounded-2xl p-4 transition-all duration-300 ${
+                                        active && isOnline
+                                            ? 'bg-emerald-50 border-2 border-emerald-200'
+                                            : 'bg-slate-50 border-2 border-transparent hover:border-slate-200'
+                                    } ${!isOnline ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
                                 >
-                                    <div className={`p-1.5 rounded-full ${active && isOnline ? 'bg-white text-[#8FB34A] shadow-sm' : 'bg-white text-slate-400 border border-slate-200'}`}>
-                                        <Icon className="h-4 w-4" />
+                                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
+                                        active && isOnline 
+                                            ? 'bg-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' 
+                                            : 'bg-white text-slate-400 shadow-sm'
+                                    }`}>
+                                        <Icon className="h-5 w-5" />
                                     </div>
-                                    <span className="text-xs font-bold tracking-wide truncate pr-1">{name}</span>
-
-                                    {/* Minimalist Switch */}
-                                    <div className={`ml-auto shrink-0 h-3 w-6 rounded-full transition-colors duration-300 ${active && isOnline ? 'bg-[#8FB34A]' : 'bg-slate-200'
-                                        }`}>
-                                        <div className={`h-3 w-3 rounded-full bg-white transition-transform duration-300 ${active && isOnline ? 'translate-x-3' : 'translate-x-0'
-                                            } shadow-sm`} />
+                                    <span className={`text-sm font-semibold ${active && isOnline ? 'text-emerald-700' : 'text-slate-600'}`}>
+                                        {name}
+                                    </span>
+                                    
+                                    {/* Toggle Indicator */}
+                                    <div className={`absolute right-4 w-8 h-5 rounded-full transition-all duration-300 ${
+                                        active && isOnline ? 'bg-emerald-500' : 'bg-slate-200'
+                                    }`}>
+                                        <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all duration-300 ${
+                                            active && isOnline ? 'left-3.5' : 'left-0.5'
+                                        }`} />
                                     </div>
                                 </button>
                             )
@@ -272,27 +331,32 @@ export default function ProviderDashboard() {
                 </div>
             </div>
 
-            {/* Recent Jobs - Minimalist Light */}
+            {/* Recent Earnings */}
             <div className="px-4">
-                <div className="rounded-3xl bg-white border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="rounded-[28px] bg-white shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)] overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-                        <h3 className="text-sm font-bold tracking-wide text-[#0F172A]">Recent Earnings</h3>
-                        <button className="text-xs font-bold text-[#8FB34A] hover:text-[#7da33f] transition-colors tracking-wide">VIEW ALL</button>
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-amber-500" />
+                            <h3 className="text-base font-bold text-slate-900">Recent Earnings</h3>
+                        </div>
+                        <button className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                            View All
+                        </button>
                     </div>
                     <div className="divide-y divide-slate-100">
-                        {MOCK_HISTORY.map(job => (
-                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 hover:bg-slate-50 transition-colors cursor-pointer group">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF4D8]/50 text-[#8FB34A] group-hover:bg-[#EAF4D8] transition-colors border border-[#8FB34A]/10">
+                        {MOCK_HISTORY.map((job, i) => (
+                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 hover:bg-slate-50/50 transition-colors cursor-pointer group">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 group-hover:from-emerald-100 group-hover:to-emerald-50 transition-all">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-bold text-[#0F172A] tracking-wide truncate">{job.customer}</span>
-                                        <span className="text-base font-bold text-[#0F172A]">{job.amount}</span>
+                                        <span className="text-base font-semibold text-slate-900">{job.customer}</span>
+                                        <span className="text-lg font-bold text-slate-900">{job.amount}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <p className="text-xs font-medium text-slate-500">{job.service}</p>
-                                        <span className="text-xs font-medium text-slate-400">{job.date}</span>
+                                        <span className="text-sm text-slate-500">{job.service}</span>
+                                        <span className="text-sm text-slate-400">{job.date}</span>
                                     </div>
                                 </div>
                             </div>
@@ -301,7 +365,7 @@ export default function ProviderDashboard() {
                 </div>
             </div>
 
-            <div className="h-8"></div>
+            <div className="h-8" />
         </div>
     )
 }
