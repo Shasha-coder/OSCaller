@@ -221,6 +221,118 @@ function CountryPhoneInput({
 }
 
 /* ═══════════════════════════════════════════
+   Mobile Phone Input - Large, touch-friendly
+   ═══════════════════════════════════════════ */
+function MobilePhoneInput({
+  country, onCountryChange, phone, onPhoneChange,
+}: {
+  country: string
+  onCountryChange: (code: string) => void
+  phone: string
+  onPhoneChange: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const selected = COUNTRIES.find(c => c.code === country) || COUNTRIES[0]
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (dropdownRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler, true)
+    document.addEventListener('touchstart', handler, true)
+    return () => {
+      document.removeEventListener('mousedown', handler, true)
+      document.removeEventListener('touchstart', handler, true)
+    }
+  }, [open])
+
+  return (
+    <div ref={triggerRef} className="relative w-full">
+      <div
+        className={cn(
+          'flex items-center h-[52px] w-full rounded-2xl bg-[#F8FAFB] border-2 transition-all duration-200',
+          open ? 'border-[#8FB34A] bg-white shadow-[0_0_0_4px_rgba(143,179,74,0.1)]' : 'border-[#E2E8F0]'
+        )}
+      >
+        <button
+          type="button"
+          data-no-focus-ring
+          onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
+          className="flex items-center gap-2 h-full pl-4 pr-3 border-r border-[#E2E8F0]/80 cursor-pointer shrink-0 outline-none"
+        >
+          <span className="text-[20px] leading-none">{selected.flag}</span>
+          <span className="text-[15px] font-bold text-[#334155] tabular-nums">{selected.dial}</span>
+          <ChevronDown className={cn('h-4 w-4 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
+        </button>
+        <input
+          type="tel"
+          inputMode="tel"
+          data-no-focus-ring
+          value={phone}
+          onChange={e => onPhoneChange(e.target.value)}
+          placeholder="(555) 000-0000"
+          className="flex-1 min-w-0 h-full bg-transparent text-[17px] font-semibold text-[#0F172A] pl-3 pr-4 outline-none placeholder:text-[#94A3B8] placeholder:font-normal tabular-nums"
+        />
+      </div>
+
+      <FloatingDropdown anchorRef={triggerRef} open={open} width={300}>
+        <div ref={dropdownRef} className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden">
+          <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#8FB34A] bg-[#EAF4D8]/40 border-b border-[#EAF4D8]">
+            Available Countries
+          </div>
+          <div className="max-h-[180px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+            {COUNTRIES.filter(c => c.supported).map(c => (
+              <button
+                key={c.code}
+                type="button"
+                data-no-focus-ring
+                onClick={() => { onCountryChange(c.code); setOpen(false) }}
+                className={cn(
+                  'flex w-full items-center gap-3 px-4 py-3.5 text-[15px] transition-colors outline-none',
+                  c.code === country
+                    ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]'
+                    : 'text-[#0F172A] hover:bg-[#F8FAFB] active:bg-[#F1F5F9]'
+                )}
+              >
+                <span className="text-[22px] leading-none">{c.flag}</span>
+                <span className="flex-1 text-left">{c.name}</span>
+                <span className="text-[13px] text-[#94A3B8] font-semibold tabular-nums">{c.dial}</span>
+                {c.code === country && (
+                  <svg className="h-5 w-5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#94A3B8] bg-[#F8FAFB] border-y border-[#E2E8F0] flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5" />
+            Coming Soon
+          </div>
+          <div className="max-h-[200px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+            {COUNTRIES.filter(c => !c.supported).map(c => (
+              <div
+                key={c.code}
+                className="flex w-full items-center gap-3 px-4 py-3 text-[15px] text-[#94A3B8] cursor-not-allowed select-none"
+              >
+                <span className="text-[22px] leading-none grayscale opacity-50">{c.flag}</span>
+                <span className="flex-1 text-left">{c.name}</span>
+                <span className="text-[13px] tabular-nums">{c.dial}</span>
+                <Lock className="h-4 w-4 text-[#CBD5E1]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </FloatingDropdown>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -245,31 +357,31 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
   }, [open])
 
   return (
-    <div className="relative shrink-0">
+    <div className="relative w-full sm:w-auto sm:shrink-0">
       <button
         ref={triggerRef}
         type="button"
         data-no-focus-ring
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
         className={cn(
-          'flex items-center gap-1.5 h-[36px] px-3 rounded-full border text-[12px] font-semibold transition-all cursor-pointer outline-none',
+          'flex items-center gap-2 w-full sm:w-auto h-[52px] sm:h-[36px] px-4 sm:px-3 rounded-2xl sm:rounded-full border-2 sm:border text-[15px] sm:text-[12px] font-semibold transition-all cursor-pointer outline-none',
           open
-            ? 'border-[#8FB34A] bg-white shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
-            : 'border-white/60 bg-white/95 backdrop-blur-md hover:border-[#CBD5E1] shadow-sm'
+            ? 'border-[#8FB34A] bg-white shadow-[0_0_0_4px_rgba(143,179,74,0.1)] sm:shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
+            : 'border-[#E2E8F0] sm:border-white/60 bg-[#F8FAFB] sm:bg-white/95 sm:backdrop-blur-md hover:border-[#CBD5E1] sm:shadow-sm'
         )}
       >
-        <svg className="h-3.5 w-3.5 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="h-5 w-5 sm:h-3.5 sm:w-3.5 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
-        <span className="text-[#0F172A] whitespace-nowrap">{value}</span>
-        <ChevronDown className={cn('h-3 w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
+        <span className="text-[#0F172A] whitespace-nowrap flex-1 sm:flex-none text-left">{value}</span>
+        <ChevronDown className={cn('h-5 w-5 sm:h-3 sm:w-3 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
       </button>
 
-      <FloatingDropdown anchorRef={triggerRef} open={open} width={200}>
+      <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
         <div
           ref={dropdownRef}
-          className="max-h-[220px] overflow-y-auto rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
+          className="max-h-[280px] overflow-y-auto rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.15)]"
           style={{ scrollbarWidth: 'thin' }}
         >
           {LANGUAGES.map(lang => (
@@ -279,7 +391,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
               data-no-focus-ring
               onClick={() => { onChange(lang); setOpen(false) }}
               className={cn(
-                'flex w-full items-center justify-between px-3.5 py-2.5 text-[13px] transition-colors outline-none',
+                'flex w-full items-center justify-between px-4 py-3.5 sm:py-2.5 text-[15px] sm:text-[13px] transition-colors outline-none',
                 lang === value
                   ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]'
                   : 'text-[#0F172A] hover:bg-[#F8FAFB] active:bg-[#F1F5F9]'
@@ -287,7 +399,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
             >
               {lang}
               {lang === value && (
-                <svg className="h-3.5 w-3.5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+                <svg className="h-5 w-5 sm:h-3.5 sm:w-3.5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
               )}
             </button>
           ))}
@@ -539,8 +651,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes most of the screen, leaves room for bottom panel */}
-        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-180px)]">
+        {/* Map takes upper portion, leaves room for larger bottom panel */}
+        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-320px)]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -660,17 +772,26 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-[#E2E8F0]/40 px-3 pt-3 pb-[78px]">
-          {/* Row 1: Language + Describe Problem */}
-          <div className="flex items-center gap-2">
-            <LanguageDropdown value={language} onChange={setLanguage} />
+        <div className="shrink-0 bg-white border-t border-[#E2E8F0]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[84px]">
+          
+          {/* Row 1: Language selector */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex-1">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5 pl-1">Language</label>
+              <LanguageDropdown value={language} onChange={setLanguage} />
+            </div>
+          </div>
+
+          {/* Row 2: Describe Problem - Full width, taller */}
+          <div className="mb-3">
+            <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5 pl-1">Describe your problem</label>
             <div
               className={cn(
-                'flex items-center h-[36px] flex-1 min-w-0 rounded-full bg-white border transition-all duration-200',
-                'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
+                'flex items-center h-[52px] w-full rounded-2xl bg-[#F8FAFB] border-2 transition-all duration-200',
+                'border-[#E2E8F0] focus-within:border-[#8FB34A] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(143,179,74,0.1)]'
               )}
             >
-              <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]/60">
+              <div className="flex items-center h-full pl-2 gap-1 shrink-0 border-r border-[#E2E8F0]/80">
                 {(['voice', 'photo', 'text'] as const).map(mode => (
                   <button
                     key={mode}
@@ -678,54 +799,54 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     data-no-focus-ring
                     onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
                     className={cn(
-                      'flex items-center justify-center h-[26px] w-[26px] rounded-full transition-all duration-200 outline-none',
+                      'flex items-center justify-center h-[36px] w-[36px] rounded-xl transition-all duration-200 outline-none',
                       inputMode === mode
-                        ? 'bg-[#8FB34A] text-white shadow-sm'
-                        : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]',
-                      mode === 'text' && 'mr-0.5'
+                        ? 'bg-[#8FB34A] text-white shadow-md'
+                        : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-white',
+                      mode === 'text' && 'mr-1'
                     )}
                     aria-label={`${mode} input`}
                   >
-                    {mode === 'voice' && <Mic className="h-3 w-3" strokeWidth={2.5} />}
-                    {mode === 'photo' && <Camera className="h-3 w-3" strokeWidth={2.5} />}
-                    {mode === 'text' && <Type className="h-3 w-3" strokeWidth={2.5} />}
+                    {mode === 'voice' && <Mic className="h-4 w-4" strokeWidth={2} />}
+                    {mode === 'photo' && <Camera className="h-4 w-4" strokeWidth={2} />}
+                    {mode === 'text' && <Type className="h-4 w-4" strokeWidth={2} />}
                   </button>
                 ))}
               </div>
-              <div className="flex-1 min-w-0 h-full flex items-center px-2">
+              <div className="flex-1 min-w-0 h-full flex items-center px-3">
                 {inputMode === 'text' && (
                   <input
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     type="text"
                     data-no-focus-ring
-                    placeholder="Describe problem..."
-                    className="w-full h-full bg-transparent text-[12px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+                    placeholder="e.g. Leaking pipe under sink..."
+                    className="w-full h-full bg-transparent text-[15px] font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
                   />
                 )}
                 {inputMode === 'voice' && (
-                  <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2 w-full outline-none">
-                    <span className={cn('relative flex h-4 w-4 items-center justify-center', isRecording && 'animate-pulse')}>
+                  <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-3 w-full outline-none">
+                    <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
                       {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                      <span className={cn('relative h-2 w-2 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
+                      <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
                     </span>
-                    <span className={cn('text-[12px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
+                    <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
                       {isRecording ? 'Recording...' : 'Tap to speak'}
                     </span>
                   </button>
                 )}
                 {inputMode === 'photo' && (
-                  <div className="flex items-center gap-3 w-full">
+                  <div className="flex items-center gap-4 w-full">
                     {uploadedFile ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <span className="text-[11px] font-semibold text-[#8FB34A] truncate max-w-[120px]">{uploadedFile.name}</span>
-                        <button type="button" onClick={() => setUploadedFile(null)} className="text-[10px] text-[#94A3B8] hover:text-red-500">Remove</button>
+                      <div className="flex items-center gap-3 flex-1">
+                        <span className="text-[14px] font-semibold text-[#8FB34A] truncate max-w-[140px]">{uploadedFile.name}</span>
+                        <button type="button" onClick={() => setUploadedFile(null)} className="text-[13px] text-[#94A3B8] hover:text-red-500 font-medium">Remove</button>
                       </div>
                     ) : (
                       <>
-                        <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                          <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                          <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                        <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                          <Upload className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
+                          <span className="text-[14px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
                           <input 
                             type="file" 
                             accept="image/*" 
@@ -733,10 +854,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                             onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
                           />
                         </label>
-                        <span className="text-[#CBD5E1] text-[10px]">|</span>
-                        <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                          <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                          <span className="text-[11px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
+                        <span className="text-[#CBD5E1]">|</span>
+                        <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                          <Camera className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
+                          <span className="text-[14px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Camera</span>
                           <input 
                             type="file" 
                             accept="image/*" 
@@ -753,25 +874,28 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             </div>
           </div>
 
-          {/* Row 2: Phone + Aria */}
-          <div className="flex items-center gap-2 mt-2">
-            <CountryPhoneInput
+          {/* Row 3: Phone number - Full width */}
+          <div className="mb-4">
+            <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5 pl-1">Phone number</label>
+            <MobilePhoneInput
               country={country}
               onCountryChange={setCountry}
               phone={phone}
               onPhoneChange={setPhone}
             />
-  <button
-  type="button"
-  data-no-focus-ring
-  onClick={callAria}
-  disabled={callingAria}
-  className="flex-1 flex items-center justify-center gap-1.5 h-[36px] rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] transition-all hover:bg-[#7da33f] active:scale-[0.97] outline-none disabled:opacity-60"
-  >
-  <Phone className={cn("h-3.5 w-3.5", callingAria && "animate-pulse")} strokeWidth={2.5} />
-  {callingAria ? 'Calling...' : 'Aria'}
-  </button>
           </div>
+
+          {/* Row 4: Call Aria button - Full width, prominent */}
+          <button
+            type="button"
+            data-no-focus-ring
+            onClick={callAria}
+            disabled={callingAria}
+            className="w-full flex items-center justify-center gap-2.5 h-[56px] rounded-2xl bg-gradient-to-r from-[#8FB34A] to-[#7DA33F] text-white text-[17px] font-bold shadow-[0_4px_20px_rgba(143,179,74,0.4)] transition-all hover:shadow-[0_6px_28px_rgba(143,179,74,0.5)] active:scale-[0.98] outline-none disabled:opacity-60"
+          >
+            <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
+            {callingAria ? 'Calling Aria...' : 'Call Aria'}
+          </button>
         </div>
       </div>
 
