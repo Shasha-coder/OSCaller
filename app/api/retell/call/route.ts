@@ -58,6 +58,23 @@ export async function POST(request: NextRequest) {
     const dialCode = countryConfig?.dial_code || '+1'
     const clientPhone = toE164(phone, dialCode)
 
+    // Reverse geocode to get readable address if we have coordinates
+    let readableAddress = address || ''
+    if (lat && lng && (!address || address.startsWith('GPS:'))) {
+      try {
+        const geoRes = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        )
+        const geoData = await geoRes.json()
+        if (geoData.results?.[0]?.formatted_address) {
+          readableAddress = geoData.results[0].formatted_address
+        }
+      } catch (e) {
+        console.error('[Geocode Error]', e)
+        readableAddress = `near coordinates ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      }
+    }
+
     // Determine agent ID and from number
     const agentId = agentConfig?.agent_id || process.env.RETELL_DEFAULT_AGENT_ID
     const fromNumber = agentConfig?.phone_number || process.env.RETELL_DEFAULT_FROM_NUMBER
@@ -91,7 +108,7 @@ export async function POST(request: NextRequest) {
       service_type: service_type || 'home service',
       urgency: urgency || 'standard',
       language: agentLanguage,
-      address: address || 'your location',
+      address: readableAddress || 'your location',
       photo_summary: photo_summary || '',
       issue_description: issue_description || '',
       audio_summary: audio_summary || '',
