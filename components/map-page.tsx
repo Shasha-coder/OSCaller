@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════�������════════════════════════
+/* ══════════════════���������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -438,7 +438,16 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   
   // Validation and call state
   const [validationError, setValidationError] = useState<string | null>(null)
-  const [callStatus, setCallStatus] = useState<'idle' | 'connecting' | 'ringing' | 'active' | 'ended'>('idle')
+  const [callStatus, setCallStatus] = useState<'idle' | 'connecting' | 'ringing' | 'active' | 'dispatched' | 'ended'>('idle')
+  const [matchedProvider, setMatchedProvider] = useState<{
+    name: string
+    trade: string
+    distance: number // km
+    eta: number // minutes
+    lat: number
+    lng: number
+    rating?: number
+  } | null>(null)
 
   // Fetch nearby providers from API and set as markers
   const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
@@ -610,20 +619,55 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       streamGps()
       const gpsInterval = setInterval(streamGps, 30000)
       
-      // 5. Trigger dispatch
+      // 5. Fetch nearest provider for animation
+      try {
+        const providerRes = await fetch(`/api/providers/nearby?lat=${coords!.lat}&lng=${coords!.lng}&radius=25&limit=1`)
+        if (providerRes.ok) {
+          const providerData = await providerRes.json()
+          if (providerData.providers?.[0]) {
+            const p = providerData.providers[0]
+            // Calculate distance using Haversine formula
+            const R = 6371 // km
+            const dLat = (p.lat - coords!.lat) * Math.PI / 180
+            const dLng = (p.lng - coords!.lng) * Math.PI / 180
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(coords!.lat * Math.PI / 180) * Math.cos(p.lat * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2)
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+            const distance = R * c
+            const eta = Math.round(distance * 3 + 5) // Rough ETA: 3 min/km + 5 min buffer
+            
+            setMatchedProvider({
+              name: p.name || p.business_name || 'Professional',
+              trade: p.trade || 'Service Pro',
+              distance: Math.round(distance * 10) / 10,
+              eta,
+              lat: p.lat,
+              lng: p.lng,
+              rating: p.rating || 4.8,
+            })
+            setCallStatus('dispatched')
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch provider:', e)
+      }
+      
+      // 6. Trigger dispatch
       await fetch('/api/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),
       })
       
-      // 6. Navigate to tracking after brief animation
+      // 7. Navigate to tracking after showing provider animation
       setTimeout(() => {
         if (onRequestCreated) {
           onRequestCreated(requestId)
         }
         setCallStatus('idle')
-      }, 1500)
+        setMatchedProvider(null)
+      }, 4000) // Give time to see the provider info
       
       return () => clearInterval(gpsInterval)
       
@@ -748,40 +792,100 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           {/* Calling Aria overlay */}
           {callStatus !== 'idle' && (
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
-              {/* Pulsing rings */}
-              <div className="relative mb-6">
-                <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/20 animate-ping" />
-                <div className="absolute inset-0 -m-4 rounded-full bg-[#8FB34A]/30 animate-pulse" />
-                <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-xl shadow-[#8FB34A]/30">
-                  <Phone className="h-8 w-8 text-white animate-pulse" />
-                </div>
-              </div>
               
-              {/* Status text */}
-              <p className="text-white font-bold text-lg mb-1">
-                {callStatus === 'connecting' && 'Connecting...'}
-                {callStatus === 'ringing' && 'Calling you now...'}
-                {callStatus === 'active' && 'Aria is calling'}
-              </p>
-              <p className="text-white/60 text-sm">
-                {callStatus === 'connecting' && 'Setting up your request'}
-                {callStatus === 'ringing' && 'Answer the call from Aria'}
-                {callStatus === 'active' && 'Describe your problem to Aria'}
-              </p>
-              
-              {/* Soft connecting sound indicator */}
-              <div className="flex items-center gap-1 mt-6">
-                {[0, 1, 2, 3, 4].map(i => (
-                  <div
-                    key={i}
-                    className="w-1 bg-[#8FB34A] rounded-full animate-pulse"
-                    style={{
-                      height: `${12 + Math.random() * 16}px`,
-                      animationDelay: `${i * 150}ms`,
-                    }}
-                  />
-                ))}
-              </div>
+              {/* Provider dispatched state */}
+              {callStatus === 'dispatched' && matchedProvider ? (
+                <>
+                  {/* Connection animation */}
+                  <div className="relative w-full max-w-[280px] mb-8">
+                    {/* Client marker */}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-[#8FB34A] flex items-center justify-center shadow-lg shadow-[#8FB34A]/30">
+                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                      </div>
+                      <span className="text-[10px] text-white/70 mt-1.5 font-medium">You</span>
+                    </div>
+                    
+                    {/* Animated connection line */}
+                    <div className="absolute left-14 right-14 top-1/2 -translate-y-1/2 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full w-1/2 bg-gradient-to-r from-[#8FB34A] to-[#BFFF4D] rounded-full animate-[slideRight_1.5s_ease-in-out_infinite]" />
+                    </div>
+                    
+                    {/* Provider marker */}
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-[#BFFF4D] flex items-center justify-center shadow-lg shadow-[#BFFF4D]/30">
+                        <svg className="w-6 h-6 text-[#0F172A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>
+                      </div>
+                      <span className="text-[10px] text-white/70 mt-1.5 font-medium">Pro</span>
+                    </div>
+                  </div>
+                  
+                  {/* Provider info */}
+                  <div className="text-center mb-6">
+                    <p className="text-[#BFFF4D] font-bold text-xl mb-1">{matchedProvider.name}</p>
+                    <p className="text-white/60 text-sm capitalize">{matchedProvider.trade}</p>
+                    {matchedProvider.rating && (
+                      <div className="flex items-center justify-center gap-1 mt-2">
+                        <svg className="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span className="text-white/80 text-sm font-medium">{matchedProvider.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Distance and ETA */}
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <p className="text-white font-bold text-2xl">{matchedProvider.distance}<span className="text-sm ml-1">km</span></p>
+                      <p className="text-white/50 text-xs">Distance</p>
+                    </div>
+                    <div className="w-px h-10 bg-white/20" />
+                    <div className="text-center">
+                      <p className="text-white font-bold text-2xl">{matchedProvider.eta}<span className="text-sm ml-1">min</span></p>
+                      <p className="text-white/50 text-xs">ETA</p>
+                    </div>
+                  </div>
+                  
+                  {/* Status message */}
+                  <p className="text-[#8FB34A] text-sm font-medium mt-6 animate-pulse">Dispatching to your location...</p>
+                </>
+              ) : (
+                <>
+                  {/* Pulsing rings */}
+                  <div className="relative mb-6">
+                    <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/20 animate-ping" />
+                    <div className="absolute inset-0 -m-4 rounded-full bg-[#8FB34A]/30 animate-pulse" />
+                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-xl shadow-[#8FB34A]/30">
+                      <Phone className={cn("h-8 w-8 text-white", callStatus === 'ringing' && "animate-[wiggle_0.5s_ease-in-out_infinite]")} />
+                    </div>
+                  </div>
+                  
+                  {/* Status text */}
+                  <p className="text-white font-bold text-lg mb-1">
+                    {callStatus === 'connecting' && 'Connecting...'}
+                    {callStatus === 'ringing' && 'Calling you now...'}
+                    {callStatus === 'active' && 'Aria is on the line'}
+                  </p>
+                  <p className="text-white/60 text-sm">
+                    {callStatus === 'connecting' && 'Setting up your request'}
+                    {callStatus === 'ringing' && 'Answer the call from Aria'}
+                    {callStatus === 'active' && 'Describe your problem to Aria'}
+                  </p>
+                  
+                  {/* Soft connecting sound indicator */}
+                  <div className="flex items-center gap-1 mt-6">
+                    {[0, 1, 2, 3, 4].map(i => (
+                      <div
+                        key={i}
+                        className="w-1 bg-[#8FB34A] rounded-full animate-pulse"
+                        style={{
+                          height: `${12 + Math.random() * 16}px`,
+                          animationDelay: `${i * 150}ms`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -1180,47 +1284,107 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
           {/* Calling Aria overlay - premium animation */}
           {callStatus !== 'idle' && (
-            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-xl">
-              {/* Animated rings */}
-              <div className="relative mb-10">
-                <div className="absolute inset-0 -m-16 rounded-full border-2 border-[#8FB34A]/20 animate-[ping_2s_ease-out_infinite]" />
-                <div className="absolute inset-0 -m-12 rounded-full border-2 border-[#8FB34A]/30 animate-[ping_2s_ease-out_infinite_0.5s]" />
-                <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/10 animate-pulse" />
-                <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-[0_0_60px_rgba(143,179,74,0.4)]">
-                  <Phone className={cn(
-                    "h-12 w-12 text-white transition-transform duration-300",
-                    callStatus === 'ringing' && "animate-[wiggle_0.5s_ease-in-out_infinite]",
-                    callStatus === 'active' && "animate-pulse"
-                  )} />
-                </div>
-              </div>
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-xl rounded-3xl">
               
-              {/* Status text */}
-              <p className="text-white font-bold text-2xl mb-2 tracking-tight">
-                {callStatus === 'connecting' && 'Connecting...'}
-                {callStatus === 'ringing' && 'Calling you now...'}
-                {callStatus === 'active' && 'Aria is on the line'}
-              </p>
-              <p className="text-white/50 text-sm font-medium">
-                {callStatus === 'connecting' && 'Setting up your request'}
-                {callStatus === 'ringing' && 'Please answer the incoming call'}
-                {callStatus === 'active' && 'Describe your problem to Aria'}
-              </p>
-              
-              {/* Sound wave animation */}
-              <div className="flex items-end gap-1 mt-10 h-8">
-                {[0, 1, 2, 3, 4, 5, 6].map(i => (
-                  <div
-                    key={i}
-                    className="w-1 bg-[#8FB34A] rounded-full transition-all duration-150"
-                    style={{ 
-                      height: callStatus === 'active' ? `${12 + Math.sin(Date.now() / 200 + i) * 16}px` : '4px',
-                      animationDelay: `${i * 100}ms`,
-                      opacity: callStatus === 'active' ? 1 : 0.3
-                    }}
-                  />
-                ))}
-              </div>
+              {/* Provider dispatched state */}
+              {callStatus === 'dispatched' && matchedProvider ? (
+                <>
+                  {/* Connection animation - larger for desktop */}
+                  <div className="relative w-full max-w-[400px] mb-10">
+                    {/* Client marker */}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-full bg-[#8FB34A] flex items-center justify-center shadow-lg shadow-[#8FB34A]/30">
+                        <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                      </div>
+                      <span className="text-xs text-white/70 mt-2 font-medium">You</span>
+                    </div>
+                    
+                    {/* Animated connection line */}
+                    <div className="absolute left-20 right-20 top-1/2 -translate-y-1/2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full w-1/3 bg-gradient-to-r from-[#8FB34A] to-[#BFFF4D] rounded-full animate-[slideRight_1.5s_ease-in-out_infinite]" />
+                    </div>
+                    
+                    {/* Provider marker */}
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-full bg-[#BFFF4D] flex items-center justify-center shadow-lg shadow-[#BFFF4D]/30">
+                        <svg className="w-8 h-8 text-[#0F172A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>
+                      </div>
+                      <span className="text-xs text-white/70 mt-2 font-medium">Pro</span>
+                    </div>
+                  </div>
+                  
+                  {/* Provider info */}
+                  <div className="text-center mb-8">
+                    <p className="text-[#BFFF4D] font-bold text-2xl mb-1">{matchedProvider.name}</p>
+                    <p className="text-white/60 text-base capitalize">{matchedProvider.trade}</p>
+                    {matchedProvider.rating && (
+                      <div className="flex items-center justify-center gap-1.5 mt-3">
+                        <svg className="w-5 h-5 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span className="text-white/80 text-base font-medium">{matchedProvider.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Distance and ETA - larger */}
+                  <div className="flex items-center gap-10 bg-white/5 rounded-2xl px-8 py-5">
+                    <div className="text-center">
+                      <p className="text-white font-bold text-3xl">{matchedProvider.distance}<span className="text-base ml-1">km</span></p>
+                      <p className="text-white/50 text-sm mt-1">Distance</p>
+                    </div>
+                    <div className="w-px h-14 bg-white/20" />
+                    <div className="text-center">
+                      <p className="text-white font-bold text-3xl">{matchedProvider.eta}<span className="text-base ml-1">min</span></p>
+                      <p className="text-white/50 text-sm mt-1">ETA</p>
+                    </div>
+                  </div>
+                  
+                  {/* Status message */}
+                  <p className="text-[#8FB34A] text-base font-medium mt-8 animate-pulse">Dispatching to your location...</p>
+                </>
+              ) : (
+                <>
+                  {/* Animated rings */}
+                  <div className="relative mb-10">
+                    <div className="absolute inset-0 -m-16 rounded-full border-2 border-[#8FB34A]/20 animate-[ping_2s_ease-out_infinite]" />
+                    <div className="absolute inset-0 -m-12 rounded-full border-2 border-[#8FB34A]/30 animate-[ping_2s_ease-out_infinite_0.5s]" />
+                    <div className="absolute inset-0 -m-8 rounded-full bg-[#8FB34A]/10 animate-pulse" />
+                    <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-[0_0_60px_rgba(143,179,74,0.4)]">
+                      <Phone className={cn(
+                        "h-12 w-12 text-white transition-transform duration-300",
+                        callStatus === 'ringing' && "animate-[wiggle_0.5s_ease-in-out_infinite]",
+                        callStatus === 'active' && "animate-pulse"
+                      )} />
+                    </div>
+                  </div>
+                  
+                  {/* Status text */}
+                  <p className="text-white font-bold text-2xl mb-2 tracking-tight">
+                    {callStatus === 'connecting' && 'Connecting...'}
+                    {callStatus === 'ringing' && 'Calling you now...'}
+                    {callStatus === 'active' && 'Aria is on the line'}
+                  </p>
+                  <p className="text-white/50 text-sm font-medium">
+                    {callStatus === 'connecting' && 'Setting up your request'}
+                    {callStatus === 'ringing' && 'Please answer the incoming call'}
+                    {callStatus === 'active' && 'Describe your problem to Aria'}
+                  </p>
+                  
+                  {/* Sound wave animation */}
+                  <div className="flex items-end gap-1 mt-10 h-8">
+                    {[0, 1, 2, 3, 4, 5, 6].map(i => (
+                      <div
+                        key={i}
+                        className="w-1 bg-[#8FB34A] rounded-full transition-all duration-150"
+                        style={{ 
+                          height: callStatus === 'active' ? `${12 + Math.sin(Date.now() / 200 + i) * 16}px` : '4px',
+                          animationDelay: `${i * 100}ms`,
+                          opacity: callStatus === 'active' ? 1 : 0.3
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

@@ -62,26 +62,50 @@ export async function POST(request: NextRequest) {
     // Try server-side key first, fallback to public key
     const googleMapsKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     let readableAddress = address || ''
-    if (lat && lng && googleMapsKey && (!address || address.startsWith('GPS:'))) {
+    let shortAddress = '' // For natural speech: "King Street, Toronto"
+    
+    if (lat && lng && googleMapsKey && (!address || address.startsWith('GPS:') || address.startsWith('Location:'))) {
       try {
         const geoRes = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsKey}`
         )
         const geoData = await geoRes.json()
-        console.log('[v0] Geocode response status:', geoData.status)
-        if (geoData.results?.[0]?.formatted_address) {
-          readableAddress = geoData.results[0].formatted_address
-          console.log('[v0] Resolved address:', readableAddress)
+        
+        if (geoData.status === 'OK' && geoData.results?.[0]) {
+          const result = geoData.results[0]
+          readableAddress = result.formatted_address
+          
+          // Extract natural-sounding short address for voice
+          const components = result.address_components || []
+          const streetNumber = components.find((c: any) => c.types.includes('street_number'))?.long_name || ''
+          const route = components.find((c: any) => c.types.includes('route'))?.long_name || ''
+          const neighborhood = components.find((c: any) => c.types.includes('neighborhood') || c.types.includes('sublocality'))?.long_name || ''
+          const city = components.find((c: any) => c.types.includes('locality'))?.long_name || ''
+          
+          // Build short address: "123 King Street, Downtown Toronto" or "King Street area, Toronto"
+          if (route) {
+            shortAddress = streetNumber ? `${streetNumber} ${route}` : `${route} area`
+            if (neighborhood) shortAddress += `, ${neighborhood}`
+            else if (city) shortAddress += `, ${city}`
+          } else if (neighborhood) {
+            shortAddress = `${neighborhood}, ${city}`
+          } else if (city) {
+            shortAddress = city
+          } else {
+            shortAddress = readableAddress.split(',').slice(0, 2).join(',')
+          }
         } else {
-          console.log('[v0] No geocode results, using fallback')
-          readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+          readableAddress = `your current location`
+          shortAddress = `your current location`
         }
       } catch (e) {
         console.error('[v0] Geocode Error:', e)
-        readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        readableAddress = `your current location`
+        shortAddress = `your current location`
       }
     } else if (lat && lng) {
-      readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      readableAddress = `your current location`
+      shortAddress = `your current location`
     }
 
     // Determine agent ID and from number
@@ -129,13 +153,15 @@ export async function POST(request: NextRequest) {
     }
     
     const retell_llm_dynamic_variables = {
-      customer_name: customer_name || 'Customer',
+      customer_name: customer_name || 'there',
       request_id,
       request_summary: requestSummary,
       service_type: service_type || 'home service',
       urgency: urgency || 'standard',
       language: agentLanguage,
-      address: readableAddress || 'your location',
+      // Use short address for natural voice, full address for records
+      address: shortAddress || readableAddress || 'your current location',
+      full_address: readableAddress || 'your location',
       photo_summary: photo_summary || '',
       issue_description: issue_description || '',
       audio_summary: audio_summary || '',
