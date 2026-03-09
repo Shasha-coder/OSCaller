@@ -59,20 +59,29 @@ export async function POST(request: NextRequest) {
     const clientPhone = toE164(phone, dialCode)
 
     // Reverse geocode to get readable address if we have coordinates
+    // Try server-side key first, fallback to public key
+    const googleMapsKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     let readableAddress = address || ''
-    if (lat && lng && (!address || address.startsWith('GPS:'))) {
+    if (lat && lng && googleMapsKey && (!address || address.startsWith('GPS:'))) {
       try {
         const geoRes = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsKey}`
         )
         const geoData = await geoRes.json()
+        console.log('[v0] Geocode response status:', geoData.status)
         if (geoData.results?.[0]?.formatted_address) {
           readableAddress = geoData.results[0].formatted_address
+          console.log('[v0] Resolved address:', readableAddress)
+        } else {
+          console.log('[v0] No geocode results, using fallback')
+          readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
         }
       } catch (e) {
-        console.error('[Geocode Error]', e)
-        readableAddress = `near coordinates ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        console.error('[v0] Geocode Error:', e)
+        readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
       }
+    } else if (lat && lng) {
+      readableAddress = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
     }
 
     // Determine agent ID and from number
