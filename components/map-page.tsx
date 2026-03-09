@@ -141,31 +141,31 @@ function CountryPhoneInput({
   }, [open])
 
   return (
-    <div ref={triggerRef} className="relative shrink-0 w-[200px]">
+    <div ref={triggerRef} className="relative w-full">
       <div
         className={cn(
-          'flex items-center h-[36px] w-full rounded-full bg-white/95 backdrop-blur-md border transition-all duration-200',
-          open ? 'border-[#8FB34A]/50 shadow-[0_0_0_3px_rgba(143,179,74,0.08)]' : 'border-white/60 shadow-sm'
+          'flex items-center h-[48px] w-full rounded-xl bg-[#F8FAFB] border-2 transition-all duration-200',
+          open ? 'border-[#8FB34A] bg-white shadow-[0_0_0_4px_rgba(143,179,74,0.08)]' : 'border-[#E2E8F0]'
         )}
       >
         <button
           type="button"
           data-no-focus-ring
           onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
-          className="flex items-center gap-1 h-full pl-2.5 pr-1.5 border-r border-[#E2E8F0]/60 cursor-pointer shrink-0 outline-none"
+          className="flex items-center gap-2 h-full pl-3.5 pr-2.5 border-r border-[#E2E8F0]/80 cursor-pointer shrink-0 outline-none"
         >
-          <span className="text-[14px] leading-none">{selected.flag}</span>
-          <span className="text-[11px] font-semibold text-[#334155] w-[36px] text-center tabular-nums">{selected.dial}</span>
-          <ChevronDown className={cn('h-2.5 w-2.5 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
+          <span className="text-[18px] leading-none">{selected.flag}</span>
+          <span className="text-[14px] font-bold text-[#334155] tabular-nums">{selected.dial}</span>
+          <ChevronDown className={cn('h-4 w-4 text-[#94A3B8] transition-transform duration-200', open && 'rotate-180')} />
         </button>
         <input
           type="tel"
-          inputMode="numeric"
+          inputMode="tel"
           data-no-focus-ring
           value={phone}
           onChange={e => onPhoneChange(e.target.value)}
           placeholder="(555) 000-0000"
-          className="flex-1 min-w-0 h-full bg-transparent text-[12px] font-semibold text-[#0F172A] pl-2 pr-2 outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
+          className="flex-1 min-w-0 h-full bg-transparent text-[15px] font-semibold text-[#0F172A] pl-3 pr-3 outline-none placeholder:text-[#94A3B8] placeholder:font-normal tabular-nums"
         />
       </div>
 
@@ -899,172 +899,273 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
       </div>
 
-      {/* ─── DESKTOP: Classic layout ─── */}
-      <div className="hidden sm:flex sm:flex-col sm:h-full sm:gap-2">
-        {/* Filter Row */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 pb-1">
-          <LanguageDropdown value={language} onChange={setLanguage} />
-
-          {/* Describe Problem */}
-          <div
-            className={cn(
-              'flex items-center h-[38px] rounded-full bg-white/90 backdrop-blur-sm border shadow-sm shrink-0 min-w-[240px] flex-1 max-w-[340px] transition-all duration-200',
-              'border-[#E2E8F0] focus-within:border-[#8FB34A]/50 focus-within:shadow-[0_0_0_3px_rgba(143,179,74,0.08)]'
-            )}
-          >
-            <div className="flex items-center h-full pl-1 gap-0.5 shrink-0 border-r border-[#E2E8F0]">
-              {(['voice', 'photo', 'text'] as const).map(mode => (
-                <button
-                  key={mode}
-                  type="button"
-                  data-no-focus-ring
-                  onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
-                  className={cn(
-                    'flex items-center justify-center h-[28px] w-[28px] rounded-full transition-all duration-200 outline-none',
-                    inputMode === mode
-                      ? 'bg-[#8FB34A] text-white shadow-sm'
-                      : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9]',
-                    mode === 'text' && 'mr-0.5'
-                  )}
-                  aria-label={`${mode} input`}
-                >
-                  {mode === 'voice' && <Mic className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                  {mode === 'photo' && <Camera className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                  {mode === 'text' && <Type className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                </button>
-              ))}
-            </div>
-            <div className="flex-1 min-w-0 h-full flex items-center px-2.5">
-              {inputMode === 'text' && (
-                <input
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  type="text"
-                  data-no-focus-ring
-                  placeholder="Describe problem..."
-                  className="w-full h-full bg-transparent text-[13px] font-semibold text-[#0F172A] outline-none placeholder:text-[#94A3B8] placeholder:font-medium"
-                />
-              )}
-              {inputMode === 'voice' && (
-                <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2 w-full outline-none">
-                  <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
-                    {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                    <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
-                  </span>
-                  <span className={cn('text-[13px] font-semibold', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
-                    {isRecording ? 'Recording...' : 'Tap to speak'}
-                  </span>
-                </button>
-              )}
-              {inputMode === 'photo' && (
-                <div className="flex items-center gap-3 w-full">
-                  {uploadedFile ? (
-                    <div className="flex items-center gap-2 flex-1">
-                      <span className="text-[12px] font-semibold text-[#8FB34A] truncate max-w-[140px]">{uploadedFile.name}</span>
-                      <button type="button" onClick={() => setUploadedFile(null)} className="text-[11px] text-[#94A3B8] hover:text-red-500">Remove</button>
-                    </div>
-                  ) : (
-                    <>
-                      <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                        <Upload className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                        <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          className="hidden"
-                          onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
-                        />
-                      </label>
-                      <span className="text-[#CBD5E1] text-[10px]">|</span>
-                      <label className="flex items-center gap-1 cursor-pointer group whitespace-nowrap">
-                        <Camera className="h-3 w-3 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2.5} />
-                        <span className="text-[12px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Take pic</span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          capture="environment" 
-                          className="hidden"
-                          onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
-                        />
-                      </label>
-                    </>
-                  )}
-                </div>
-              )}
+      {/* ─── DESKTOP: Premium two-column layout ─── */}
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-6 sm:h-full">
+        
+        {/* Left Panel - Request Form */}
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-lg shadow-[#8FB34A]/20">
+                <Phone className="h-5 w-5 text-white" strokeWidth={2} />
+              </div>
+              <div>
+                <h1 className="text-[20px] font-bold text-[#0F172A] leading-tight">Request a Pro</h1>
+                <p className="text-[13px] text-[#64748B]">Get help from nearby experts</p>
+              </div>
             </div>
           </div>
 
-          <CountryPhoneInput country={country} onCountryChange={setCountry} phone={phone} onPhoneChange={setPhone} />
-
-          {/* GPS Toggle */}
-          <button
-            type="button"
-            data-no-focus-ring
-            onClick={() => setIsLiveLocation(v => !v)}
-            className={cn(
-              'flex items-center gap-2 h-[38px] px-3 rounded-full border shadow-sm shrink-0 cursor-pointer transition-all outline-none',
-              isLiveLocation
-                ? 'border-[#8FB34A]/30 bg-[#EAF4D8]/60'
-                : 'border-[#E2E8F0] bg-white/90 backdrop-blur-sm'
-            )}
-          >
-            <LocateFixed className={cn('h-4 w-4 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2.5} />
-            <span className="text-[13px] font-bold text-[#334155]">GPS</span>
-            <div className={cn('relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors duration-200 ml-0.5', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
-              <span className={cn('inline-block h-[14px] w-[14px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[14px]' : 'translate-x-[2px]')} />
+          {/* Form Card */}
+          <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 overflow-hidden">
+            
+            {/* Language */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Language</label>
+              <LanguageDropdown value={language} onChange={setLanguage} />
             </div>
-          </button>
 
-          {/* Aria Button */}
-          <button
-            type="button"
-            data-no-focus-ring
-            onClick={callAria}
-            disabled={callingAria}
-            className="flex items-center gap-1.5 h-[38px] px-5 rounded-full bg-[#8FB34A] text-white text-[13px] font-bold shadow-[0_2px_12px_rgba(143,179,74,0.35)] shrink-0 transition-all hover:bg-[#7da33f] hover:shadow-[0_4px_16px_rgba(143,179,74,0.4)] active:scale-[0.97] outline-none disabled:opacity-60"
-          >
-            <Phone className={cn("h-4 w-4", callingAria && "animate-pulse")} strokeWidth={2.5} />
-            {callingAria ? 'Calling...' : 'Aria'}
-          </button>
+            {/* Describe Problem */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Describe your problem</label>
+              <div
+                className={cn(
+                  'flex items-center h-[48px] w-full rounded-xl bg-[#F8FAFB] border-2 transition-all duration-200',
+                  'border-[#E2E8F0] focus-within:border-[#8FB34A] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(143,179,74,0.08)]'
+                )}
+              >
+                <div className="flex items-center h-full pl-1.5 gap-1 shrink-0 border-r border-[#E2E8F0]/80">
+                  {(['voice', 'photo', 'text'] as const).map(mode => (
+                    <button
+                      key={mode}
+                      type="button"
+                      data-no-focus-ring
+                      onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
+                      className={cn(
+                        'flex items-center justify-center h-[32px] w-[32px] rounded-lg transition-all duration-200 outline-none',
+                        inputMode === mode
+                          ? 'bg-[#8FB34A] text-white shadow-sm'
+                          : 'text-[#94A3B8] hover:text-[#64748B] hover:bg-white',
+                        mode === 'text' && 'mr-0.5'
+                      )}
+                      aria-label={`${mode} input`}
+                    >
+                      {mode === 'voice' && <Mic className="h-4 w-4" strokeWidth={2} />}
+                      {mode === 'photo' && <Camera className="h-4 w-4" strokeWidth={2} />}
+                      {mode === 'text' && <Type className="h-4 w-4" strokeWidth={2} />}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex-1 min-w-0 h-full flex items-center px-3">
+                  {inputMode === 'text' && (
+                    <input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      type="text"
+                      data-no-focus-ring
+                      placeholder="e.g. Leaking pipe under sink..."
+                      className="w-full h-full bg-transparent text-[14px] font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
+                    />
+                  )}
+                  {inputMode === 'voice' && (
+                    <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2.5 w-full outline-none">
+                      <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
+                        {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                        <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
+                      </span>
+                      <span className={cn('text-[14px] font-medium', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
+                        {isRecording ? 'Recording...' : 'Click to speak'}
+                      </span>
+                    </button>
+                  )}
+                  {inputMode === 'photo' && (
+                    <div className="flex items-center gap-3 w-full">
+                      {uploadedFile ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className="text-[13px] font-semibold text-[#8FB34A] truncate max-w-[160px]">{uploadedFile.name}</span>
+                          <button type="button" onClick={() => setUploadedFile(null)} className="text-[12px] text-[#94A3B8] hover:text-red-500 font-medium">Remove</button>
+                        </div>
+                      ) : (
+                        <>
+                          <label className="flex items-center gap-1.5 cursor-pointer group whitespace-nowrap">
+                            <Upload className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
+                            <span className="text-[13px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden"
+                              onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                            />
+                          </label>
+                          <span className="text-[#CBD5E1]">|</span>
+                          <label className="flex items-center gap-1.5 cursor-pointer group whitespace-nowrap">
+                            <Camera className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
+                            <span className="text-[13px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Camera</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              capture="environment" 
+                              className="hidden"
+                              onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
+                            />
+                          </label>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Phone Number */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Phone number</label>
+              <div className="relative">
+                <CountryPhoneInput country={country} onCountryChange={setCountry} phone={phone} onPhoneChange={setPhone} />
+              </div>
+            </div>
+
+            {/* GPS Toggle */}
+            <div className="mb-6">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Location</label>
+              <button
+                type="button"
+                data-no-focus-ring
+                onClick={() => setIsLiveLocation(v => !v)}
+                className={cn(
+                  'flex items-center justify-between w-full h-[48px] px-4 rounded-xl border-2 transition-all outline-none',
+                  isLiveLocation
+                    ? 'border-[#8FB34A] bg-[#EAF4D8]/40'
+                    : 'border-[#E2E8F0] bg-[#F8FAFB] hover:border-[#CBD5E1]'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <LocateFixed className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2} />
+                  <span className="text-[14px] font-semibold text-[#334155]">Use my GPS location</span>
+                </div>
+                <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
+                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px]' : 'translate-x-[2px]')} />
+                </div>
+              </button>
+            </div>
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Validation Error */}
+            {validationError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-semibold text-red-700 flex items-center gap-2">
+                <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span>{validationError}</span>
+              </div>
+            )}
+
+            {/* Call Aria Button */}
+            <button
+              type="button"
+              data-no-focus-ring
+              onClick={callAria}
+              disabled={callingAria}
+              className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-xl bg-gradient-to-r from-[#8FB34A] to-[#7DA33F] text-white text-[16px] font-bold shadow-[0_4px_20px_rgba(143,179,74,0.35)] transition-all hover:shadow-[0_6px_28px_rgba(143,179,74,0.45)] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.99] outline-none disabled:opacity-60 disabled:hover:translate-y-0"
+            >
+              <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
+              {callingAria ? 'Calling Aria...' : 'Call Aria'}
+            </button>
+
+            {/* Trust badges */}
+            <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-[#E2E8F0]/60">
+              <div className="flex items-center gap-1.5 text-[11px] text-[#94A3B8]">
+                <svg className="h-3.5 w-3.5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                <span className="font-semibold">Verified Pros</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] text-[#94A3B8]">
+                <svg className="h-3.5 w-3.5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="font-semibold">Fast Response</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] text-[#94A3B8]">
+                <svg className="h-3.5 w-3.5 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+                <span className="font-semibold">Secure Payment</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Map */}
-        <div className="flex-1 w-full relative rounded-[28px] overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.10),0_4px_16px_rgba(15,23,42,0.05),0_0_0_1px_rgba(226,232,240,0.6)] isolate min-h-[400px]">
+        {/* Right Panel - Map */}
+        <div className="flex-1 h-full relative rounded-3xl overflow-hidden shadow-[0_12px_48px_rgba(15,23,42,0.08),0_0_0_1px_rgba(226,232,240,0.5)] isolate min-h-[500px]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
             markers={markers}
-            className="h-full w-full object-cover"
+            className="h-full w-full"
           />
 
-          {!loading && !error && (
-            <div className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50">
-              <div className="flex items-center justify-center p-0.5 rounded-sm bg-[#8FB34A] text-white">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <span className="text-[12px] font-bold text-[#334155] tracking-wide uppercase">Track Pro On Map</span>
-            </div>
-          )}
-
-          {error && isLiveLocation && (
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-4 py-2 text-[12px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] w-11/12 max-w-sm justify-center">
-              <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-              <span className="truncate">{error}</span>
-            </div>
-          )}
-
+          {/* Recenter button */}
           <button
             data-no-focus-ring
             onClick={requestLocation}
-            className="absolute top-5 left-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]/50 transition-transform hover:scale-105 active:scale-95 text-[#334155] outline-none"
+            className="absolute top-5 left-5 z-10 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-white/60 transition-all hover:scale-105 hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] active:scale-95 text-[#334155] outline-none"
             aria-label="Use my current GPS location"
           >
             {loading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-[2.5px] border-[#E2E8F0] border-t-[#8FB34A]" />
+              <div className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#E2E8F0] border-t-[#8FB34A]" />
             ) : (
-              <LocateFixed className="h-4 w-4" strokeWidth={2.5} />
+              <LocateFixed className="h-5 w-5" strokeWidth={2} />
             )}
           </button>
+
+          {/* Status badge */}
+          {!loading && !error && (
+            <div className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 rounded-2xl bg-white/95 backdrop-blur-md px-4 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-white/60">
+              <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-[#8FB34A] text-white">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <div>
+                <span className="block text-[13px] font-bold text-[#0F172A]">Providers nearby</span>
+                <span className="block text-[11px] text-[#64748B]">Track your pro on map</span>
+              </div>
+            </div>
+          )}
+
+          {/* Error toast */}
+          {error && isLiveLocation && (
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 rounded-2xl border border-amber-200 bg-amber-50/95 backdrop-blur-md px-5 py-3 text-[13px] font-semibold text-amber-800 flex items-center gap-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] max-w-md">
+              <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Calling Aria overlay */}
+          {callStatus !== 'idle' && (
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="relative mb-8">
+                <div className="absolute inset-0 -m-10 rounded-full bg-[#8FB34A]/20 animate-ping" />
+                <div className="absolute inset-0 -m-5 rounded-full bg-[#8FB34A]/30 animate-pulse" />
+                <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-[#8FB34A] to-[#6B8C2F] shadow-2xl shadow-[#8FB34A]/30">
+                  <Phone className="h-10 w-10 text-white animate-pulse" />
+                </div>
+              </div>
+              <p className="text-white font-bold text-xl mb-2">
+                {callStatus === 'connecting' && 'Connecting...'}
+                {callStatus === 'ringing' && 'Calling you now...'}
+                {callStatus === 'active' && 'Aria is calling'}
+              </p>
+              <p className="text-white/60 text-sm">
+                {callStatus === 'connecting' && 'Setting up your request'}
+                {callStatus === 'ringing' && 'Answer the call from Aria'}
+                {callStatus === 'active' && 'Describe your problem to Aria'}
+              </p>
+              <div className="flex items-center gap-1.5 mt-8">
+                {[0, 1, 2, 3, 4].map(i => (
+                  <div
+                    key={i}
+                    className="w-1.5 bg-[#8FB34A] rounded-full animate-pulse"
+                    style={{ height: `${16 + Math.random() * 20}px`, animationDelay: `${i * 150}ms` }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
