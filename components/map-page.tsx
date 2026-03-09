@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════���════════════════════════
+/* ══════════════════�����════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -428,6 +428,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   const [language, setLanguage] = useState('English')
   const [country, setCountry] = useState('CA')
   const [phone, setPhone] = useState('')
+  const [customerName, setCustomerName] = useState('')
   const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text')
   const [isRecording, setIsRecording] = useState(false)
   const [callingAria, setCallingAria] = useState(false)
@@ -562,7 +563,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         language,
         lat: coords!.lat,
         lng: coords!.lng,
-        customer_name: 'Customer',
+        customer_name: customerName || 'there',
         // Pass context for Aria's dynamic variables
         issue_description: inputMode === 'text' ? searchQuery : '',
         photo_summary: photoSummary,
@@ -798,8 +799,19 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         {/* ─── Bottom floating panel with fields ─── */}
         <div className="shrink-0 bg-white border-t border-[#E2E8F0]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[84px]">
           
-          {/* Row 1: Language selector */}
+          {/* Row 1: Name and Language */}
           <div className="flex items-center gap-3 mb-3">
+            <div className="flex-1">
+              <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5 pl-1">Your name</label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={e => setCustomerName(e.target.value)}
+                placeholder="First name"
+                data-no-focus-ring
+                className="w-full h-[52px] px-4 rounded-2xl bg-[#F8FAFB] border-2 border-[#E2E8F0] text-[15px] font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#8FB34A] focus:bg-white focus:shadow-[0_0_0_4px_rgba(143,179,74,0.1)] transition-all"
+              />
+            </div>
             <div className="flex-1">
               <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5 pl-1">Language</label>
               <LanguageDropdown value={language} onChange={setLanguage} />
