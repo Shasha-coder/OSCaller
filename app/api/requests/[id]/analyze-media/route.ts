@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { generateText } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
 
 /**
  * POST /api/requests/[id]/analyze-media
@@ -34,31 +36,30 @@ interface MediaAnalysis {
   analyzed_at: string
 }
 
-const SYSTEM_PROMPT = `You are an expert home repair diagnostic assistant for OSCaller, a 911-style emergency dispatch service.
-Analyze the user's input (image, audio, or text) and extract structured information to help our AI dispatch agent.
+const SYSTEM_PROMPT = `You are an AI assistant for OSCaller that analyzes images, audio, and text.
+Your job is to ACCURATELY describe what you see or hear - do NOT assume or hallucinate details.
+
+CRITICAL: Describe EXACTLY what is in the image/audio. If you see a computer, say "computer". If you see a pipe, say "pipe". DO NOT make up issues that aren't visible.
 
 ALWAYS respond with valid JSON in this exact format:
 {
-  "summary": "Brief 1-2 sentence plain English description an agent can read aloud to the customer",
+  "summary": "Brief 1-2 sentence ACCURATE description of what you actually see/hear",
   "transcript": "For audio only: exact transcription of what was said",
-  "detected_issue": "The specific problem identified, or null if unclear",
-  "severity": "critical|high|medium|low or null",
+  "detected_issue": "The specific problem IF CLEARLY VISIBLE, or null if no issue is apparent",
+  "severity": "critical|high|medium|low or null - only if an actual issue is visible",
   "service_suggestion": "plumbing|electrical|hvac|locksmith|appliance|roofing|glass|pest|general or null",
-  "key_details": ["detail 1", "detail 2"],
-  "location_hints": ["room or area hints from visual or audio cues"],
-  "safety_concerns": ["any immediate dangers - BE THOROUGH HERE"],
+  "key_details": ["actual visible details only"],
+  "location_hints": ["room or area if identifiable"],
+  "safety_concerns": ["only if actually visible dangers"],
   "language_detected": "For audio: the language spoken (e.g., en, es, fr)"
 }
 
-Severity guide:
-- critical: Active flooding, fire risk, gas leak, live wires exposed, security threat
-- high: No water, no heat in winter, security breach, major leak
-- medium: Slow leak, partial function loss, non-urgent repair needed
-- low: Cosmetic, minor inconvenience, scheduled maintenance
-
-For IMAGES: Look carefully for water damage, electrical hazards, structural issues, mold, pests.
-For AUDIO: Transcribe accurately, note emotional urgency, detect language, identify the problem.
-For TEXT: Extract the core issue and assess urgency.`
+IMPORTANT RULES:
+- For IMAGES: Describe ONLY what you can actually see. If it's a computer, say computer. If it's unclear, say it's unclear.
+- For AUDIO: Transcribe EXACTLY what was said, detect the language spoken.
+- For TEXT: Summarize accurately.
+- DO NOT assume this is always a home repair issue - the customer might send any image.
+- If the image doesn't show an obvious problem, just describe what you see.`
 
 async function analyzeWithAI(input: { 
   type: 'image' | 'audio' | 'text'
@@ -86,8 +87,18 @@ async function analyzeWithAI(input: {
   }
 
   try {
+    if (!GEMINI_API_KEY) {
+      console.error('[v0] GEMINI_API_KEY not set')
+      throw new Error('GEMINI_API_KEY not configured')
+    }
+    
+    // Use direct Gemini API with user's key for better multimodal support
+    const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY })
+    
+    console.log('[v0] Calling Gemini for', input.type, 'analysis')
+    
     const result = await generateText({
-      model: gateway('google/gemini-2.0-flash'),
+      model: google('gemini-2.0-flash'),
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: content as any }],
       temperature: 0.1,
