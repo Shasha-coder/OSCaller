@@ -36,30 +36,32 @@ interface MediaAnalysis {
   analyzed_at: string
 }
 
-const SYSTEM_PROMPT = `You are an AI assistant for OSCaller that analyzes images, audio, and text.
-Your job is to ACCURATELY describe what you see or hear - do NOT assume or hallucinate details.
+const SYSTEM_PROMPT = `You are a LITERAL image/audio describer. Your ONLY job is to describe EXACTLY what you see or hear.
 
-CRITICAL: Describe EXACTLY what is in the image/audio. If you see a computer, say "computer". If you see a pipe, say "pipe". DO NOT make up issues that aren't visible.
+STRICT RULES:
+1. NEVER invent, assume, or hallucinate details that are not visible
+2. If you see a computer, say "computer" - NOT "a broken pipe"
+3. If you see a person, say "person" - NOT "a flooded room"
+4. Only describe what is ACTUALLY in the image
+5. If nothing looks broken, say "no visible damage or issue"
 
-ALWAYS respond with valid JSON in this exact format:
+Respond ONLY with this JSON:
 {
-  "summary": "Brief 1-2 sentence ACCURATE description of what you actually see/hear",
-  "transcript": "For audio only: exact transcription of what was said",
-  "detected_issue": "The specific problem IF CLEARLY VISIBLE, or null if no issue is apparent",
-  "severity": "critical|high|medium|low or null - only if an actual issue is visible",
-  "service_suggestion": "plumbing|electrical|hvac|locksmith|appliance|roofing|glass|pest|general or null",
-  "key_details": ["actual visible details only"],
-  "location_hints": ["room or area if identifiable"],
-  "safety_concerns": ["only if actually visible dangers"],
-  "language_detected": "For audio: the language spoken (e.g., en, es, fr)"
+  "summary": "1-2 sentence LITERAL description of what you see (e.g., 'A laptop computer on a desk' or 'A leaking pipe under a sink')",
+  "transcript": "For audio: exact word-for-word transcription",
+  "detected_issue": "Only if damage/problem is CLEARLY VISIBLE, otherwise null",
+  "severity": "Only if actual issue visible: critical|high|medium|low, otherwise null",
+  "service_suggestion": "Only if relevant: plumbing|electrical|hvac|appliance|general, otherwise null",
+  "key_details": ["Only things you can actually see"],
+  "location_hints": ["Room/area if identifiable"],
+  "safety_concerns": ["Only VISIBLE dangers"],
+  "language_detected": "For audio: detected language code"
 }
 
-IMPORTANT RULES:
-- For IMAGES: Describe ONLY what you can actually see. If it's a computer, say computer. If it's unclear, say it's unclear.
-- For AUDIO: Transcribe EXACTLY what was said, detect the language spoken.
-- For TEXT: Summarize accurately.
-- DO NOT assume this is always a home repair issue - the customer might send any image.
-- If the image doesn't show an obvious problem, just describe what you see.`
+EXAMPLES OF CORRECT RESPONSES:
+- Image of computer: {"summary": "A laptop computer on a wooden desk", "detected_issue": null, ...}
+- Image of leak: {"summary": "Water dripping from a pipe under a kitchen sink", "detected_issue": "leaking pipe", ...}
+- Image of cat: {"summary": "A cat sitting on a couch", "detected_issue": null, ...}`
 
 async function analyzeWithAI(input: { 
   type: 'image' | 'audio' | 'text'
@@ -73,17 +75,17 @@ async function analyzeWithAI(input: {
   const content: Array<{ type: string; text?: string; image?: { url: string }; data?: string; mimeType?: string }> = []
   
   if (input.type === 'image' && input.imageUrl) {
-    content.push({ type: 'text', text: 'Analyze this image of a home repair issue and respond with JSON:' })
+    content.push({ type: 'text', text: 'Describe EXACTLY what you see in this image. Be accurate and specific. Do NOT assume or guess - only describe what is actually visible. Respond with JSON:' })
     content.push({ type: 'image', image: { url: input.imageUrl } })
   } else if (input.type === 'audio' && input.audioBase64) {
-    content.push({ type: 'text', text: 'Listen to this audio message about a home repair issue. Transcribe it and analyze. Respond with JSON:' })
+    content.push({ type: 'text', text: 'Listen to this audio message. Transcribe it EXACTLY word for word. Then analyze what was said. Respond with JSON:' })
     content.push({ 
       type: 'file',
       data: input.audioBase64,
       mimeType: input.audioMimeType || 'audio/webm',
     })
   } else if (input.text) {
-    content.push({ type: 'text', text: `Analyze this description of a home repair issue and respond with JSON:\n\n"${input.text}"` })
+    content.push({ type: 'text', text: `Analyze this text and respond with JSON:\n\n"${input.text}"` })
   }
 
   try {
