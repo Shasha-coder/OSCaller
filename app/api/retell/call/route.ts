@@ -159,6 +159,31 @@ export async function POST(request: NextRequest) {
       requestSummary = 'service request'
     }
     
+    // Map language code to full language name for agent instruction
+    const languageNames: Record<string, string> = {
+      'en': 'English',
+      'en-US': 'English',
+      'en-CA': 'English',
+      'fr': 'French',
+      'fr-CA': 'French',
+      'es': 'Spanish',
+      'es-MX': 'Spanish',
+      'zh': 'Mandarin Chinese',
+      'ar': 'Arabic',
+      'hi': 'Hindi',
+      'pt': 'Portuguese',
+      'de': 'German',
+      'it': 'Italian',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+    }
+    const languageName = languageNames[agentLanguage] || languageNames[agentLanguage.split('-')[0]] || 'English'
+    
+    // Language instruction for the agent
+    const languageInstruction = agentLanguage !== 'en' && agentLanguage !== 'en-US' && agentLanguage !== 'en-CA'
+      ? `IMPORTANT: The customer prefers ${languageName}. Please speak to them in ${languageName}.`
+      : ''
+    
     const retell_llm_dynamic_variables = {
       customer_name: customer_name || 'there',
       request_id,
@@ -166,6 +191,8 @@ export async function POST(request: NextRequest) {
       service_type: service_type || 'home service',
       urgency: urgency || 'standard',
       language: agentLanguage,
+      language_name: languageName,
+      language_instruction: languageInstruction,
       // Use short address for natural voice, full address for records
       address: shortAddress || readableAddress || 'your current location',
       full_address: readableAddress || 'your location',
