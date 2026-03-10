@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════�������������════════════════════════
+/* ══════════════════���������������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -597,7 +597,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           })
           
           if (uploadRes.ok) {
-            const { url } = await uploadRes.json()
+            const uploadData = await uploadRes.json()
+            console.log('[v0] Photo uploaded to:', uploadData.url)
             
             // Now analyze with the URL
             const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
@@ -605,20 +606,25 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 media_type: 'image',
-                media_url: url,
+                media_url: uploadData.url,
               }),
             })
             
             if (analyzeRes.ok) {
               const analyzeData = await analyzeRes.json()
-              photoSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+              // The API returns agent_prompt which is the formatted string for Aria
+              photoSummary = analyzeData.agent_prompt || analyzeData.analysis?.summary || ''
               console.log('[v0] Photo analysis result:', photoSummary)
             } else {
-              console.error('[v0] Photo analysis failed:', await analyzeRes.text())
+              const errText = await analyzeRes.text()
+              console.error('[v0] Photo analysis failed:', errText)
             }
+          } else {
+            const errText = await uploadRes.text()
+            console.error('[v0] Photo upload failed:', errText)
           }
         } catch (e) {
-          console.error('[v0] Photo upload/analysis failed:', e)
+          console.error('[v0] Photo upload/analysis error:', e)
         }
       }
       
@@ -630,6 +636,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             reader.onload = () => resolve((reader.result as string).split(',')[1])
             reader.readAsDataURL(audioBlob)
           })
+          console.log('[v0] Audio blob size:', audioBlob.size, 'type:', audioBlob.type)
           
           const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
             method: 'POST',
@@ -643,18 +650,45 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           
           if (analyzeRes.ok) {
             const analyzeData = await analyzeRes.json()
-            audioSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+            // The API returns agent_prompt which is the formatted string for Aria
+            audioSummary = analyzeData.agent_prompt || analyzeData.analysis?.summary || ''
             console.log('[v0] Audio analysis result:', audioSummary)
           } else {
-            console.error('[v0] Audio analysis failed:', await analyzeRes.text())
+            const errText = await analyzeRes.text()
+            console.error('[v0] Audio analysis failed:', errText)
           }
         } catch (e) {
-          console.error('[v0] Audio analysis failed:', e)
+          console.error('[v0] Audio analysis error:', e)
         }
       }
       
       // 3. Trigger Retell AI call to client with full context
       setCallStatus('ringing')
+      
+      // Play call sound effect using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const playTone = (freq: number, duration: number, startTime: number) => {
+          const oscillator = audioContext.createOscillator()
+          const gainNode = audioContext.createGain()
+          oscillator.connect(gainNode)
+          gainNode.connect(audioContext.destination)
+          oscillator.frequency.value = freq
+          oscillator.type = 'sine'
+          gainNode.gain.setValueAtTime(0.15, startTime)
+          gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+          oscillator.start(startTime)
+          oscillator.stop(startTime + duration)
+        }
+        // Play a pleasant two-tone ring (similar to modern phone ringtone)
+        const now = audioContext.currentTime
+        playTone(880, 0.15, now)        // A5
+        playTone(1047, 0.15, now + 0.15) // C6
+        playTone(880, 0.15, now + 0.4)
+        playTone(1047, 0.15, now + 0.55)
+      } catch (e) {
+        // Ignore sound errors on browsers that don't support Web Audio
+      }
       
       const callPayload = {
         request_id: requestId,
@@ -739,6 +773,28 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               rating: p.rating || 4.8,
             })
             setCallStatus('dispatched')
+            
+            // Play success sound
+            try {
+              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+              const playTone = (freq: number, duration: number, startTime: number) => {
+                const oscillator = audioContext.createOscillator()
+                const gainNode = audioContext.createGain()
+                oscillator.connect(gainNode)
+                gainNode.connect(audioContext.destination)
+                oscillator.frequency.value = freq
+                oscillator.type = 'sine'
+                gainNode.gain.setValueAtTime(0.12, startTime)
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+                oscillator.start(startTime)
+                oscillator.stop(startTime + duration)
+              }
+              // Play ascending success tones (C5, E5, G5)
+              const now = audioContext.currentTime
+              playTone(523, 0.12, now)       // C5
+              playTone(659, 0.12, now + 0.1) // E5
+              playTone(784, 0.2, now + 0.2)  // G5
+            } catch (e) {}
           }
         }
       } catch (e) {
