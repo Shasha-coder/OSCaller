@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { generateText } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
 
 /**
  * POST /api/requests/[id]/analyze-media
@@ -85,8 +87,18 @@ async function analyzeWithAI(input: {
   }
 
   try {
+    if (!GEMINI_API_KEY) {
+      console.error('[v0] GEMINI_API_KEY not set')
+      throw new Error('GEMINI_API_KEY not configured')
+    }
+    
+    // Use direct Gemini API with user's key for better multimodal support
+    const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY })
+    
+    console.log('[v0] Calling Gemini for', input.type, 'analysis')
+    
     const result = await generateText({
-      model: gateway('google/gemini-2.0-flash'),
+      model: google('gemini-2.0-flash'),
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: content as any }],
       temperature: 0.1,
