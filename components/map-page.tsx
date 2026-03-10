@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════���������════════════════════════
+/* ══════════════════�����������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -536,29 +536,73 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       
       // 2. If photo was uploaded, analyze it with Gemini FIRST (before call)
       let photoSummary = ''
+      let audioSummary = ''
+      
       if (uploadedFile && inputMode === 'photo') {
+        try {
+          // First upload the image to get a URL
+          const formData = new FormData()
+          formData.append('file', uploadedFile)
+          
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          })
+          
+          if (uploadRes.ok) {
+            const { url } = await uploadRes.json()
+            
+            // Now analyze with the URL
+            const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                media_type: 'image',
+                media_url: url,
+              }),
+            })
+            
+            if (analyzeRes.ok) {
+              const analyzeData = await analyzeRes.json()
+              photoSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+              console.log('[v0] Photo analysis result:', photoSummary)
+            } else {
+              console.error('[v0] Photo analysis failed:', await analyzeRes.text())
+            }
+          }
+        } catch (e) {
+          console.error('[v0] Photo upload/analysis failed:', e)
+        }
+      }
+      
+      // 2b. If voice recording exists, analyze it
+      if (audioBlob && inputMode === 'voice') {
         try {
           const base64 = await new Promise<string>((resolve) => {
             const reader = new FileReader()
             reader.onload = () => resolve((reader.result as string).split(',')[1])
-            reader.readAsDataURL(uploadedFile)
+            reader.readAsDataURL(audioBlob)
           })
           
           const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              input_type: 'image',
-              image_base64: base64,
+              media_type: 'audio',
+              audio_base64: base64,
+              mime_type: audioBlob.type || 'audio/webm',
             }),
           })
           
           if (analyzeRes.ok) {
             const analyzeData = await analyzeRes.json()
-            photoSummary = analyzeData.summary || analyzeData.analysis || ''
+            audioSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+            console.log('[v0] Audio analysis result:', audioSummary)
+          } else {
+            console.error('[v0] Audio analysis failed:', await analyzeRes.text())
           }
         } catch (e) {
-          console.error('Photo analysis failed:', e)
+          console.error('[v0] Audio analysis failed:', e)
         }
       }
       
@@ -576,6 +620,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         // Pass context for Aria's dynamic variables
         issue_description: inputMode === 'text' ? searchQuery : '',
         photo_summary: photoSummary,
+        audio_summary: audioSummary,
         service_type: 'general',
         urgency: 'standard',
       }
