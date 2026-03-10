@@ -116,14 +116,14 @@ export default function ProviderDashboard() {
             <div className="px-4 pt-2 pb-6">
                 <div className={`relative rounded-[28px] overflow-hidden transition-all duration-700 ${
                     isOnline 
-                        ? 'bg-gradient-to-br from-white via-white to-emerald-50/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.02)]' 
-                        : 'bg-white/90 shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]'
+                        ? 'bg-gradient-to-br from-white via-white to-[#C8E64C]/5/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]' 
+                        : 'bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)]'
                 }`}>
                     {/* Animated background gradient */}
                     {isOnline && (
                         <div className="absolute inset-0 opacity-40">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-200/50 to-transparent rounded-full blur-3xl animate-pulse" />
-                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-100/30 to-transparent rounded-full blur-2xl" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#C8E64C]/15/30 to-transparent rounded-full blur-2xl" />
                         </div>
                     )}
                     
@@ -131,12 +131,12 @@ export default function ProviderDashboard() {
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
                                 <h2 className={`text-[26px] font-bold tracking-tight transition-all duration-500 ${
-                                    isOnline ? 'text-slate-900' : 'text-slate-400'
+                                    isOnline ? 'text-white' : 'text-white/40'
                                 }`}>
                                     {isOnline ? 'You\'re Live' : 'Go Online'}
                                 </h2>
                                 <p className={`text-sm font-medium transition-all duration-500 ${
-                                    isOnline ? 'text-emerald-600/80' : 'text-slate-400'
+                                    isOnline ? 'text-[#C8E64C]/80' : 'text-white/40'
                                 }`}>
                                     {isOnline ? 'Receiving job requests' : 'Tap to start earning'}
                                 </p>
@@ -151,13 +151,13 @@ export default function ProviderDashboard() {
                             >
                                 <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
                                     isOnline 
-                                        ? 'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.4)]' 
-                                        : 'bg-slate-100'
+                                        ? 'bg-[#C8E64C]/100 shadow-[0_0_40px_rgba(16,185,129,0.4)]' 
+                                        : 'bg-white/[0.06]'
                                 }`} />
                                 <div className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${
                                     isOnline 
-                                        ? 'bg-emerald-500 text-white' 
-                                        : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600'
+                                        ? 'bg-[#C8E64C]/100 text-white' 
+                                        : 'bg-white/[0.06] text-white/40 group-hover:bg-white/[0.08] group-hover:text-white/60'
                                 }`}>
                                     <Power className={`h-7 w-7 transition-all duration-300 ${
                                         isOnline ? 'stroke-[2.5px]' : 'stroke-[2px]'
@@ -171,7 +171,7 @@ export default function ProviderDashboard() {
 
                         {/* Stats Row */}
                         <div className={`grid grid-cols-3 gap-4 mt-8 pt-6 border-t transition-all duration-700 ${
-                            isOnline ? 'border-slate-100 opacity-100 translate-y-0' : 'border-transparent opacity-0 -translate-y-2 pointer-events-none h-0 mt-0 pt-0 overflow-hidden'
+                            isOnline ? 'border-white/[0.06] opacity-100 translate-y-0' : 'border-transparent opacity-0 -translate-y-2 pointer-events-none h-0 mt-0 pt-0 overflow-hidden'
                         }`}>
                             {[
                                 { value: '$340', label: 'Today', icon: DollarSign },
@@ -180,10 +180,10 @@ export default function ProviderDashboard() {
                             ].map((stat, i) => (
                                 <div key={i} className="text-center group">
                                     <div className="flex items-center justify-center gap-1">
-                                        <span className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</span>
+                                        <span className="text-2xl font-bold text-white tracking-tight">{stat.value}</span>
                                         {stat.star && <Star className="h-4 w-4 fill-amber-400 text-amber-400" />}
                                     </div>
-                                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">{stat.label}</p>
+                                    <p className="text-[11px] font-semibold text-white/40 uppercase tracking-widest mt-1">{stat.label}</p>
                                 </div>
                             ))}
                         </div>
@@ -194,9 +194,9 @@ export default function ProviderDashboard() {
             {/* Active Job Card */}
             {hasJob && jobStatus && (
                 <div className={`px-4 mb-6 ${pulseAnimation ? 'animate-in zoom-in-95 duration-500' : 'animate-in fade-in slide-in-from-top-2 duration-500'}`}>
-                    <div className="rounded-[28px] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.02)] overflow-hidden">
+                    <div className="rounded-[28px] bg-white/[0.04] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden">
                         {/* Status Header */}
-                        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-white/[0.04] to-white border-b border-white/[0.06]">
                             <div className="flex items-center gap-2">
                                 <span className={`relative flex h-2.5 w-2.5`}>
                                     <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
@@ -207,18 +207,18 @@ export default function ProviderDashboard() {
                                     <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
                                         jobStatus === 'assigned' ? 'bg-amber-500' :
                                         jobStatus === 'en-route' ? 'bg-blue-500' :
-                                        jobStatus === 'arrived' ? 'bg-violet-500' : 'bg-emerald-500'
+                                        jobStatus === 'arrived' ? 'bg-violet-500' : 'bg-[#C8E64C]/100'
                                     }`} />
                                 </span>
                                 <span className={`text-sm font-semibold ${jobStatusLabel[jobStatus].color}`}>
                                     {jobStatusLabel[jobStatus].text}
                                 </span>
                             </div>
-                            <span className="text-xs font-mono text-slate-400">{MOCK_JOB.id}</span>
+                            <span className="text-xs font-mono text-white/40">{MOCK_JOB.id}</span>
                         </div>
 
                         {/* Mini Map */}
-                        <div className="relative h-40 border-b border-slate-100">
+                        <div className="relative h-40 border-b border-white/[0.06]">
                             <GoogleMap
                                 center={{ lat: MOCK_JOB.lat, lng: MOCK_JOB.lng }}
                                 zoom={14}
@@ -231,31 +231,31 @@ export default function ProviderDashboard() {
                         <div className="p-6 space-y-5">
                             {/* Customer Row */}
                             <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 text-lg font-bold text-slate-700 shadow-inner">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.04] text-lg font-bold text-white/70 shadow-none">
                                     {MOCK_JOB.customer.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-lg font-bold text-slate-900">{MOCK_JOB.customer}</p>
-                                    <p className="text-sm text-slate-500 font-medium">{MOCK_JOB.service}</p>
+                                    <p className="text-lg font-bold text-white">{MOCK_JOB.customer}</p>
+                                    <p className="text-sm text-white/50 font-medium">{MOCK_JOB.service}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95 border border-slate-100">
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] text-white/50 hover:bg-white/[0.06] hover:text-white/70 transition-all active:scale-95 border border-white/[0.06]">
                                         <Phone className="h-5 w-5" />
                                     </button>
-                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95 border border-slate-100">
+                                    <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] text-white/50 hover:bg-white/[0.06] hover:text-white/70 transition-all active:scale-95 border border-white/[0.06]">
                                         <MessageSquare className="h-5 w-5" />
                                     </button>
                                 </div>
                             </div>
 
                             {/* Address & Issue */}
-                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/80">
+                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.04]/80">
                                 <MapPin className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-base font-semibold text-slate-900">{MOCK_JOB.address}</p>
-                                    <p className="text-sm text-slate-500 mt-1">{MOCK_JOB.description}</p>
+                                    <p className="text-base font-semibold text-white">{MOCK_JOB.address}</p>
+                                    <p className="text-sm text-white/50 mt-1">{MOCK_JOB.description}</p>
                                     {MOCK_JOB.priority === 'emergency' && (
-                                        <div className="flex items-center gap-1.5 mt-3 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg w-fit">
+                                        <div className="flex items-center gap-1.5 mt-3 text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg w-fit">
                                             <AlertTriangle className="h-4 w-4" />
                                             <span className="text-xs font-bold uppercase tracking-wide">Emergency</span>
                                         </div>
@@ -268,8 +268,8 @@ export default function ProviderDashboard() {
                                 onClick={advanceJobStatus}
                                 className={`relative w-full h-14 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden group ${
                                     jobStatus === 'working'
-                                        ? 'bg-emerald-500 text-white shadow-[0_8px_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_40px_-5px_rgba(16,185,129,0.6)]'
-                                        : 'bg-slate-900 text-white shadow-[0_8px_30px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.4)]'
+                                        ? 'bg-[#C8E64C]/100 text-white shadow-[0_8px_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_40px_-5px_rgba(16,185,129,0.6)]'
+                                        : 'bg-white/[0.04] text-white shadow-[0_8px_30px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.4)]'
                                 }`}
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -284,10 +284,10 @@ export default function ProviderDashboard() {
 
             {/* Services Grid */}
             <div className="px-4 mb-6">
-                <div className="rounded-[28px] bg-white shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)] p-6">
+                <div className="rounded-[28px] bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)] p-6">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-base font-bold text-slate-900">Your Services</h3>
-                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+                        <h3 className="text-base font-bold text-white">Your Services</h3>
+                        <span className="text-xs font-bold text-[#C8E64C] bg-[#C8E64C]/10 px-3 py-1.5 rounded-full">
                             {activeServices.size} Active
                         </span>
                     </div>
@@ -301,26 +301,26 @@ export default function ProviderDashboard() {
                                     disabled={!isOnline}
                                     className={`relative flex items-center gap-3 rounded-2xl p-4 transition-all duration-300 ${
                                         active && isOnline
-                                            ? 'bg-emerald-50 border-2 border-emerald-200'
-                                            : 'bg-slate-50 border-2 border-transparent hover:border-slate-200'
+                                            ? 'bg-[#C8E64C]/10 border-2 border-[#C8E64C]/20'
+                                            : 'bg-white/[0.04] border-2 border-transparent hover:border-white/[0.08]'
                                     } ${!isOnline ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
                                 >
                                     <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
                                         active && isOnline 
-                                            ? 'bg-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' 
-                                            : 'bg-white text-slate-400 shadow-sm'
+                                            ? 'bg-[#C8E64C]/100 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' 
+                                            : 'bg-white/[0.04] text-white/40 shadow-none'
                                     }`}>
                                         <Icon className="h-5 w-5" />
                                     </div>
-                                    <span className={`text-sm font-semibold ${active && isOnline ? 'text-emerald-700' : 'text-slate-600'}`}>
+                                    <span className={`text-sm font-semibold ${active && isOnline ? 'text-[#C8E64C]' : 'text-white/60'}`}>
                                         {name}
                                     </span>
                                     
                                     {/* Toggle Indicator */}
                                     <div className={`absolute right-4 w-8 h-5 rounded-full transition-all duration-300 ${
-                                        active && isOnline ? 'bg-emerald-500' : 'bg-slate-200'
+                                        active && isOnline ? 'bg-[#C8E64C]/100' : 'bg-white/[0.08]'
                                     }`}>
-                                        <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all duration-300 ${
+                                        <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white/[0.04] shadow transition-all duration-300 ${
                                             active && isOnline ? 'left-3.5' : 'left-0.5'
                                         }`} />
                                     </div>
@@ -333,30 +333,30 @@ export default function ProviderDashboard() {
 
             {/* Recent Earnings */}
             <div className="px-4">
-                <div className="rounded-[28px] bg-white shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)] overflow-hidden">
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                <div className="rounded-[28px] bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-4 w-4 text-amber-500" />
-                            <h3 className="text-base font-bold text-slate-900">Recent Earnings</h3>
+                            <h3 className="text-base font-bold text-white">Recent Earnings</h3>
                         </div>
-                        <button className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                        <button className="text-sm font-semibold text-[#C8E64C] hover:text-[#C8E64C] transition-colors">
                             View All
                         </button>
                     </div>
                     <div className="divide-y divide-slate-100">
                         {MOCK_HISTORY.map((job, i) => (
-                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 hover:bg-slate-50/50 transition-colors cursor-pointer group">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 group-hover:from-emerald-100 group-hover:to-emerald-50 transition-all">
+                            <div key={job.id} className="flex items-center gap-4 px-6 py-5 hover:bg-white/[0.04]/50 transition-colors cursor-pointer group">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C8E64C]/10 to-[#C8E64C]/5 text-[#C8E64C] group-hover:from-[#C8E64C]/15 group-hover:to-[#C8E64C]/5 transition-all">
                                     <DollarSign className="h-5 w-5" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-base font-semibold text-slate-900">{job.customer}</span>
-                                        <span className="text-lg font-bold text-slate-900">{job.amount}</span>
+                                        <span className="text-base font-semibold text-white">{job.customer}</span>
+                                        <span className="text-lg font-bold text-white">{job.amount}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-500">{job.service}</span>
-                                        <span className="text-sm text-slate-400">{job.date}</span>
+                                        <span className="text-sm text-white/50">{job.service}</span>
+                                        <span className="text-sm text-white/40">{job.date}</span>
                                     </div>
                                 </div>
                             </div>

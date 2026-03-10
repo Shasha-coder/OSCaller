@@ -35,7 +35,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <button
       onClick={() => setOpen(!open)}
-      className="w-full rounded-2xl bg-white/70 backdrop-blur-sm p-4 text-left shadow-[0_4px_16px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.04] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
+      className="w-full rounded-2xl bg-white/[0.04] backdrop-blur-sm p-4 text-left shadow-[0_4px_16px_rgba(15,23,42,0.04)] ring-1 ring-white/[0.06] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm font-semibold text-foreground">{q}</span>
@@ -169,7 +169,7 @@ export function SupportPage() {
             <div>
               <h3 className="text-sm font-bold text-foreground">Live Chat</h3>
               <div className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#8FB34A] animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#C8E64C] animate-pulse" />
                 <span className="text-[10px] text-muted-foreground">Online · Typically replies instantly</span>
               </div>
             </div>
@@ -187,7 +187,7 @@ export function SupportPage() {
           <div className="absolute inset-0 overflow-y-auto overscroll-contain rounded-2xl bg-white/40 backdrop-blur-sm ring-1 ring-black/[0.03] px-4 py-4 space-y-3"
             style={{
               scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(143,179,74,0.2) transparent',
+              scrollbarColor: 'rgba(200,230,76,0.2) transparent',
             }}
           >
             {/* Date separator */}
@@ -210,8 +210,8 @@ export function SupportPage() {
                     className={cn(
                       'rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
                       msg.from === 'user'
-                        ? 'bg-[#8FB34A] text-white rounded-br-md shadow-[0_2px_8px_rgba(143,179,74,0.25)]'
-                        : 'bg-white text-foreground ring-1 ring-black/[0.06] rounded-bl-md shadow-[0_1px_4px_rgba(0,0,0,0.04)]'
+                        ? 'bg-[#C8E64C] text-white rounded-br-md shadow-[0_2px_8px_rgba(200,230,76,0.25)]'
+                        : 'bg-white/[0.04] text-foreground ring-1 ring-black/[0.06] rounded-bl-md shadow-[0_1px_4px_rgba(0,0,0,0.04)]'
                     )}
                   >
                     {msg.text}
@@ -229,7 +229,7 @@ export function SupportPage() {
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start animate-in fade-in duration-200">
-                <div className="flex items-center gap-1.5 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.06] rounded-bl-md shadow-sm">
+                <div className="flex items-center gap-1.5 rounded-2xl bg-white/[0.04] px-4 py-3 ring-1 ring-black/[0.06] rounded-bl-md shadow-none">
                   <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -284,7 +284,7 @@ export function SupportPage() {
                       }])
                     }, 600 + Math.random() * 800)
                   }}
-                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-sm px-3 py-2 text-[12px] font-medium text-foreground/80 ring-1 ring-black/[0.06] shadow-sm transition-all hover:bg-white hover:shadow-md hover:ring-[#8FB34A]/30 active:scale-[0.96]"
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.04] backdrop-blur-sm px-3 py-2 text-[12px] font-medium text-foreground/80 ring-1 ring-black/[0.06] shadow-none transition-all hover:bg-white/[0.04] hover:shadow-md hover:ring-[#C8E64C]/30 active:scale-[0.96]"
                 >
                   <span>{chip.emoji}</span>
                   <span className="whitespace-nowrap">{chip.text}</span>
@@ -308,15 +308,15 @@ export function SupportPage() {
                 }
               }}
               placeholder="Type a message…"
-              className="flex-1 h-12 rounded-2xl border border-black/[0.08] bg-white/80 backdrop-blur-sm px-4 text-sm outline-none transition-all focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20 focus:bg-white placeholder:text-muted-foreground/50"
+              className="flex-1 h-12 rounded-2xl border border-black/[0.08] bg-white/[0.04] backdrop-blur-sm px-4 text-sm outline-none transition-all focus:border-[#C8E64C] focus:ring-2 focus:ring-[#C8E64C]/20 focus:bg-white/[0.06]/[0.04] placeholder:text-muted-foreground/50"
             />
             <button
               onClick={handleSendChat}
               disabled={!chatInput.trim()}
               className={cn(
-                'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm transition-all active:scale-95',
+                'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-none transition-all active:scale-95',
                 chatInput.trim()
-                  ? 'bg-[#8FB34A] text-white shadow-[0_4px_12px_rgba(143,179,74,0.3)] hover:bg-[#7da33f]'
+                  ? 'bg-[#C8E64C] text-white shadow-[0_4px_12px_rgba(200,230,76,0.3)] hover:bg-[#b5d440]'
                   : 'bg-muted/60 text-muted-foreground cursor-not-allowed'
               )}
             >
@@ -347,21 +347,21 @@ export function SupportPage() {
           </button>
         </div>
 
-        <div className="rounded-2xl bg-white/70 backdrop-blur-sm p-5 ring-1 ring-black/[0.04] space-y-4">
+        <div className="rounded-2xl bg-white/[0.04] backdrop-blur-sm p-5 ring-1 ring-white/[0.06] space-y-4">
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Your Email (optional)</label>
             <input type="email" value={reportEmail} onChange={e => setReportEmail(e.target.value)}
               placeholder="you@example.com" autoComplete="email"
-              className="h-12 w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 text-sm outline-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
+              className="h-12 w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 text-sm outline-none focus:border-[#C8E64C] focus:ring-2 focus:ring-[#C8E64C]/20" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Describe the issue *</label>
             <textarea value={reportText} onChange={e => setReportText(e.target.value)} rows={4}
               placeholder="Tell us what went wrong…"
-              className="w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 py-3 text-sm outline-none resize-none focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20" />
+              className="w-full rounded-2xl border border-black/[0.08] bg-muted/30 px-4 py-3 text-sm outline-none resize-none focus:border-[#C8E64C] focus:ring-2 focus:ring-[#C8E64C]/20" />
           </div>
           <Button onClick={handleSubmitReport} disabled={submitting || !reportText.trim()}
-            className="h-12 w-full rounded-2xl bg-[#8FB34A] text-sm font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] hover:bg-[#7da33f] disabled:opacity-40">
+            className="h-12 w-full rounded-2xl bg-[#C8E64C] text-sm font-semibold text-white shadow-[0_4px_16px_rgba(200,230,76,0.3)] hover:bg-[#b5d440] disabled:opacity-40">
             {submitting ? 'Submitting…' : 'Submit Report'}
           </Button>
         </div>
@@ -374,19 +374,19 @@ export function SupportPage() {
     <div className="mx-auto w-full max-w-lg space-y-6">
       {/* Quick actions */}
       <div className="flex gap-3">
-        <Button onClick={handleCall} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90">
+        <Button onClick={handleCall} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/[0.04] backdrop-blur-sm border-black/[0.04] hover:bg-white/[0.04]">
           <Phone className="h-5 w-5 text-primary" />
           <span className="text-xs font-medium">Call us</span>
         </Button>
-        <Button onClick={() => setView('chat')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90 relative">
+        <Button onClick={() => setView('chat')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/[0.04] backdrop-blur-sm border-black/[0.04] hover:bg-white/[0.04] relative">
           <MessageSquare className="h-5 w-5 text-primary" />
           <span className="text-xs font-medium">Live chat</span>
           {/* Online indicator */}
-          <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#8FB34A]">
-            <span className="absolute inset-0 rounded-full bg-[#8FB34A] animate-ping opacity-75" />
+          <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#C8E64C]">
+            <span className="absolute inset-0 rounded-full bg-[#C8E64C] animate-ping opacity-75" />
           </span>
         </Button>
-        <Button onClick={() => setView('report')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/70 backdrop-blur-sm border-black/[0.04] hover:bg-white/90">
+        <Button onClick={() => setView('report')} variant="outline" className="flex-1 h-auto flex-col gap-1.5 rounded-2xl py-4 bg-white/[0.04] backdrop-blur-sm border-black/[0.04] hover:bg-white/[0.04]">
           <AlertCircle className="h-5 w-5 text-primary" />
           <span className="text-xs font-medium">Report issue</span>
         </Button>

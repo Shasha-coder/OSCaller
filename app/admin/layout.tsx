@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return (
             <div className="flex h-dvh items-center justify-center bg-[#0B0F1A]">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#8FB34A]/20 border-t-[#8FB34A]" />
+                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#C8E64C]/20 border-t-[#C8E64C]" />
                     <span className="text-sm text-white/40">Loading…</span>
                 </div>
             </div>
@@ -78,8 +78,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-[260px] border-r border-white/[0.06] bg-[#0D1220]">
                 <div className="flex items-center gap-3 px-5 py-5 border-b border-white/[0.06]">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#8FB34A]/10">
-                        <OSSymbol className="h-5 w-5" color="#8FB34A" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10">
+                        <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-white tracking-tight">OSCaller</h2>
@@ -91,13 +91,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
                         <button
                             key={id}
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/[0.04] hover:text-white/80 data-[active=true]:bg-[#8FB34A]/10 data-[active=true]:text-[#8FB34A]"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/[0.04] hover:text-white/80 data-[active=true]:bg-[#C8E64C]/10 data-[active=true]:text-[#C8E64C]"
                             data-active={id === 'dashboard'}
                         >
                             <Icon className="h-[18px] w-[18px]" />
                             <span className="flex-1 text-left">{label}</span>
                             {badge && badge > 0 && (
-                                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8FB34A] px-1.5 text-[10px] font-bold text-white">
+                                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#C8E64C] px-1.5 text-[10px] font-bold text-white">
                                     {badge}
                                 </span>
                             )}
@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 <div className="border-t border-white/[0.06] p-3">
                     <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#8FB34A]/15 text-xs font-bold text-[#8FB34A]">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C8E64C]/15 text-xs font-bold text-[#C8E64C]">
                             {user?.email?.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -133,12 +133,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </svg>
                 </button>
                 <div className="flex items-center gap-2">
-                    <OSSymbol className="h-5 w-5" color="#8FB34A" />
+                    <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     <span className="text-sm font-bold">Admin</span>
                 </div>
                 <button className="relative text-white/60">
                     <Bell className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#8FB34A]" />
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#C8E64C]" />
                 </button>
             </div>
 
