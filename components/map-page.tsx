@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════���������������════════════════════════
+/* ══════════════════�����������������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -586,21 +586,28 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       let audioSummary = ''
       
       if (uploadedFile && inputMode === 'photo') {
+        // Use AbortController for timeout (15 seconds total for upload + analysis)
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
+        
         try {
           // First upload the image to get a URL
           const formData = new FormData()
           formData.append('file', uploadedFile)
           
+          console.log('[v0] Uploading photo, size:', uploadedFile.size, 'type:', uploadedFile.type)
+          
           const uploadRes = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
+            signal: controller.signal,
           })
           
           if (uploadRes.ok) {
             const uploadData = await uploadRes.json()
             console.log('[v0] Photo uploaded to:', uploadData.url)
             
-            // Now analyze with the URL
+            // Now analyze with the URL (with remaining time)
             const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -608,6 +615,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 media_type: 'image',
                 media_url: uploadData.url,
               }),
+              signal: controller.signal,
             })
             
             if (analyzeRes.ok) {
@@ -618,18 +626,32 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             } else {
               const errText = await analyzeRes.text()
               console.error('[v0] Photo analysis failed:', errText)
+              // Still continue with call even if analysis failed
+              photoSummary = 'Customer sent a photo of the issue'
             }
           } else {
             const errText = await uploadRes.text()
             console.error('[v0] Photo upload failed:', errText)
+            photoSummary = 'Customer sent a photo of the issue'
           }
-        } catch (e) {
-          console.error('[v0] Photo upload/analysis error:', e)
+        } catch (e: any) {
+          if (e.name === 'AbortError') {
+            console.error('[v0] Photo analysis timed out')
+            photoSummary = 'Customer sent a photo of the issue (analysis pending)'
+          } else {
+            console.error('[v0] Photo upload/analysis error:', e)
+            photoSummary = 'Customer sent a photo of the issue'
+          }
+        } finally {
+          clearTimeout(timeout)
         }
       }
       
       // 2b. If voice recording exists, analyze it
       if (audioBlob && inputMode === 'voice') {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 12000)
+        
         try {
           const base64 = await new Promise<string>((resolve) => {
             const reader = new FileReader()
@@ -646,6 +668,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               audio_base64: base64,
               mime_type: audioBlob.type || 'audio/webm',
             }),
+            signal: controller.signal,
           })
           
           if (analyzeRes.ok) {
@@ -656,9 +679,18 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           } else {
             const errText = await analyzeRes.text()
             console.error('[v0] Audio analysis failed:', errText)
+            audioSummary = 'Customer left a voice message'
           }
-        } catch (e) {
-          console.error('[v0] Audio analysis error:', e)
+        } catch (e: any) {
+          if (e.name === 'AbortError') {
+            console.error('[v0] Audio analysis timed out')
+            audioSummary = 'Customer left a voice message (transcription pending)'
+          } else {
+            console.error('[v0] Audio analysis error:', e)
+            audioSummary = 'Customer left a voice message'
+          }
+        } finally {
+          clearTimeout(timeout)
         }
       }
       
