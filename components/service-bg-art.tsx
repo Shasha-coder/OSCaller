@@ -18,7 +18,7 @@ export function ServicePageBackground() {
             >
                 <defs>
                     <pattern id="service-doodles" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-                        <g stroke="#8FB34A" fill="none" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" opacity="0.13">
+                        <g stroke="#C8E64C" fill="none" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" opacity="0.06">
 
                             {/* ─── Wrench ─── */}
                             <path d="M15 12 L20 7 L25 12 L20 17 Z" />

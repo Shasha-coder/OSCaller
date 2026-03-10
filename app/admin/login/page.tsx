@@ -54,15 +54,15 @@ export default function AdminLoginPage() {
         <div className="flex min-h-dvh items-center justify-center bg-[#0B0F1A] px-4">
             {/* Background gradient */}
             <div className="pointer-events-none fixed inset-0">
-                <div className="absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-[#8FB34A]/8 blur-[120px]" />
-                <div className="absolute bottom-0 right-0 h-[400px] w-[500px] rounded-full bg-[#8FB34A]/5 blur-[100px]" />
+                <div className="absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-[#C8E64C]/8 blur-[120px]" />
+                <div className="absolute bottom-0 right-0 h-[400px] w-[500px] rounded-full bg-[#C8E64C]/5 blur-[100px]" />
             </div>
 
             <div className="relative w-full max-w-[420px]">
                 {/* Logo */}
                 <div className="mb-8 flex flex-col items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#8FB34A]/10 backdrop-blur-sm border border-[#8FB34A]/20">
-                        <OSSymbol className="h-9 w-9" color="#8FB34A" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#C8E64C]/10 backdrop-blur-sm border border-[#C8E64C]/20">
+                        <OSSymbol className="h-9 w-9" color="#C8E64C" />
                     </div>
                     <h1 className="mt-4 text-xl font-bold text-white tracking-tight">Admin Console</h1>
                     <p className="mt-1 text-sm text-white/40">Sign in to manage OSCaller</p>
@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
                 {/* Login card */}
                 <form onSubmit={handleLogin} className="rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] p-6 shadow-2xl">
                     {error && (
-                        <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+                        <div className="mb-4 rounded-xl bg-red-500/100/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
                             {error}
                         </div>
                     )}
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
                             onChange={e => setEmail(e.target.value)}
                             placeholder="admin@oscaller.com"
                             required
-                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#8FB34A]/50 focus:bg-white/[0.08]"
+                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#C8E64C]/50 focus:bg-white/[0.06]/[0.08]"
                         />
                     </div>
 
@@ -100,14 +100,14 @@ export default function AdminLoginPage() {
                             onChange={e => setPassword(e.target.value)}
                             placeholder="••••••••"
                             required
-                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#8FB34A]/50 focus:bg-white/[0.08]"
+                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#C8E64C]/50 focus:bg-white/[0.06]/[0.08]"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="h-12 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_20px_rgba(143,179,74,0.3)] transition-all duration-200 hover:bg-[#7da33f] hover:shadow-[0_6px_28px_rgba(143,179,74,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="h-12 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_20px_rgba(200,230,76,0.3)] transition-all duration-200 hover:bg-[#b5d440] hover:shadow-[0_6px_28px_rgba(200,230,76,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">

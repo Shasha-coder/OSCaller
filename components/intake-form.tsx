@@ -125,7 +125,7 @@ const EMERGENCY_ICONS: Record<EmergencyLevel, typeof AlertTriangle> = {
 const EMERGENCY_COLORS: Record<EmergencyLevel, { ring: string; bg: string; icon: string }> = {
   emergency: {
     ring: 'ring-red-200 border-red-300',
-    bg: 'bg-red-50',
+    bg: 'bg-red-500/10',
     icon: 'text-red-500',
   },
   urgent: {
@@ -165,18 +165,18 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
         className={cn(
           'flex h-12 w-full items-center justify-between rounded-2xl border px-3 text-sm font-medium transition-all cursor-pointer',
           open
-            ? 'border-[#8FB34A] bg-white ring-2 ring-[#8FB34A]/20'
+            ? 'border-[#C8E64C] bg-white/[0.04] ring-2 ring-[#C8E64C]/20'
             : 'border-border/60 bg-muted/40 hover:border-border'
         )}>
         <span className="flex items-center gap-2">
-          <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+          <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
           {value}
         </span>
         <svg className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', open && 'rotate-180')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-2xl border border-border/60 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-2xl border border-border/60 bg-white/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
           style={{ scrollbarWidth: 'thin' }}>
           {LANGUAGES.map(lang => (
             <button key={lang} type="button"
@@ -184,12 +184,12 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
               className={cn(
                 'flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors',
                 lang === value
-                  ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]'
+                  ? 'bg-[rgba(200,230,76,0.1)] font-semibold text-[#C8E64C]'
                   : 'text-foreground hover:bg-muted/50'
               )}>
               {lang}
               {lang === value && (
-                <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+                <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
               )}
             </button>
           ))}
@@ -226,7 +226,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
 
   return (
     <div className="mx-auto w-full max-w-lg">
-      <div className="rounded-3xl bg-white/70 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] sm:p-8">
+      <div className="rounded-3xl bg-white/[0.04] backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.3)] ring-1 ring-white/[0.06] sm:p-8">
 
         {/* Address */}
         <div className="mb-6">
@@ -275,14 +275,14 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
                   className={cn(
                     'group relative flex flex-col items-center gap-2.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer',
                     isSelected
-                      ? 'border-primary bg-secondary ring-2 ring-primary/20 shadow-[0_4px_20px_rgba(143,179,74,0.15)]'
+                      ? 'border-primary bg-secondary ring-2 ring-primary/20 shadow-[0_4px_20px_rgba(200,230,76,0.15)]'
                       : 'border-border/50 bg-card hover:border-primary/30 hover:bg-muted/30 hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
                   )}
                 >
                   <div className={cn(
                     'flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200',
                     isSelected
-                      ? 'bg-primary shadow-sm'
+                      ? 'bg-primary shadow-none'
                       : 'bg-muted/70 group-hover:bg-secondary'
                   )}>
                     <Icon className={cn(
@@ -295,7 +295,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
                     isSelected ? 'text-secondary-foreground' : 'text-muted-foreground group-hover:text-foreground'
                   )}>{label}</span>
                   {isSelected && (
-                    <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary shadow-sm">
+                    <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary shadow-none">
                       <svg className="h-3 w-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
@@ -325,7 +325,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
                   className={cn(
                     'group flex flex-1 flex-col items-center gap-1.5 rounded-2xl border py-4 transition-all duration-200 cursor-pointer',
                     isSelected
-                      ? `${colors.ring} ring-2 shadow-sm ${colors.bg}`
+                      ? `${colors.ring} ring-2 shadow-none ${colors.bg}`
                       : 'border-border/50 bg-card hover:bg-muted/30'
                   )}
                 >
@@ -384,7 +384,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="h-14 w-full rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-[0_6px_24px_rgba(143,179,74,0.3)] transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_8px_32px_rgba(143,179,74,0.4)] hover:-translate-y-0.5 disabled:opacity-40 disabled:shadow-none disabled:translate-y-0"
+          className="h-14 w-full rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-[0_6px_24px_rgba(200,230,76,0.3)] transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_8px_32px_rgba(200,230,76,0.4)] hover:-translate-y-0.5 disabled:opacity-40 disabled:shadow-none disabled:translate-y-0"
         >
           Request help
           <ChevronRight className="ml-2 h-5 w-5" />

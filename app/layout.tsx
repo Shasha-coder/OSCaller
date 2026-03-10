@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#8FB34A',
+  themeColor: '#0A0A0A',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -39,18 +39,21 @@ export default function RootLayout({
         {/* Preload the landing background so there's no white flash */}
 
       </head>
-      <body className="font-sans antialiased bg-white">
+      <body className="font-sans antialiased bg-[#0A0A0A]">
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
             style: {
-              background: '#0F172A',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'rgba(20, 20, 20, 0.85)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              color: '#F5F5F5',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '16px',
               fontSize: '13px',
               fontWeight: 500,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
             },
           }}
           richColors

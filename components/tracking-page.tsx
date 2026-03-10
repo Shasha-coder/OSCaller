@@ -64,19 +64,19 @@ function ETAProgressRing({ progress, eta, className }: { progress: number; eta: 
         <circle cx="50" cy="50" r="42" stroke="#E2E8F0" strokeWidth="4" fill="none" />
         <circle
           cx="50" cy="50" r="42"
-          stroke="#8FB34A"
+          stroke="#C8E64C"
           strokeWidth="4"
           fill="none"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={dashoffset}
           className="transition-all duration-1000 ease-out"
-          style={{ filter: 'drop-shadow(0 0 6px rgba(143,179,74,0.4))' }}
+          style={{ filter: 'drop-shadow(0 0 6px rgba(200,230,76,0.4))' }}
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-2xl font-black text-[#0F172A] tabular-nums">{eta}</span>
-        <span className="text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider">min</span>
+        <span className="text-2xl font-black text-white tabular-nums">{eta}</span>
+        <span className="text-[10px] font-semibold text-white/35 uppercase tracking-wider">min</span>
       </div>
     </div>
   )
@@ -87,7 +87,7 @@ function RouteProgressBar({ progress }: { progress: number }) {
   return (
     <div className="relative h-1.5 w-full rounded-full bg-[#E2E8F0] overflow-hidden">
       <div
-        className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#8FB34A] to-[#a8c94e] transition-all duration-1000 ease-out"
+        className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#C8E64C] to-[#a8c94e] transition-all duration-1000 ease-out"
         style={{ width: `${progress * 100}%` }}
       />
       <div
@@ -105,14 +105,14 @@ function RouteProgressBar({ progress }: { progress: number }) {
 /* ─── Status Pill ─── */
 function StatusPill({ label, pulse }: { label: string; pulse?: boolean }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-full bg-[#EAF4D8] px-5 py-2.5 shadow-[0_2px_12px_rgba(143,179,74,0.12)]">
+    <div className="flex items-center gap-2.5 rounded-full bg-[rgba(200,230,76,0.1)] px-5 py-2.5 shadow-[0_2px_12px_rgba(200,230,76,0.12)]">
       {pulse && (
         <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FB34A] opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#8FB34A]" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C8E64C] opacity-75" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#C8E64C]" />
         </span>
       )}
-      <span className="text-sm font-bold text-[#3a5e10]">{label}</span>
+      <span className="text-sm font-bold text-[#C8E64C]">{label}</span>
     </div>
   )
 }
@@ -124,12 +124,12 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
       <div className="flex flex-col items-center">
         <div className={cn(
           'flex h-7 w-7 items-center justify-center rounded-full transition-all duration-500',
-          event.status === 'complete' ? 'bg-[#8FB34A] shadow-[0_2px_8px_rgba(143,179,74,0.3)]' : event.status === 'active' ? 'bg-[#EAF4D8] ring-2 ring-[#8FB34A]' : 'bg-[#f1f5f9]'
+          event.status === 'complete' ? 'bg-[#C8E64C] shadow-[0_2px_8px_rgba(200,230,76,0.3)]' : event.status === 'active' ? 'bg-[rgba(200,230,76,0.1)] ring-2 ring-[#C8E64C]' : 'bg-[#f1f5f9]'
         )}>
           {event.status === 'complete' ? (
             <Check className="h-3.5 w-3.5 text-white" />
           ) : event.status === 'active' ? (
-            <Circle className="h-2.5 w-2.5 fill-[#8FB34A] text-[#8FB34A]" />
+            <Circle className="h-2.5 w-2.5 fill-[#C8E64C] text-[#C8E64C]" />
           ) : (
             <Circle className="h-2.5 w-2.5 text-[#cbd5e1]" />
           )}
@@ -137,19 +137,19 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
         {!isLast && (
           <div className={cn(
             'mt-1 h-6 w-[2px] rounded-full transition-colors duration-500',
-            event.status === 'complete' ? 'bg-[#8FB34A]' : 'bg-[#E5E7EB]'
+            event.status === 'complete' ? 'bg-[#C8E64C]' : 'bg-[#E5E7EB]'
           )} />
         )}
       </div>
       <div className="flex flex-col pb-3">
         <span className={cn(
           'text-sm font-semibold transition-colors duration-300',
-          event.status === 'active' || event.status === 'complete' ? 'text-[#0F172A]' : 'text-[#94a3b8]'
+          event.status === 'active' || event.status === 'complete' ? 'text-white' : 'text-white/35'
         )}>
           {event.label}
         </span>
         {event.status !== 'pending' && (
-          <span className="text-[11px] text-[#94a3b8] mt-0.5">
+          <span className="text-[11px] text-white/35 mt-0.5">
             {event.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
         )}
@@ -165,21 +165,21 @@ function ProviderCard({ provider, eta, progress }: {
   progress: number
 }) {
   return (
-    <div className="rounded-3xl bg-white p-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)] ring-1 ring-[#E5E7EB]/60">
+    <div className="rounded-3xl bg-white/[0.04] p-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)] ring-1 ring-[#E5E7EB]/60">
       <div className="mb-4 flex items-start gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF4D8] text-xl font-bold text-[#5a8a1a]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgba(200,230,76,0.1)] text-xl font-bold text-[#a8c840]">
           {provider.name.split(' ').map(n => n[0]).join('')}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-[#0F172A]">{provider.name}</span>
+            <span className="text-base font-bold text-white">{provider.name}</span>
             {provider.verified && (
-              <span className="flex items-center gap-0.5 rounded-full bg-[#EAF4D8] px-2 py-0.5 text-[10px] font-bold text-[#5a8a1a]">
+              <span className="flex items-center gap-0.5 rounded-full bg-[rgba(200,230,76,0.1)] px-2 py-0.5 text-[10px] font-bold text-[#a8c840]">
                 <Shield className="h-3 w-3" /> Verified
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-sm text-[#64748B] mt-0.5">
+          <div className="flex items-center gap-2 text-sm text-white/50 mt-0.5">
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="font-semibold">{provider.rating}</span>
             <span className="text-[#E5E7EB]">{'|'}</span>
@@ -191,25 +191,25 @@ function ProviderCard({ provider, eta, progress }: {
 
       <div className="mb-2">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider">En Route</span>
-          <span className="text-[10px] font-semibold text-[#8FB34A]">{Math.round(progress * 100)}%</span>
+          <span className="text-[10px] font-semibold text-white/35 uppercase tracking-wider">En Route</span>
+          <span className="text-[10px] font-semibold text-[#C8E64C]">{Math.round(progress * 100)}%</span>
         </div>
         <RouteProgressBar progress={progress} />
       </div>
 
-      <div className="mb-4 flex items-center justify-center rounded-2xl bg-[#EAF4D8] py-2.5 text-sm font-bold text-[#5a8a1a]">
+      <div className="mb-4 flex items-center justify-center rounded-2xl bg-[rgba(200,230,76,0.1)] py-2.5 text-sm font-bold text-[#a8c840]">
         <Check className="mr-1.5 h-4 w-4" /> PRE-AUTHORIZED
       </div>
 
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="flex-1 rounded-xl gap-1.5 h-10 border-[#E5E7EB] hover:bg-[#f7f8fa]">
-          <Phone className="h-4 w-4 text-[#8FB34A]" /> Call
+          <Phone className="h-4 w-4 text-[#C8E64C]" /> Call
         </Button>
         <Button variant="outline" size="sm" className="flex-1 rounded-xl gap-1.5 h-10 border-[#E5E7EB] hover:bg-[#f7f8fa]">
-          <MessageSquare className="h-4 w-4 text-[#8FB34A]" /> Message
+          <MessageSquare className="h-4 w-4 text-[#C8E64C]" /> Message
         </Button>
         <Button variant="outline" size="sm" className="flex-1 rounded-xl gap-1.5 h-10 border-[#E5E7EB] hover:bg-[#f7f8fa]">
-          <Share2 className="h-4 w-4 text-[#8FB34A]" /> Share
+          <Share2 className="h-4 w-4 text-[#C8E64C]" /> Share
         </Button>
       </div>
     </div>
@@ -429,11 +429,11 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
   if (!request) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EAF4D8]">
-          <MapPin className="h-7 w-7 text-[#8FB34A]" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[rgba(200,230,76,0.1)]">
+          <MapPin className="h-7 w-7 text-[#C8E64C]" />
         </div>
-        <h2 className="mb-2 text-xl font-bold text-[#0F172A]">No active request</h2>
-        <p className="max-w-xs text-sm text-[#64748B]">
+        <h2 className="mb-2 text-xl font-bold text-white">No active request</h2>
+        <p className="max-w-xs text-sm text-white/50">
           Submit a help request from the home page to start tracking.
         </p>
       </div>
@@ -456,17 +456,17 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
         />
         {showProvider && currentStatus === 'en-route' && (
           <div className="absolute top-3 left-3 flex items-center gap-2 rounded-2xl bg-white/95 backdrop-blur-sm px-4 py-2.5 shadow-lg ring-1 ring-black/5">
-            <Navigation className="h-4 w-4 text-[#8FB34A]" />
+            <Navigation className="h-4 w-4 text-[#C8E64C]" />
             <div>
-              <p className="text-xs font-bold text-[#0F172A]">{eta} min away</p>
-              <p className="text-[10px] text-[#64748B]">{(1.2 * (1 - routeProgress)).toFixed(1)} km remaining</p>
+              <p className="text-xs font-bold text-white">{eta} min away</p>
+              <p className="text-[10px] text-white/50">{(1.2 * (1 - routeProgress)).toFixed(1)} km remaining</p>
             </div>
           </div>
         )}
       </div>
 
-      <div className="rounded-3xl bg-white p-5 shadow-[0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-[#E5E7EB]/50">
-        <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#94a3b8]">Live updates</h3>
+      <div className="rounded-3xl bg-white/[0.04] p-5 shadow-[0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-[#E5E7EB]/50">
+        <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-white/35">Live updates</h3>
         <div className="flex flex-col">
           {localTimeline.map((event, idx) => (
             <TimelineItem key={event.id} event={event} isLast={idx === localTimeline.length - 1} />
@@ -483,7 +483,7 @@ export function TrackingPage({ request, onCancel }: TrackingPageProps) {
       <div className="flex justify-center pb-8">
         <button
           onClick={onCancel}
-          className="text-sm font-medium text-[#94a3b8] transition-colors hover:text-red-500 active:scale-[0.97]"
+          className="text-sm font-medium text-white/35 transition-colors hover:text-red-400 active:scale-[0.97]"
         >
           Cancel request
         </button>
