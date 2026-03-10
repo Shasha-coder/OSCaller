@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { generateText } from 'ai'
+import { gateway } from '@ai-sdk/gateway'
 
 /**
  * POST /api/requests/[id]/analyze-media
  * 
- * Analyzes uploaded media using Gemini 2.0 Flash:
+ * Analyzes uploaded media using Vercel AI Gateway with Gemini:
  * - Images: Native vision analysis
- * - Audio: Native audio processing (NO Whisper needed)
+ * - Audio: Native audio processing
  * - Text: Fast text analysis
  * 
  * Body: { 
@@ -17,9 +19,6 @@ import { createServerClient } from '@/lib/supabase/server'
  *   mime_type?: string,        // For audio: e.g., 'audio/mp3', 'audio/wav'
  * }
  */
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_MODEL = 'gemini-2.0-flash' // Latest, fastest, cheapest with full multimodal
 
 interface MediaAnalysis {
   input_type: 'image' | 'audio' | 'text'
@@ -61,7 +60,7 @@ For IMAGES: Look carefully for water damage, electrical hazards, structural issu
 For AUDIO: Transcribe accurately, note emotional urgency, detect language, identify the problem.
 For TEXT: Extract the core issue and assess urgency.`
 
-async function analyzeWithGemini(input: { 
+async function analyzeWithAI(input: { 
   type: 'image' | 'audio' | 'text'
   imageUrl?: string
   audioBase64?: string
@@ -69,89 +68,57 @@ async function analyzeWithGemini(input: {
   text?: string 
 }): Promise<MediaAnalysis> {
   
-  // Build the request parts based on input type
-  const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = []
-  
-  // Add system prompt
-  parts.push({ text: SYSTEM_PROMPT })
+  // Build message content based on input type
+  const content: Array<{ type: string; text?: string; image?: { url: string }; data?: string; mimeType?: string }> = []
   
   if (input.type === 'image' && input.imageUrl) {
-    // Fetch image and convert to base64
-    const imageResponse = await fetch(input.imageUrl)
-    const imageBuffer = await imageResponse.arrayBuffer()
-    const base64Image = Buffer.from(imageBuffer).toString('base64')
-    const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg'
-    
-    parts.push({ text: '\n\nAnalyze this image of a home repair issue:' })
-    parts.push({ 
-      inlineData: { 
-        mimeType, 
-        data: base64Image 
-      } 
-    })
+    content.push({ type: 'text', text: 'Analyze this image of a home repair issue and respond with JSON:' })
+    content.push({ type: 'image', image: { url: input.imageUrl } })
   } else if (input.type === 'audio' && input.audioBase64) {
-    // Native audio processing - Gemini 2.0 Flash handles this directly
-    parts.push({ text: '\n\nListen to this audio message about a home repair issue. Transcribe it and analyze:' })
-    parts.push({ 
-      inlineData: { 
-        mimeType: input.audioMimeType || 'audio/mp3', 
-        data: input.audioBase64 
-      } 
+    content.push({ type: 'text', text: 'Listen to this audio message about a home repair issue. Transcribe it and analyze. Respond with JSON:' })
+    content.push({ 
+      type: 'file',
+      data: input.audioBase64,
+      mimeType: input.audioMimeType || 'audio/webm',
     })
   } else if (input.text) {
-    parts.push({ text: `\n\nAnalyze this ${input.type} description of a home repair issue:\n\n"${input.text}"` })
-  }
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 1024,
-          responseMimeType: 'application/json',
-        },
-      }),
-    }
-  )
-
-  if (!response.ok) {
-    const error = await response.text()
-    console.error('[v0] Gemini API error:', error)
-    throw new Error(`Gemini API error: ${response.status}`)
-  }
-
-  const data = await response.json()
-  const content = data.candidates?.[0]?.content?.parts?.[0]?.text
-
-  if (!content) {
-    throw new Error('No content in Gemini response')
+    content.push({ type: 'text', text: `Analyze this description of a home repair issue and respond with JSON:\n\n"${input.text}"` })
   }
 
   try {
-    // Parse JSON response (Gemini returns clean JSON with responseMimeType)
-    const parsed = JSON.parse(content)
-    return {
-      input_type: input.type,
-      summary: parsed.summary || 'Unable to analyze',
-      transcript: parsed.transcript || undefined,
-      detected_issue: parsed.detected_issue || null,
-      severity: parsed.severity || null,
-      service_suggestion: parsed.service_suggestion || null,
-      key_details: parsed.key_details || [],
-      location_hints: parsed.location_hints || [],
-      safety_concerns: parsed.safety_concerns || [],
-      language_detected: parsed.language_detected || undefined,
-      analyzed_at: new Date().toISOString(),
+    const result = await generateText({
+      model: gateway('google/gemini-2.0-flash'),
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: content as any }],
+      temperature: 0.1,
+      maxTokens: 1024,
+    })
+
+    const responseText = result.text
+    
+    // Parse JSON from response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0])
+      return {
+        input_type: input.type,
+        summary: parsed.summary || 'Unable to analyze',
+        transcript: parsed.transcript || undefined,
+        detected_issue: parsed.detected_issue || null,
+        severity: parsed.severity || null,
+        service_suggestion: parsed.service_suggestion || null,
+        key_details: parsed.key_details || [],
+        location_hints: parsed.location_hints || [],
+        safety_concerns: parsed.safety_concerns || [],
+        language_detected: parsed.language_detected || undefined,
+        analyzed_at: new Date().toISOString(),
+      }
     }
-  } catch {
+    
     // Fallback if JSON parsing fails
     return {
       input_type: input.type,
-      summary: content.substring(0, 500),
+      summary: responseText.substring(0, 200),
       detected_issue: null,
       severity: null,
       service_suggestion: null,
@@ -160,6 +127,9 @@ async function analyzeWithGemini(input: {
       safety_concerns: [],
       analyzed_at: new Date().toISOString(),
     }
+  } catch (error) {
+    console.error('[v0] AI analysis error:', error)
+    throw error
   }
 }
 
@@ -169,12 +139,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const body = await req.json()
     const { media_type, media_url, text, audio_base64, mime_type } = body
 
+    console.log('[v0] Analyze media request:', { media_type, hasUrl: !!media_url, hasAudio: !!audio_base64, hasText: !!text })
+
     if (!media_type || !['image', 'audio', 'text'].includes(media_type)) {
       return NextResponse.json({ error: 'Invalid media_type. Use: image, audio, or text' }, { status: 400 })
-    }
-
-    if (!GEMINI_API_KEY) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
     }
 
     const db = createServerClient()
@@ -187,32 +155,53 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .single()
 
     if (error || !request) {
+      console.error('[v0] Request not found:', requestId)
       return NextResponse.json({ error: 'Request not found' }, { status: 404 })
     }
 
     // Analyze based on type
     let analysis: MediaAnalysis
 
-    if (media_type === 'image') {
-      if (!media_url) {
-        return NextResponse.json({ error: 'media_url required for image' }, { status: 400 })
+    try {
+      if (media_type === 'image') {
+        if (!media_url) {
+          return NextResponse.json({ error: 'media_url required for image' }, { status: 400 })
+        }
+        console.log('[v0] Analyzing image:', media_url)
+        analysis = await analyzeWithAI({ type: 'image', imageUrl: media_url })
+      } else if (media_type === 'audio') {
+        if (!audio_base64) {
+          return NextResponse.json({ error: 'audio_base64 required for audio' }, { status: 400 })
+        }
+        console.log('[v0] Analyzing audio, size:', audio_base64.length)
+        analysis = await analyzeWithAI({ 
+          type: 'audio', 
+          audioBase64: audio_base64,
+          audioMimeType: mime_type || 'audio/webm'
+        })
+      } else {
+        if (!text) {
+          return NextResponse.json({ error: 'text required for text mode' }, { status: 400 })
+        }
+        analysis = await analyzeWithAI({ type: 'text', text })
       }
-      analysis = await analyzeWithGemini({ type: 'image', imageUrl: media_url })
-    } else if (media_type === 'audio') {
-      if (!audio_base64) {
-        return NextResponse.json({ error: 'audio_base64 required for audio' }, { status: 400 })
+    } catch (analysisError) {
+      console.error('[v0] Analysis failed:', analysisError)
+      // Return a fallback so the call can proceed
+      analysis = {
+        input_type: media_type,
+        summary: media_type === 'image' ? 'Customer sent a photo of the issue' : 'Customer described an issue',
+        detected_issue: null,
+        severity: null,
+        service_suggestion: null,
+        key_details: [],
+        location_hints: [],
+        safety_concerns: [],
+        analyzed_at: new Date().toISOString(),
       }
-      analysis = await analyzeWithGemini({ 
-        type: 'audio', 
-        audioBase64: audio_base64,
-        audioMimeType: mime_type || 'audio/mp3'
-      })
-    } else {
-      if (!text) {
-        return NextResponse.json({ error: 'text required for text mode' }, { status: 400 })
-      }
-      analysis = await analyzeWithGemini({ type: 'text', text })
     }
+
+    console.log('[v0] Analysis result:', analysis.summary)
 
     // Store analysis in service_requests
     const existingAnalysis = request.media_analysis as MediaAnalysis[] || []
@@ -270,8 +259,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       success: true,
       analysis,
       agent_prompt: agentPrompt,
-      // Cost estimate (Gemini 2.0 Flash is very cheap)
-      estimated_cost_usd: media_type === 'image' ? 0.001 : media_type === 'audio' ? 0.002 : 0.0001,
     })
   } catch (err) {
     console.error('[v0] Media analysis error:', err)
