@@ -101,8 +101,8 @@ const SERVICES = [
 
 function ServiceCard({ label, icon: Icon }: { label: string; icon: React.FC<{ className?: string }> }) {
   return (
-    <div className="flex flex-shrink-0 items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-300 border border-white/[0.06] bg-white/[0.04] backdrop-blur-sm hover:bg-white/[0.08] hover:border-white/[0.1]">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10">
+    <div className="flex flex-shrink-0 items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-300 glass-card-v2 hover:bg-white/[0.06]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10 shadow-[0_0_12px_rgba(200,230,76,0.1)]">
         <Icon className="h-4.5 w-4.5 text-[#C8E64C]" />
       </div>
       <span className="text-sm font-semibold whitespace-nowrap text-white/80">{label}</span>

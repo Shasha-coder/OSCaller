@@ -51,10 +51,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         className={cn(
           'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
-          'backdrop-blur-2xl border-l border-white/[0.06] transition-colors duration-300',
+          'backdrop-blur-2xl transition-colors duration-300',
           'bg-white/[0.03]'
         )}
-        style={{ width: 80 }}
+        style={{ width: 80, borderLeft: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -70,7 +70,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
                 'group relative flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-250 w-[60px] h-[60px]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8E64C]/40',
                 active
-                  ? 'bg-[#C8E64C]/10 text-[#C8E64C] shadow-[0_2px_12px_rgba(200,230,76,0.1)]'
+                  ? 'bg-[#C8E64C]/10 text-[#C8E64C] shadow-[0_2px_16px_rgba(200,230,76,0.15)]'
                   : 'text-white/35 hover:bg-white/[0.05] hover:text-white/60'
               )}
             >
@@ -94,10 +94,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Mobile bottom bar ─── */}
       <nav
         className={cn(
-          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto',
+          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto gradient-edge-top',
           'flex items-end justify-around px-1',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
-          'bg-[#0A0A0A]/80 backdrop-blur-2xl border-t border-white/[0.06]'
+          'bg-[#0A0A0A]/85 backdrop-blur-3xl border-t border-white/[0.04]'
         )}
         aria-label="Main navigation"
       >

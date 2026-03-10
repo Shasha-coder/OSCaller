@@ -97,9 +97,9 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
             </div>
 
             {/* Top bar - Minimalist Light Style */}
-            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white/[0.04] backdrop-blur-xl border-b border-white/[0.08]/50 shadow-none">
+            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 backdrop-blur-2xl bg-white/[0.03] shadow-none" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(90deg, transparent, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1), transparent) 1' }}>
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(200,230,76,0.1)] shadow-[0_0_15px_rgba(234,244,216,0.5)] border border-[#C8E64C]/20">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(200,230,76,0.1)] shadow-[0_0_20px_rgba(200,230,76,0.15)] border border-[#C8E64C]/20 animate-glow-pulse">
                         <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     </div>
                     <div>
@@ -108,7 +108,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.04] text-white/50 hover:bg-white/[0.06] hover:text-white border border-white/[0.08] transition-all active:scale-95">
+                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full glass-card-v2 text-white/50 hover:text-white border-transparent transition-all active:scale-95">
                         <Bell className="h-4 w-4" />
                         <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-[#C8E64C] ring-2 ring-[#0A0A0A]" />
                     </button>

@@ -121,11 +121,11 @@ export default function AdminDashboard() {
                     return (
                         <div
                             key={label}
-                            className="group relative rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.1] overflow-hidden"
+                            className="group relative rounded-2xl glass-card-v2 kpi-card p-5 transition-all duration-300 hover:bg-white/[0.05]"
                         >
                             {/* Subtle gradient background */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${colors.iconBg} blur-3xl`} />
-                            
+                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${colors.iconBg} blur-3xl pointer-events-none`} />
+
                             <div className="relative">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${colors.iconBg} transition-transform group-hover:scale-110`}>
@@ -146,8 +146,8 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 {/* Live Requests */}
-                <div className="lg:col-span-2 rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
+                <div className="lg:col-span-2 rounded-2xl glass-card-v2 overflow-hidden">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.04] bg-white/[0.02]">
                         <div className="flex items-center gap-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
                                 <Activity className="h-4 w-4 text-emerald-400" />
@@ -196,8 +196,8 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Technicians */}
-                <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
+                <div className="rounded-2xl glass-card-v2 overflow-hidden">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.04] bg-white/[0.02]">
                         <div className="flex items-center gap-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
                                 <Users className="h-4 w-4 text-blue-400" />
@@ -235,8 +235,8 @@ export default function AdminDashboard() {
             </div>
 
             {/* Map */}
-            <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
+            <div className="rounded-2xl glass-gradient-border overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.04] bg-white/[0.02]">
                     <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
                             <MapPin className="h-4 w-4 text-emerald-400" />
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Service Availability */}
-            <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6">
+            <div className="rounded-2xl glass-card-v2 p-6">
                 <div className="flex items-center gap-3 mb-5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
                         <Sparkles className="h-4 w-4 text-amber-400" />
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                         { name: 'HVAC', techs: 2, active: 1, icon: Thermometer, color: 'violet' },
                         { name: 'Locksmith', techs: 1, active: 0, icon: KeyRound, color: 'emerald' },
                     ].map(svc => (
-                        <div key={svc.name} className="group rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 hover:bg-white/[0.05] hover:border-white/[0.1] transition-all cursor-pointer">
+                        <div key={svc.name} className="group rounded-xl glass-card-v2 p-4 hover:bg-white/[0.05] transition-all cursor-pointer">
                             <div className="flex items-center gap-2 mb-3">
                                 <svc.icon className="h-4 w-4 text-white/50" />
                                 <span className="text-sm font-medium text-white/70">{svc.name}</span>

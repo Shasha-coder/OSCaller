@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <div className="flex h-dvh bg-[#0B0F1A] text-white overflow-hidden">
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex flex-col w-[260px] border-r border-white/[0.06] bg-[#0D1220]">
+            <aside className="hidden lg:flex flex-col w-[260px] bg-white/[0.02] backdrop-blur-2xl overflow-hidden relative" style={{ borderRight: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}>
                 <div className="flex items-center gap-3 px-5 py-5 border-b border-white/[0.06]">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10">
                         <OSSymbol className="h-5 w-5" color="#C8E64C" />
@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
                         <button
                             key={id}
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/[0.04] hover:text-white/80 data-[active=true]:bg-[#C8E64C]/10 data-[active=true]:text-[#C8E64C]"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 data-[active=true]:glass-card-v2 data-[active=true]:text-[#C8E64C] data-[active=true]:shadow-[0_2px_12px_rgba(200,230,76,0.1)] text-white/50 hover:bg-white/[0.04] hover:text-white/80"
                             data-active={id === 'dashboard'}
                         >
                             <Icon className="h-[18px] w-[18px]" />
@@ -105,8 +105,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     ))}
                 </nav>
 
-                <div className="border-t border-white/[0.06] p-3">
-                    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+                <div className="border-t border-white/[0.04] p-3">
+                    <div className="flex items-center gap-3 rounded-xl glass-card-v2 px-3 py-2.5">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C8E64C]/15 text-xs font-bold text-[#C8E64C]">
                             {user?.email?.charAt(0).toUpperCase()}
                         </div>
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
 
             {/* Mobile header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#0D1220]/90 backdrop-blur-xl border-b border-white/[0.06]">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#0A0A0A]/85 backdrop-blur-2xl" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(90deg, transparent, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1), transparent) 1' }}>
                 <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white/60">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -146,7 +146,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {sidebarOpen && (
                 <div className="lg:hidden fixed inset-0 z-40">
                     <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-                    <aside className="absolute left-0 top-0 h-full w-[280px] bg-[#0D1220] border-r border-white/[0.06] p-4">
+                    <aside className="absolute left-0 top-0 h-full w-[280px] bg-[#0A0A0A]/95 backdrop-blur-2xl p-4" style={{ borderRight: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}>
                         <nav className="mt-14 space-y-1">
                             {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
                                 <button
