@@ -334,7 +334,7 @@ function MobilePhoneInput({
   )
 }
 
-/* ══════════════════���������════════════════════════
+/* ══════════════════�������������════════════════════════
    Language Dropdown
    ═══════════════════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -433,6 +433,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [callingAria, setCallingAria] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   
@@ -490,6 +493,50 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     return null
   }, [coords, language, phone, country])
 
+  // Voice recording handlers
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        setAudioBlob(blob)
+        stream.getTracks().forEach(track => track.stop())
+      }
+      
+      mediaRecorder.start()
+      setIsRecording(true)
+    } catch (err) {
+      console.error('[v0] Microphone access denied:', err)
+      setValidationError('Microphone access required for voice recording')
+      setTimeout(() => setValidationError(null), 3000)
+    }
+  }, [])
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+    }
+    setIsRecording(false)
+  }, [])
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopRecording()
+    } else {
+      startRecording()
+    }
+  }, [isRecording, startRecording, stopRecording])
+
   // Call Aria: Validate, Create request, Trigger Retell call, Navigate to tracking
   const callAria = useCallback(async () => {
     if (callingAria) return
@@ -536,29 +583,73 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       
       // 2. If photo was uploaded, analyze it with Gemini FIRST (before call)
       let photoSummary = ''
+      let audioSummary = ''
+      
       if (uploadedFile && inputMode === 'photo') {
+        try {
+          // First upload the image to get a URL
+          const formData = new FormData()
+          formData.append('file', uploadedFile)
+          
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          })
+          
+          if (uploadRes.ok) {
+            const { url } = await uploadRes.json()
+            
+            // Now analyze with the URL
+            const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                media_type: 'image',
+                media_url: url,
+              }),
+            })
+            
+            if (analyzeRes.ok) {
+              const analyzeData = await analyzeRes.json()
+              photoSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+              console.log('[v0] Photo analysis result:', photoSummary)
+            } else {
+              console.error('[v0] Photo analysis failed:', await analyzeRes.text())
+            }
+          }
+        } catch (e) {
+          console.error('[v0] Photo upload/analysis failed:', e)
+        }
+      }
+      
+      // 2b. If voice recording exists, analyze it
+      if (audioBlob && inputMode === 'voice') {
         try {
           const base64 = await new Promise<string>((resolve) => {
             const reader = new FileReader()
             reader.onload = () => resolve((reader.result as string).split(',')[1])
-            reader.readAsDataURL(uploadedFile)
+            reader.readAsDataURL(audioBlob)
           })
           
           const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              input_type: 'image',
-              image_base64: base64,
+              media_type: 'audio',
+              audio_base64: base64,
+              mime_type: audioBlob.type || 'audio/webm',
             }),
           })
           
           if (analyzeRes.ok) {
             const analyzeData = await analyzeRes.json()
-            photoSummary = analyzeData.summary || analyzeData.analysis || ''
+            audioSummary = analyzeData.analysis?.summary || analyzeData.agent_prompt || ''
+            console.log('[v0] Audio analysis result:', audioSummary)
+          } else {
+            console.error('[v0] Audio analysis failed:', await analyzeRes.text())
           }
         } catch (e) {
-          console.error('Photo analysis failed:', e)
+          console.error('[v0] Audio analysis failed:', e)
         }
       }
       
@@ -576,6 +667,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         // Pass context for Aria's dynamic variables
         issue_description: inputMode === 'text' ? searchQuery : '',
         photo_summary: photoSummary,
+        audio_summary: audioSummary,
         service_type: 'general',
         urgency: 'standard',
       }
@@ -937,7 +1029,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     key={mode}
                     type="button"
                     data-no-focus-ring
-                    onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
+                    onClick={() => { setInputMode(mode); if (mode !== 'voice') { stopRecording(); setAudioBlob(null); } }}
                     className={cn(
                       'flex items-center justify-center h-[36px] w-[36px] rounded-xl transition-all duration-200 outline-none',
                       inputMode === mode
@@ -965,13 +1057,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                   />
                 )}
                 {inputMode === 'voice' && (
-                  <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-3 w-full outline-none">
-                    <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
-                      {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                      <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
-                    </span>
-                    <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
-                      {isRecording ? 'Recording...' : 'Tap to speak'}
+<button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-3 w-full outline-none">
+  <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
+  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+  <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
+  </span>
+  <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
+                      {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Tap to speak'}
                     </span>
                   </button>
                 )}
@@ -1081,7 +1173,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       key={mode}
                       type="button"
                       data-no-focus-ring
-                      onClick={() => { setInputMode(mode); if (mode === 'voice') setIsRecording(false) }}
+                      onClick={() => { setInputMode(mode); if (mode !== 'voice') { stopRecording(); setAudioBlob(null); } }}
                       className={cn(
                         'flex items-center justify-center h-[32px] w-[32px] rounded-lg transition-all duration-200 outline-none',
                         inputMode === mode
@@ -1109,13 +1201,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     />
                   )}
                   {inputMode === 'voice' && (
-                    <button type="button" data-no-focus-ring onClick={() => setIsRecording(r => !r)} className="flex items-center gap-2.5 w-full outline-none">
-                      <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
-                        {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                        <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : 'bg-[#94A3B8]')} />
-                      </span>
-                      <span className={cn('text-[14px] font-medium', isRecording ? 'text-red-500' : 'text-[#94A3B8]')}>
-                        {isRecording ? 'Recording...' : 'Click to speak'}
+<button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-2.5 w-full outline-none">
+  <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
+  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+  <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
+  </span>
+  <span className={cn('text-[14px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
+  {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Click to speak'}
                       </span>
                     </button>
                   )}
