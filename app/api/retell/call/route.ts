@@ -63,29 +63,29 @@ export async function POST(request: NextRequest) {
     const googleMapsKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     let readableAddress = address || ''
     let shortAddress = '' // For natural speech: "King Street, Toronto"
-    
+
     console.log('[v0] Geocode check - lat:', lat, 'lng:', lng, 'hasKey:', !!googleMapsKey, 'currentAddress:', address)
-    
+
     if (lat && lng && googleMapsKey && (!address || address.startsWith('GPS:') || address.startsWith('Location:'))) {
       try {
         const geoRes = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsKey}`
         )
         const geoData = await geoRes.json()
-        
+
         console.log('[v0] Geocode API response status:', geoData.status, 'error:', geoData.error_message || 'none')
-        
+
         if (geoData.status === 'OK' && geoData.results?.[0]) {
           const result = geoData.results[0]
           readableAddress = result.formatted_address
-          
+
           // Extract natural-sounding short address for voice
           const components = result.address_components || []
           const streetNumber = components.find((c: any) => c.types.includes('street_number'))?.long_name || ''
           const route = components.find((c: any) => c.types.includes('route'))?.long_name || ''
           const neighborhood = components.find((c: any) => c.types.includes('neighborhood') || c.types.includes('sublocality'))?.long_name || ''
           const city = components.find((c: any) => c.types.includes('locality'))?.long_name || ''
-          
+
           // Build short address: "123 King Street, Downtown Toronto" or "King Street area, Toronto"
           if (route) {
             shortAddress = streetNumber ? `${streetNumber} ${route}` : `${route} area`
@@ -118,7 +118,24 @@ export async function POST(request: NextRequest) {
     // Determine agent ID and from number
     const agentId = agentConfig?.agent_id || process.env.RETELL_DEFAULT_AGENT_ID
     const fromNumber = agentConfig?.phone_number || process.env.RETELL_DEFAULT_FROM_NUMBER
-    const agentLanguage = agentConfig?.language || language || countryConfig?.default_language || 'en-US'
+
+    // Map full language names → BCP-47 codes (user sends "French", we need "fr")
+    const nameToCode: Record<string, string> = {
+      'English': 'en', 'French': 'fr', 'Spanish': 'es', 'Arabic': 'ar',
+      'Portuguese': 'pt', 'Hindi': 'hi', 'Mandarin': 'zh', 'German': 'de',
+      'Japanese': 'ja', 'Korean': 'ko', 'Italian': 'it', 'Dutch': 'nl',
+      'Polish': 'pl', 'Turkish': 'tr', 'Swedish': 'sv', 'Indonesian': 'id',
+      'Filipino': 'fil', 'Romanian': 'ro', 'Ukrainian': 'uk', 'Greek': 'el',
+      'Czech': 'cs', 'Danish': 'da', 'Finnish': 'fi', 'Bulgarian': 'bg',
+      'Croatian': 'hr', 'Slovak': 'sk', 'Tamil': 'ta', 'Malay': 'ms',
+    }
+
+    // Prioritize user-selected language over agent config
+    let userLangCode = ''
+    if (language) {
+      userLangCode = nameToCode[language] || language // "French" → "fr", or pass through if already a code
+    }
+    const agentLanguage = userLangCode || agentConfig?.language || countryConfig?.default_language || 'en-US'
 
     if (!agentId || !fromNumber) {
       return NextResponse.json(
@@ -134,6 +151,7 @@ export async function POST(request: NextRequest) {
       service_type: service_type || 'general',
       urgency: urgency || 'standard',
       country_code: detectedCountry,
+      language: agentLanguage, // Include resolved language for LLM stream
       source: 'oscaller',
       oscaller_agent_id: agentConfig?.id,
       has_photo: !!photo_summary,
@@ -142,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Build dynamic variables for Aria's prompt context
     // These get injected into Aria's conversation
-    
+
     // Build a natural request summary for Aria to reference
     let requestSummary = ''
     if (service_type && service_type !== 'general') {
@@ -158,32 +176,29 @@ export async function POST(request: NextRequest) {
     } else {
       requestSummary = 'service request'
     }
-    
+
     // Map language code to full language name for agent instruction
-    const languageNames: Record<string, string> = {
-      'en': 'English',
-      'en-US': 'English',
-      'en-CA': 'English',
-      'fr': 'French',
-      'fr-CA': 'French',
-      'es': 'Spanish',
-      'es-MX': 'Spanish',
-      'zh': 'Mandarin Chinese',
-      'ar': 'Arabic',
-      'hi': 'Hindi',
-      'pt': 'Portuguese',
-      'de': 'German',
-      'it': 'Italian',
-      'ja': 'Japanese',
-      'ko': 'Korean',
+    const codeToName: Record<string, string> = {
+      'en': 'English', 'en-US': 'English', 'en-CA': 'English',
+      'fr': 'French', 'fr-CA': 'French',
+      'es': 'Spanish', 'es-MX': 'Spanish',
+      'zh': 'Mandarin Chinese', 'ar': 'Arabic', 'hi': 'Hindi',
+      'pt': 'Portuguese', 'de': 'German', 'it': 'Italian',
+      'ja': 'Japanese', 'ko': 'Korean', 'nl': 'Dutch',
+      'pl': 'Polish', 'tr': 'Turkish', 'sv': 'Swedish',
+      'id': 'Indonesian', 'fil': 'Filipino', 'ro': 'Romanian',
+      'uk': 'Ukrainian', 'el': 'Greek', 'cs': 'Czech',
+      'da': 'Danish', 'fi': 'Finnish', 'bg': 'Bulgarian',
+      'hr': 'Croatian', 'sk': 'Slovak', 'ta': 'Tamil', 'ms': 'Malay',
     }
-    const languageName = languageNames[agentLanguage] || languageNames[agentLanguage.split('-')[0]] || 'English'
-    
-    // Language instruction for the agent
-    const languageInstruction = agentLanguage !== 'en' && agentLanguage !== 'en-US' && agentLanguage !== 'en-CA'
-      ? `IMPORTANT: The customer prefers ${languageName}. Please speak to them in ${languageName}.`
+    const languageName = language || codeToName[agentLanguage] || codeToName[agentLanguage.split('-')[0]] || 'English'
+
+    // Language instruction for the agent — always inject for non-English
+    const isEnglish = ['en', 'en-US', 'en-CA', 'English'].includes(agentLanguage) && (!language || language === 'English')
+    const languageInstruction = !isEnglish
+      ? `CRITICAL LANGUAGE INSTRUCTION: The customer selected ${languageName}. You MUST speak ONLY in ${languageName} for the entire conversation. Greet them in ${languageName}, ask questions in ${languageName}, and confirm details in ${languageName}.`
       : ''
-    
+
     const retell_llm_dynamic_variables = {
       customer_name: customer_name || 'there',
       request_id,
@@ -209,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Create the call via Retell API
     console.log('[v0] Retell dynamic variables:', JSON.stringify(retell_llm_dynamic_variables, null, 2))
-    
+
     const callResponse = await retellClient.createPhoneCall({
       from_number: fromNumber,
       to_number: clientPhone,

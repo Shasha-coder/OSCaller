@@ -16,6 +16,22 @@ import { ServicePageBackground } from '@/components/service-bg-art'
 
 const PAGE_ORDER: AppPage[] = ['home', 'map', 'tracking', 'history', 'support']
 
+/** GSAP stagger animation for home section elements */
+function useHomeReveal(isHome: boolean) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!isHome || !containerRef.current) return
+    const els = containerRef.current.querySelectorAll('.gsap-reveal')
+    if (!els.length) return
+    gsap.fromTo(els,
+      { opacity: 0, y: 28, scale: 0.97, filter: 'blur(4px)' },
+      { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.7, stagger: 0.1, ease: 'power3.out', delay: 0.15 }
+    )
+    return () => { gsap.killTweensOf(els) }
+  }, [isHome])
+  return containerRef
+}
+
 export default function Root() {
   const [active, setActive] = useState<AppPage>('home')
   const [request, setRequest] = useState<ServiceRequest | null>(null)
@@ -168,7 +184,7 @@ export default function Root() {
 // ─── Hero icons ──────────────────────────────────────────────
 function HeroIcon({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/[0.05] backdrop-blur-sm border border-white/[0.06]">
+    <div className="flex h-20 w-20 items-center justify-center rounded-3xl glass-gradient-border">
       {children}
     </div>
   )
@@ -186,6 +202,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
   onMapRequestCreated: (requestId: string) => void
 }) {
   const isHome = page === 'home'
+  const homeRevealRef = useHomeReveal(isHome)
 
   return (
     <div className={cn(
@@ -202,11 +219,11 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           {/* Animated background — replaces static bg1.webp */}
           <HeroBackground />
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
+          <div ref={homeRevealRef} className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
             <div className="flex flex-col items-center">
               {/* Logo with glass reflection animation */}
               <div
-                className="relative overflow-hidden"
+                className="gsap-reveal relative overflow-hidden"
                 style={{
                   width: 160, height: 160, borderRadius: 36,
                   background: 'rgba(255,255,255,0.12)',
@@ -250,7 +267,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
               {/* Wordmark */}
               <div
-                className="mt-5 rounded-2xl px-8 py-2.5"
+                className="gsap-reveal mt-5 rounded-2xl px-8 py-2.5"
                 style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)' }}
               >
                 <OSCallerWordmark className="h-7 w-auto sm:h-9" color="#C8E64C" />
@@ -258,7 +275,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             </div>
 
             {/* Tagline */}
-            <div className="mt-8 flex flex-col items-center gap-2.5 text-center">
+            <div className="gsap-reveal mt-8 flex flex-col items-center gap-2.5 text-center">
               <p className="text-lg font-bold text-white sm:text-xl tracking-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
                 Get emergency help in minutes.
               </p>
@@ -270,7 +287,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             {/* CTA button */}
             <button
               onClick={() => navigate('map')}
-              className="mt-8 flex items-center gap-2.5 rounded-2xl bg-[#C8E64C] px-8 py-3.5 font-bold text-[#0A0A0A] shadow-[0_12px_40px_rgba(200,230,76,0.25)] transition-all hover:bg-[#D4EE65] hover:shadow-[0_16px_50px_rgba(200,230,76,0.35)] hover:scale-[1.02] active:scale-[0.98]"
+              className="gsap-reveal premium-btn mt-8 flex items-center gap-2.5 rounded-2xl bg-[#C8E64C] px-8 py-3.5 font-bold text-[#0A0A0A] shadow-[0_12px_40px_rgba(200,230,76,0.25)] transition-all hover:bg-[#D4EE65] hover:shadow-[0_16px_50px_rgba(200,230,76,0.35)] hover:scale-[1.02] active:scale-[0.98]"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -278,27 +295,25 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
               Request a Pro Now
             </button>
 
-            {/* Trust indicators — right below CTA */}
-            <div className="mt-4 flex items-center gap-5 text-[11px] font-medium text-white/50">
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+            {/* Trust indicators — glass pill style */}
+            <div className="gsap-reveal mt-5 flex items-center gap-3">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/55">
+                <svg className="h-3.5 w-3.5 text-[#C8E64C]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
                 24/7
               </span>
-              <span className="h-3 w-px bg-white/20" />
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                GPS Tracked
+              <span className="flex items-center gap-1.5 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/55">
+                <svg className="h-3.5 w-3.5 text-[#C8E64C]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                GPS
               </span>
-              <span className="h-3 w-px bg-white/20" />
-              <span className="flex items-center gap-1">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                Licensed Pros
+              <span className="flex items-center gap-1.5 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/55">
+                <svg className="h-3.5 w-3.5 text-[#C8E64C]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                Licensed
               </span>
             </div>
 
             {/* Join link */}
-            <div className="mt-4 flex items-center justify-center">
-              <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/[0.06] px-5 py-1.5 text-[11px] font-medium text-white/50 transition-all hover:bg-white/[0.1] hover:text-white/70">
+            <div className="gsap-reveal mt-4 flex items-center justify-center">
+              <a href="/join" className="flex items-center justify-center gap-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/[0.06] px-5 py-1.5 text-[11px] font-medium text-white/50 transition-all hover:bg-white/[0.1] hover:text-white/70 hover:border-white/[0.12]">
                 <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 Are you a service provider? Join our network
               </a>
@@ -307,7 +322,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           </div>
 
           {/* Services ticker — above mobile nav bar */}
-          <div className="relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
+          <div className="gsap-reveal relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
             <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>

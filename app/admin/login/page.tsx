@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { OSSymbol } from '@/components/os-logo'
+import { ServicePageBackground } from '@/components/service-bg-art'
 
 export default function AdminLoginPage() {
     const router = useRouter()
@@ -51,7 +52,10 @@ export default function AdminLoginPage() {
     }
 
     return (
-        <div className="flex min-h-dvh items-center justify-center bg-[#0B0F1A] px-4">
+        <div className="flex min-h-dvh items-center justify-center bg-[#0A0A0A] px-4">
+            {/* Topographic line background */}
+            <ServicePageBackground />
+
             {/* Background gradient */}
             <div className="pointer-events-none fixed inset-0">
                 <div className="absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-[#C8E64C]/8 blur-[120px]" />
@@ -69,9 +73,9 @@ export default function AdminLoginPage() {
                 </div>
 
                 {/* Login card */}
-                <form onSubmit={handleLogin} className="rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] p-6 shadow-2xl">
+                <form onSubmit={handleLogin} className="rounded-2xl glass-gradient-border p-6 shadow-2xl">
                     {error && (
-                        <div className="mb-4 rounded-xl bg-red-500/100/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+                        <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
                             {error}
                         </div>
                     )}
@@ -86,7 +90,7 @@ export default function AdminLoginPage() {
                             onChange={e => setEmail(e.target.value)}
                             placeholder="admin@oscaller.com"
                             required
-                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#C8E64C]/50 focus:bg-white/[0.06]/[0.08]"
+                            className="h-12 w-full rounded-xl glass-input px-4 text-sm outline-none"
                         />
                     </div>
 
@@ -100,14 +104,14 @@ export default function AdminLoginPage() {
                             onChange={e => setPassword(e.target.value)}
                             placeholder="••••••••"
                             required
-                            className="h-12 w-full rounded-xl bg-white/[0.06] border border-white/[0.08] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-colors focus:border-[#C8E64C]/50 focus:bg-white/[0.06]/[0.08]"
+                            className="h-12 w-full rounded-xl glass-input px-4 text-sm outline-none"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="h-12 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_20px_rgba(200,230,76,0.3)] transition-all duration-200 hover:bg-[#b5d440] hover:shadow-[0_6px_28px_rgba(200,230,76,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="premium-btn h-12 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_20px_rgba(200,230,76,0.3)] transition-all duration-200 hover:bg-[#b5d440] hover:shadow-[0_6px_28px_rgba(200,230,76,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">

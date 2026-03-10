@@ -29,26 +29,36 @@ interface GoogleMapProps {
     onMapReady?: (map: google.maps.Map) => void
 }
 
-/* ─── Brand-matched map styling ─── */
+/* ─── Premium dark map styling ─── */
 const MAP_STYLES: google.maps.MapTypeStyle[] = [
-    { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
+    // Base: near‑black land
+    { elementType: 'geometry', stylers: [{ color: '#0d0f12' }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#f5f5f5' }] },
-    { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#bdbdbd' }] },
-    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#eeeeee' }] },
-    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#e5e5e5' }] },
-    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#dadada' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
-    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] },
-    { featureType: 'transit.line', elementType: 'geometry', stylers: [{ color: '#e5e5e5' }] },
-    { featureType: 'transit.station', elementType: 'geometry', stylers: [{ color: '#eeeeee' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9e7ff' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#4a5568' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#0d0f12' }] },
+    // Administrative
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#1a1f2b' }] },
+    { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#3a4252' }] },
+    // POI
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#111318' }] },
+    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#3a4252' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1410' }] },
+    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a5a32' }] },
+    // Roads
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#161a22' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1f2b' }] },
+    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#1c2130' }] },
+    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#4a5568' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#1e2636' }] },
+    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#252d3d' }] },
+    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#5a6578' }] },
+    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#3a4252' }] },
+    // Transit
+    { featureType: 'transit.line', elementType: 'geometry', stylers: [{ color: '#141821' }] },
+    { featureType: 'transit.station', elementType: 'geometry', stylers: [{ color: '#141821' }] },
+    // Water: subtle brand‑tinted dark teal
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1018' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#2a3a4a' }] },
 ]
 
 /* ─── Script loader singleton ─── */
@@ -142,10 +152,10 @@ function createServiceMarkerHTML() {
 /* ─── Loading skeleton ─── */
 function MapSkeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
     return (
-        <div className={cn('relative overflow-hidden rounded-3xl bg-[#f0f4e8]', className)} style={style}>
+        <div className={cn('relative overflow-hidden rounded-3xl bg-[#0d0f12]', className)} style={style}>
             <div className="absolute inset-0 animate-shimmer" />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-lg backdrop-blur-sm">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.06] shadow-lg backdrop-blur-sm border border-white/[0.08]">
                     <svg viewBox="0 0 24 24" className="h-6 w-6 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
@@ -333,16 +343,16 @@ export function GoogleMap({
 
     if (error) {
         return (
-            <div className={cn('relative overflow-hidden rounded-3xl bg-[#f7f8fa] flex items-center justify-center', className)} style={style}>
+            <div className={cn('relative overflow-hidden rounded-3xl bg-[#0d0f12] flex items-center justify-center', className)} style={style}>
                 <div className="text-center px-6">
-                    <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-[rgba(200,230,76,0.1)] mb-3">
+                    <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-[rgba(200,230,76,0.06)] border border-[#C8E64C]/10 mb-3">
                         <svg viewBox="0 0 24 24" className="h-6 w-6 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                             <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                         </svg>
                     </div>
-                    <p className="text-sm font-bold text-[#0F172A]">Map unavailable</p>
-                    <p className="text-xs text-[#64748B] mt-1">Check your API key and enable Maps JavaScript API in Google Cloud Console.</p>
+                    <p className="text-sm font-bold text-white/80">Map unavailable</p>
+                    <p className="text-xs text-white/40 mt-1">Check your API key and enable Maps JavaScript API in Google Cloud Console.</p>
                 </div>
             </div>
         )

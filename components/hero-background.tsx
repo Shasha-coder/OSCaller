@@ -172,7 +172,62 @@ export function HeroBackground() {
                 />
             </div>
 
-            {/* ── Layer 4: Light streaks ── */}
+            {/* ── Layer 4: Topographic contour lines ── */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <svg
+                    className="absolute inset-[-10%] w-[120%] h-[120%] animate-topo-drift"
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1000 800"
+                >
+                    <defs>
+                        <linearGradient id="heroTopoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#C8E64C" stopOpacity="0.05" />
+                            <stop offset="50%" stopColor="#C8E64C" stopOpacity="0.025" />
+                            <stop offset="100%" stopColor="#C8E64C" stopOpacity="0.04" />
+                        </linearGradient>
+                    </defs>
+                    <g fill="none" stroke="url(#heroTopoGrad)" strokeWidth="0.7">
+                        {/* Central terrain feature */}
+                        <path d="M-50,350 Q200,200 450,300 T800,250 T1050,350" />
+                        <path d="M-50,370 Q210,225 460,320 T810,270 T1050,370" />
+                        <path d="M-50,395 Q225,255 475,345 T825,295 T1050,395" />
+                        <path d="M-50,425 Q240,290 490,375 T840,325 T1050,425" />
+
+                        {/* Upper contours */}
+                        <path d="M-50,120 Q200,40 450,100 T850,60 T1050,130" />
+                        <path d="M-50,140 Q210,60 460,120 T860,80 T1050,150" />
+                        <path d="M-50,165 Q225,85 475,145 T875,105 T1050,175" />
+
+                        {/* Lower contours */}
+                        <path d="M-50,580 Q200,500 500,560 T900,520 T1050,590" />
+                        <path d="M-50,600 Q210,520 510,580 T910,540 T1050,610" />
+                        <path d="M-50,625 Q225,545 525,605 T925,565 T1050,635" />
+
+                        {/* Contour island */}
+                        <ellipse cx="650" cy="420" rx="140" ry="90" />
+                        <ellipse cx="650" cy="420" rx="100" ry="60" />
+                        <ellipse cx="650" cy="420" rx="60" ry="35" />
+                    </g>
+                </svg>
+
+                {/* Secondary set (counter-drift) */}
+                <svg
+                    className="absolute inset-[-5%] w-[110%] h-[110%] animate-topo-drift-alt"
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1000 800"
+                >
+                    <g fill="none" stroke="rgba(200, 230, 76, 0.02)" strokeWidth="0.5">
+                        <path d="M-50,250 Q250,150 500,220 T900,180 T1050,260" />
+                        <path d="M-50,270 Q260,170 510,240 T910,200 T1050,280" />
+                        <path d="M-50,550 Q300,450 550,510 T850,470 T1050,550" />
+                        <path d="M-50,570 Q310,470 560,530 T860,490 T1050,570" />
+                    </g>
+                </svg>
+            </div>
+
+            {/* ── Layer 4b: Light streaks ── */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div
                     className="absolute -top-1/2 -right-1/4 w-[120%] h-[200%] opacity-[0.02]"

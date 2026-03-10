@@ -426,7 +426,7 @@ export default function ProviderLoginPage() {
 
                     {/* ═══ Phone Step ═══ */}
                     {step === 'phone' && (
-                        <form onSubmit={handlePhoneSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
+                        <form onSubmit={handlePhoneSubmit} className="rounded-3xl glass-gradient-border p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 animate-in fade-in shake-x duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -448,7 +448,7 @@ export default function ProviderLoginPage() {
                                     placeholder="(555) 123-4567"
                                     autoFocus
                                     autoComplete="tel"
-                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 pl-12 pr-4 text-lg font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#C8E64C] focus:bg-black/40 focus:ring-2 focus:ring-[#C8E64C]/20"
+                                    className="h-14 w-full rounded-2xl glass-input pl-12 pr-4 text-lg font-bold placeholder:text-white/20 outline-none"
                                 />
                                 {/* Checkmark when valid */}
                                 {phoneDigits.length === 10 && (
@@ -461,7 +461,7 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || phoneDigits.length < 10 || lockoutTimer > 0}
-                                className="h-14 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
+                                className="premium-btn h-14 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
                             >
                                 {lockoutTimer > 0 ? (
                                     `Try again in ${Math.floor(lockoutTimer / 60)}:${(lockoutTimer % 60).toString().padStart(2, '0')}`
@@ -491,7 +491,7 @@ export default function ProviderLoginPage() {
 
                     {/* ═══ OTP Step ═══ */}
                     {step === 'otp' && (
-                        <form onSubmit={handleOtpSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
+                        <form onSubmit={handleOtpSubmit} className="rounded-3xl glass-gradient-border p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 animate-in fade-in duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
@@ -535,7 +535,7 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || otp.join('').length < 6}
-                                className="h-14 w-full mt-2 rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
+                                className="premium-btn h-14 w-full mt-2 rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
                             >
                                 Verify code
                             </button>
@@ -579,7 +579,7 @@ export default function ProviderLoginPage() {
 
                     {/* ═══ Registration Step ═══ */}
                     {step === 'register' && (
-                        <form onSubmit={handleRegistration} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
+                        <form onSubmit={handleRegistration} className="rounded-3xl glass-gradient-border p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 animate-in fade-in duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
@@ -603,7 +603,7 @@ export default function ProviderLoginPage() {
                                     placeholder="John Smith"
                                     autoFocus
                                     autoComplete="name"
-                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-base font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#C8E64C] focus:bg-black/40 focus:ring-2 focus:ring-[#C8E64C]/20"
+                                    className="h-14 w-full rounded-2xl glass-input px-5 text-base font-bold placeholder:text-white/20 outline-none"
                                 />
                             </div>
 
@@ -615,7 +615,7 @@ export default function ProviderLoginPage() {
                                     onChange={e => setEmail(e.target.value)}
                                     placeholder="john@example.com"
                                     autoComplete="email"
-                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-base font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#C8E64C] focus:bg-black/40 focus:ring-2 focus:ring-[#C8E64C]/20"
+                                    className="h-14 w-full rounded-2xl glass-input px-5 text-base font-bold placeholder:text-white/20 outline-none"
                                 />
                                 <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-white/30 text-center">Used for account recovery</p>
                             </div>
@@ -642,7 +642,7 @@ export default function ProviderLoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || !name.trim() || !email.trim() || !trade}
-                                className="h-14 mt-2 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
+                                className="premium-btn h-14 mt-2 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -666,7 +666,7 @@ export default function ProviderLoginPage() {
 
                     {/* ═══ Email Fallback Step ═══ */}
                     {step === 'email' && (
-                        <form onSubmit={handleEmailSubmit} className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10">
+                        <form onSubmit={handleEmailSubmit} className="rounded-3xl glass-gradient-border p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
                             {error && (
                                 <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 animate-in fade-in shake-x duration-300">
                                     <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -687,14 +687,14 @@ export default function ProviderLoginPage() {
                                     placeholder="john@example.com"
                                     autoFocus
                                     autoComplete="email"
-                                    className="h-14 w-full rounded-2xl border border-white/20 bg-black/20 px-5 text-lg font-bold text-white placeholder:text-white/20 outline-none transition-all focus:border-[#C8E64C] focus:bg-black/40 focus:ring-2 focus:ring-[#C8E64C]/20"
+                                    className="h-14 w-full rounded-2xl glass-input px-5 text-lg font-bold placeholder:text-white/20 outline-none"
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading || !email.trim()}
-                                className="h-14 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
+                                className="premium-btn h-14 w-full rounded-2xl bg-[#C8E64C] font-bold text-white text-lg shadow-[0_8px_30px_rgba(200,230,76,0.4)] transition-all hover:bg-[#b5d440] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed border border-[#C8E64C]/50"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -718,7 +718,7 @@ export default function ProviderLoginPage() {
 
                     {/* ═══ Email Sent Step ═══ */}
                     {step === 'email_sent' && (
-                        <div className="rounded-3xl bg-white/10 backdrop-blur-2xl p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-white/10 text-center animate-in fade-in zoom-in-95 duration-500">
+                        <div className="rounded-3xl glass-gradient-border p-7 shadow-[0_8px_40px_rgba(0,0,0,0.2)] text-center animate-in fade-in zoom-in-95 duration-500">
                             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#C8E64C]/20 border border-[#C8E64C]/30">
                                 <svg className="h-8 w-8 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -743,19 +743,19 @@ export default function ProviderLoginPage() {
 
                     {/* Trust badges */}
                     <div className="mt-8 flex items-center justify-center gap-5 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 rounded-full bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] px-2.5 py-1">
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                             Encrypted
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 rounded-full bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] px-2.5 py-1">
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                             Verified
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 rounded-full bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] px-2.5 py-1">
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
                             </svg>

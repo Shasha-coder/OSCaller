@@ -114,11 +114,10 @@ export default function ProviderDashboard() {
         <div className="pb-8 relative z-10 w-full max-w-2xl mx-auto font-sans">
             {/* Power Card */}
             <div className="px-4 pt-2 pb-6">
-                <div className={`relative rounded-[28px] overflow-hidden transition-all duration-700 ${
-                    isOnline 
-                        ? 'bg-gradient-to-br from-white via-white to-[#C8E64C]/5/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]' 
-                        : 'bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)]'
-                }`}>
+                <div className={`relative rounded-[28px] overflow-hidden transition-all duration-700 ${isOnline
+                        ? 'glass-gradient-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]'
+                        : 'glass-card-v2'
+                    }`}>
                     {/* Animated background gradient */}
                     {isOnline && (
                         <div className="absolute inset-0 opacity-40">
@@ -126,42 +125,36 @@ export default function ProviderDashboard() {
                             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#C8E64C]/15/30 to-transparent rounded-full blur-2xl" />
                         </div>
                     )}
-                    
+
                     <div className="relative p-6">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <h2 className={`text-[26px] font-bold tracking-tight transition-all duration-500 ${
-                                    isOnline ? 'text-white' : 'text-white/40'
-                                }`}>
+                                <h2 className={`text-[26px] font-bold tracking-tight transition-all duration-500 ${isOnline ? 'text-white' : 'text-white/40'
+                                    }`}>
                                     {isOnline ? 'You\'re Live' : 'Go Online'}
                                 </h2>
-                                <p className={`text-sm font-medium transition-all duration-500 ${
-                                    isOnline ? 'text-[#C8E64C]/80' : 'text-white/40'
-                                }`}>
+                                <p className={`text-sm font-medium transition-all duration-500 ${isOnline ? 'text-[#C8E64C]/80' : 'text-white/40'
+                                    }`}>
                                     {isOnline ? 'Receiving job requests' : 'Tap to start earning'}
                                 </p>
                             </div>
-                            
+
                             {/* Premium Power Button */}
                             <button
                                 onClick={() => setIsOnline(!isOnline)}
-                                className={`relative group transition-all duration-500 ${
-                                    isOnline ? 'scale-100' : 'scale-95 hover:scale-100'
-                                }`}
+                                className={`relative group transition-all duration-500 ${isOnline ? 'scale-100' : 'scale-95 hover:scale-100'
+                                    }`}
                             >
-                                <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
-                                    isOnline 
-                                        ? 'bg-[#C8E64C]/100 shadow-[0_0_40px_rgba(16,185,129,0.4)]' 
+                                <div className={`absolute inset-0 rounded-full transition-all duration-500 ${isOnline
+                                        ? 'bg-[#C8E64C]/100 shadow-[0_0_40px_rgba(16,185,129,0.4)]'
                                         : 'bg-white/[0.06]'
-                                }`} />
-                                <div className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${
-                                    isOnline 
-                                        ? 'bg-[#C8E64C]/100 text-white' 
-                                        : 'bg-white/[0.06] text-white/40 group-hover:bg-white/[0.08] group-hover:text-white/60'
-                                }`}>
-                                    <Power className={`h-7 w-7 transition-all duration-300 ${
-                                        isOnline ? 'stroke-[2.5px]' : 'stroke-[2px]'
                                     }`} />
+                                <div className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${isOnline
+                                        ? 'bg-[#C8E64C]/100 text-white'
+                                        : 'bg-white/[0.06] text-white/40 group-hover:bg-white/[0.08] group-hover:text-white/60'
+                                    }`}>
+                                    <Power className={`h-7 w-7 transition-all duration-300 ${isOnline ? 'stroke-[2.5px]' : 'stroke-[2px]'
+                                        }`} />
                                 </div>
                                 {isOnline && (
                                     <span className="absolute inset-0 rounded-full animate-ping bg-emerald-400/30" />
@@ -170,9 +163,8 @@ export default function ProviderDashboard() {
                         </div>
 
                         {/* Stats Row */}
-                        <div className={`grid grid-cols-3 gap-4 mt-8 pt-6 border-t transition-all duration-700 ${
-                            isOnline ? 'border-white/[0.06] opacity-100 translate-y-0' : 'border-transparent opacity-0 -translate-y-2 pointer-events-none h-0 mt-0 pt-0 overflow-hidden'
-                        }`}>
+                        <div className={`grid grid-cols-3 gap-4 mt-8 pt-6 border-t transition-all duration-700 ${isOnline ? 'border-white/[0.06] opacity-100 translate-y-0' : 'border-transparent opacity-0 -translate-y-2 pointer-events-none h-0 mt-0 pt-0 overflow-hidden'
+                            }`}>
                             {[
                                 { value: '$340', label: 'Today', icon: DollarSign },
                                 { value: '3', label: 'Jobs', icon: Briefcase },
@@ -194,21 +186,19 @@ export default function ProviderDashboard() {
             {/* Active Job Card */}
             {hasJob && jobStatus && (
                 <div className={`px-4 mb-6 ${pulseAnimation ? 'animate-in zoom-in-95 duration-500' : 'animate-in fade-in slide-in-from-top-2 duration-500'}`}>
-                    <div className="rounded-[28px] bg-white/[0.04] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden">
+                    <div className="rounded-[28px] glass-gradient-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden">
                         {/* Status Header */}
                         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-white/[0.04] to-white border-b border-white/[0.06]">
                             <div className="flex items-center gap-2">
                                 <span className={`relative flex h-2.5 w-2.5`}>
-                                    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
-                                        jobStatus === 'assigned' ? 'bg-amber-400' :
-                                        jobStatus === 'en-route' ? 'bg-blue-400' :
-                                        jobStatus === 'arrived' ? 'bg-violet-400' : 'bg-emerald-400'
-                                    }`} />
-                                    <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
-                                        jobStatus === 'assigned' ? 'bg-amber-500' :
-                                        jobStatus === 'en-route' ? 'bg-blue-500' :
-                                        jobStatus === 'arrived' ? 'bg-violet-500' : 'bg-[#C8E64C]/100'
-                                    }`} />
+                                    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${jobStatus === 'assigned' ? 'bg-amber-400' :
+                                            jobStatus === 'en-route' ? 'bg-blue-400' :
+                                                jobStatus === 'arrived' ? 'bg-violet-400' : 'bg-emerald-400'
+                                        }`} />
+                                    <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${jobStatus === 'assigned' ? 'bg-amber-500' :
+                                            jobStatus === 'en-route' ? 'bg-blue-500' :
+                                                jobStatus === 'arrived' ? 'bg-violet-500' : 'bg-[#C8E64C]/100'
+                                        }`} />
                                 </span>
                                 <span className={`text-sm font-semibold ${jobStatusLabel[jobStatus].color}`}>
                                     {jobStatusLabel[jobStatus].text}
@@ -266,11 +256,10 @@ export default function ProviderDashboard() {
                             {/* Action Button */}
                             <button
                                 onClick={advanceJobStatus}
-                                className={`relative w-full h-14 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden group ${
-                                    jobStatus === 'working'
+                                className={`relative w-full h-14 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden group ${jobStatus === 'working'
                                         ? 'bg-[#C8E64C]/100 text-white shadow-[0_8px_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_40px_-5px_rgba(16,185,129,0.6)]'
                                         : 'bg-white/[0.04] text-white shadow-[0_8px_30px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.4)]'
-                                }`}
+                                    }`}
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
                                     {jobButtonText[jobStatus]}
@@ -284,7 +273,7 @@ export default function ProviderDashboard() {
 
             {/* Services Grid */}
             <div className="px-4 mb-6">
-                <div className="rounded-[28px] bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)] p-6">
+                <div className="rounded-[28px] glass-card-v2 p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="text-base font-bold text-white">Your Services</h3>
                         <span className="text-xs font-bold text-[#C8E64C] bg-[#C8E64C]/10 px-3 py-1.5 rounded-full">
@@ -299,30 +288,26 @@ export default function ProviderDashboard() {
                                     key={id}
                                     onClick={() => toggleService(id)}
                                     disabled={!isOnline}
-                                    className={`relative flex items-center gap-3 rounded-2xl p-4 transition-all duration-300 ${
-                                        active && isOnline
+                                    className={`relative flex items-center gap-3 rounded-2xl p-4 transition-all duration-300 ${active && isOnline
                                             ? 'bg-[#C8E64C]/10 border-2 border-[#C8E64C]/20'
                                             : 'bg-white/[0.04] border-2 border-transparent hover:border-white/[0.08]'
-                                    } ${!isOnline ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
+                                        } ${!isOnline ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
                                 >
-                                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
-                                        active && isOnline 
-                                            ? 'bg-[#C8E64C]/100 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' 
+                                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${active && isOnline
+                                            ? 'bg-[#C8E64C]/100 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]'
                                             : 'bg-white/[0.04] text-white/40 shadow-none'
-                                    }`}>
+                                        }`}>
                                         <Icon className="h-5 w-5" />
                                     </div>
                                     <span className={`text-sm font-semibold ${active && isOnline ? 'text-[#C8E64C]' : 'text-white/60'}`}>
                                         {name}
                                     </span>
-                                    
+
                                     {/* Toggle Indicator */}
-                                    <div className={`absolute right-4 w-8 h-5 rounded-full transition-all duration-300 ${
-                                        active && isOnline ? 'bg-[#C8E64C]/100' : 'bg-white/[0.08]'
-                                    }`}>
-                                        <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white/[0.04] shadow transition-all duration-300 ${
-                                            active && isOnline ? 'left-3.5' : 'left-0.5'
-                                        }`} />
+                                    <div className={`absolute right-4 w-8 h-5 rounded-full transition-all duration-300 ${active && isOnline ? 'bg-[#C8E64C]/100' : 'bg-white/[0.08]'
+                                        }`}>
+                                        <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white/[0.04] shadow transition-all duration-300 ${active && isOnline ? 'left-3.5' : 'left-0.5'
+                                            }`} />
                                     </div>
                                 </button>
                             )
@@ -333,7 +318,7 @@ export default function ProviderDashboard() {
 
             {/* Recent Earnings */}
             <div className="px-4">
-                <div className="rounded-[28px] bg-white/[0.04] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden">
+                <div className="rounded-[28px] glass-card-v2 overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-4 w-4 text-amber-500" />
