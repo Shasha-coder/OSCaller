@@ -43,7 +43,7 @@ export function SearchPage() {
           placeholder="Search for a service or issue…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-14 w-full rounded-2xl border border-[#E2E8F0] bg-white pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground/60 shadow-none outline-none ring-0 transition-colors focus:border-[#8FB34A] focus:ring-0 focus:outline-none"
+          className="h-14 w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground/60 shadow-none outline-none ring-0 transition-colors focus:border-[#C8E64C] focus:ring-0 focus:outline-none"
         />
         {query && (
           <button

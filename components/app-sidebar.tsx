@@ -51,10 +51,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         className={cn(
           'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
-          'backdrop-blur-2xl border-l border-black/[0.03] transition-colors duration-300',
-          isHomePage ? 'bg-white/60' : 'bg-white/80'
+          'backdrop-blur-2xl transition-colors duration-300',
+          'bg-white/[0.03]'
         )}
-        style={{ width: 80 }}
+        style={{ width: 80, borderLeft: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -68,16 +68,16 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               title={label}
               className={cn(
                 'group relative flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-250 w-[60px] h-[60px]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8E64C]/40',
                 active
-                  ? 'bg-[#EAF4D8] text-[#5a8a1a] shadow-[0_2px_12px_rgba(143,179,74,0.15)]'
-                  : 'text-[#64748b] hover:bg-[#f1f5f0] hover:text-[#475569]'
+                  ? 'bg-[#C8E64C]/10 text-[#C8E64C] shadow-[0_2px_16px_rgba(200,230,76,0.15)]'
+                  : 'text-white/35 hover:bg-white/[0.05] hover:text-white/60'
               )}
             >
               {/* Active indicator dot */}
               {active && (
                 <span
-                  className="absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#8FB34A] transition-all duration-300"
+                  className="absolute -left-[1px] top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#C8E64C] transition-all duration-300"
                   aria-hidden="true"
                 />
               )}
@@ -94,12 +94,10 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Mobile bottom bar ─── */}
       <nav
         className={cn(
-          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto',
+          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto gradient-edge-top',
           'flex items-end justify-around px-1',
           'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
-          isHomePage
-            ? 'bg-[#5a8a1a]/60 backdrop-blur-xl border-t border-white/10'
-            : 'bg-white/90 backdrop-blur-2xl border-t border-black/[0.05] shadow-[0_-2px_24px_rgba(0,0,0,0.06)]'
+          'bg-[#0A0A0A]/85 backdrop-blur-3xl border-t border-white/[0.04]'
         )}
         aria-label="Main navigation"
       >
@@ -113,18 +111,13 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
-                isHomePage
-                  ? active ? 'text-white' : 'text-white/80 active:text-white/95'
-                  : active ? 'text-[#8FB34A]' : 'text-[#64748b] active:text-[#475569]'
+                active ? 'text-[#C8E64C]' : 'text-white/35 active:text-white/55'
               )}
             >
               <div className="relative">
                 {active && (
                   <span
-                    className={cn(
-                      'absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2.5px] w-5 rounded-full transition-all duration-300',
-                      isHomePage ? 'bg-white/80' : 'bg-[#8FB34A]'
-                    )}
+                    className="absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2.5px] w-5 rounded-full bg-[#C8E64C] transition-all duration-300"
                     aria-hidden="true"
                   />
                 )}

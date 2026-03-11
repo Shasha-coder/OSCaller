@@ -111,37 +111,37 @@ function CountryDropdown({ value, onChange }: { value: string; onChange: (code: 
     return (
         <div ref={ref} className="relative">
             <button type="button" onClick={() => setOpen(!open)}
-                className={`flex h-14 w-full items-center justify-between rounded-xl border px-3.5 text-sm font-medium transition-all cursor-pointer ${open ? 'border-[#8FB34A] bg-white ring-2 ring-[#8FB34A]/20' : 'border-[#E2E8F0] bg-[#F8FAFB] hover:border-[#94a3b8]'}`}>
+                className={`flex h-14 w-full items-center justify-between rounded-xl border px-3.5 text-sm font-medium transition-all cursor-pointer ${open ? 'border-[#C8E64C] bg-white/[0.04] ring-2 ring-[#C8E64C]/20' : 'border-white/[0.08] bg-white/[0.04] hover:border-white/20'}`}>
                 <span className="flex items-center gap-2.5">
                     <span className="text-xl leading-none">{selected.flag}</span>
-                    <span className="text-[#0F172A] font-semibold">{selected.name}</span>
-                    <span className="text-[#94a3b8]">{selected.dial}</span>
+                    <span className="text-white font-semibold">{selected.name}</span>
+                    <span className="text-white/35">{selected.dial}</span>
                 </span>
-                <svg className={`h-4 w-4 text-[#94a3b8] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
+                <svg className={`h-4 w-4 text-white/35 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-[#E2E8F0] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     {/* Supported header */}
-                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8FB34A] bg-[#EAF4D8]/50">Available</div>
+                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C8E64C] bg-[rgba(200,230,76,0.1)]/50">Available</div>
                     <div className="max-h-40 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
                         {COUNTRIES.filter(c => c.supported).map(c => (
                             <button key={c.code} type="button"
                                 onClick={() => { onChange(c.code); setOpen(false) }}
-                                className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm transition-colors ${c.code === value ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]' : 'text-[#0F172A] hover:bg-[#F1F5F9]'}`}>
+                                className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm transition-colors ${c.code === value ? 'bg-[rgba(200,230,76,0.1)] font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.04]'}`}>
                                 <span className="text-lg">{c.flag}</span>
                                 <span className="flex-1 text-left">{c.name}</span>
-                                <span className="text-xs text-[#94a3b8]">{c.dial}</span>
-                                {c.code === value && <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
+                                <span className="text-xs text-white/35">{c.dial}</span>
+                                {c.code === value && <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
                             </button>
                         ))}
                     </div>
                     {/* Coming soon header */}
-                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] bg-[#F1F5F9] border-t border-[#E2E8F0]">Coming Soon</div>
+                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/35 bg-white/[0.04] border-t border-white/[0.08]">Coming Soon</div>
                     <div className="max-h-36 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
                         {COUNTRIES.filter(c => !c.supported).map(c => (
                             <div key={c.code}
-                                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-[#94a3b8] opacity-60 cursor-not-allowed">
+                                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-white/35 opacity-60 cursor-not-allowed">
                                 <span className="text-lg grayscale">{c.flag}</span>
                                 <span className="flex-1 text-left">{c.name}</span>
                                 <span className="text-xs">{c.dial}</span>
@@ -169,23 +169,23 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
     return (
         <div ref={ref} className="relative">
             <button type="button" onClick={() => setOpen(!open)}
-                className={`flex h-13 w-full items-center justify-between rounded-xl border px-3.5 text-sm font-medium transition-all cursor-pointer ${open ? 'border-[#8FB34A] bg-white ring-2 ring-[#8FB34A]/20' : 'border-[#E2E8F0] bg-[#F8FAFB] hover:border-[#94a3b8]'}`}>
+                className={`flex h-13 w-full items-center justify-between rounded-xl border px-3.5 text-sm font-medium transition-all cursor-pointer ${open ? 'border-[#C8E64C] bg-white/[0.04] ring-2 ring-[#C8E64C]/20' : 'border-white/[0.08] bg-white/[0.04] hover:border-white/20'}`}>
                 <span className="flex items-center gap-2">
-                    <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+                    <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
                     {value}
                 </span>
-                <svg className={`h-4 w-4 text-[#94a3b8] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
+                <svg className={`h-4 w-4 text-white/35 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" /></svg>
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-[#E2E8F0] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
                     style={{ scrollbarWidth: 'thin' }}>
                     {LANGUAGES.map(lang => (
                         <button key={lang} type="button"
                             onClick={() => { onChange(lang); setOpen(false) }}
-                            className={`flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors ${lang === value ? 'bg-[#EAF4D8] font-semibold text-[#3a5e10]' : 'text-[#0F172A] hover:bg-[#F1F5F9]'}`}>
+                            className={`flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors ${lang === value ? 'bg-[rgba(200,230,76,0.1)] font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.04]'}`}>
                             {lang}
-                            {lang === value && <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
+                            {lang === value && <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
                         </button>
                     ))}
                 </div>
@@ -368,7 +368,7 @@ export default function JoinPage() {
     }
 
     return (
-        <div className="flex min-h-dvh flex-col bg-gradient-to-b from-[#F6F8F4] to-[#E8F0E0]">
+        <div className="flex min-h-dvh flex-col bg-gradient-to-b from-[#0A0A0A] to-[#0D1208]">
             <div className="h-[env(safe-area-inset-top)]" />
 
             <div className="flex flex-1 flex-col items-center justify-start px-5 py-8">
@@ -376,18 +376,18 @@ export default function JoinPage() {
 
                     {/* Header */}
                     <div className="mb-6 flex flex-col items-center">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8FB34A] shadow-[0_8px_30px_rgba(143,179,74,0.3)]">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#C8E64C] shadow-[0_8px_30px_rgba(200,230,76,0.3)]">
                             <OSSymbol className="h-8 w-8" color="#FFFFFF" />
                         </div>
-                        <h1 className="mt-4 text-xl font-bold text-[#0F172A] tracking-tight">Join OSCaller</h1>
-                        <p className="mt-1 text-center text-sm text-[#64748B]">
+                        <h1 className="mt-4 text-xl font-bold text-white tracking-tight">Join OSCaller</h1>
+                        <p className="mt-1 text-center text-sm text-white/50">
                             {step === 'phone' && 'Get matched with clients in your area'}
                             {step === 'otp' && 'Enter verification code'}
                             {step === 'business' && 'Set up your business profile'}
                         </p>
 
                         {/* Social proof */}
-                        <div className="mt-3 flex items-center gap-2 rounded-full bg-[#EAF4D8] px-4 py-1.5 text-xs font-semibold text-[#3a5e10]">
+                        <div className="mt-3 flex items-center gap-2 rounded-full bg-[rgba(200,230,76,0.1)] px-4 py-1.5 text-xs font-semibold text-[#C8E64C]">
                             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                             500+ service providers already earning
                         </div>
@@ -395,14 +395,14 @@ export default function JoinPage() {
                         {/* Step dots */}
                         <div className="mt-4 flex items-center gap-2">
                             {[0, 1, 2].map(i => (
-                                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === stepIdx ? 'w-6 bg-[#8FB34A]' : i < stepIdx ? 'w-1.5 bg-[#8FB34A]/40' : 'w-1.5 bg-[#CBD5E1]'}`} />
+                                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === stepIdx ? 'w-6 bg-[#C8E64C]' : i < stepIdx ? 'w-1.5 bg-[#C8E64C]/40' : 'w-1.5 bg-[#CBD5E1]'}`} />
                             ))}
                         </div>
                     </div>
 
                     {/* Error */}
                     {error && (
-                        <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+                        <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
                             <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
                             {error}
                         </div>
@@ -410,36 +410,36 @@ export default function JoinPage() {
 
                     {/* ═══ PHONE STEP ═══ */}
                     {step === 'phone' && (
-                        <form onSubmit={handlePhoneSubmit} className="rounded-2xl bg-white/80 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+                        <form onSubmit={handlePhoneSubmit} className="rounded-2xl bg-white/[0.04] backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.3)] ring-1 ring-white/[0.06]">
                             {/* Country selector */}
-                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Country</label>
+                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Country</label>
                             <div className="mb-4">
                                 <CountryDropdown value={country} onChange={setCountry} />
                             </div>
 
                             {/* Phone input */}
-                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Business Phone</label>
+                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Business Phone</label>
                             <div className="relative mb-3">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#0F172A]">{selectedCountry.flag} {selectedCountry.dial}</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-white">{selectedCountry.flag} {selectedCountry.dial}</span>
                                 <input type="tel" value={phone} onChange={e => setPhone(formatPhone(e.target.value))}
                                     placeholder="(555) 123-4567" autoFocus autoComplete="tel"
-                                    className="h-14 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] pl-[88px] pr-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none transition-colors focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-14 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pl-[88px] pr-4 text-base font-medium text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#C8E64C] focus:bg-white/[0.06]/[0.04]"
                                 />
                                 {phoneDigits.length === 10 && (
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-[#8FB34A]">
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-[#C8E64C]">
                                         <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
                                     </div>
                                 )}
                             </div>
 
                             {/* Supported message */}
-                            <p className="mb-5 text-xs text-[#94a3b8] flex items-center gap-1.5">
+                            <p className="mb-5 text-xs text-white/35 flex items-center gap-1.5">
                                 <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4m0-4h.01" /></svg>
                                 Currently available in 🇨🇦 Canada, 🇺🇸 USA, and 🇲🇽 Mexico. More countries coming very soon!
                             </p>
 
                             <button type="submit" disabled={loading || phoneDigits.length < 10 || !selectedCountry.supported}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40">
+                                className="h-13 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_16px_rgba(200,230,76,0.3)] transition-all hover:bg-[#b5d440] active:scale-[0.98] disabled:opacity-40">
                                 {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Sending…</span> : 'Send verification code'}
                             </button>
                         </form>
@@ -447,24 +447,24 @@ export default function JoinPage() {
 
                     {/* ═══ OTP STEP ═══ */}
                     {step === 'otp' && (
-                        <form onSubmit={e => { e.preventDefault(); if (otp.join('').length === 6) verifyOtp(otp.join('')) }} className="rounded-2xl bg-white/80 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
-                            <p className="mb-5 text-center text-sm text-[#64748B]">Code sent to <span className="font-semibold text-[#0F172A]">{selectedCountry.flag} {selectedCountry.dial} {phone}</span></p>
+                        <form onSubmit={e => { e.preventDefault(); if (otp.join('').length === 6) verifyOtp(otp.join('')) }} className="rounded-2xl bg-white/[0.04] backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.3)] ring-1 ring-white/[0.06]">
+                            <p className="mb-5 text-center text-sm text-white/50">Code sent to <span className="font-semibold text-white">{selectedCountry.flag} {selectedCountry.dial} {phone}</span></p>
                             <div className="mb-5 flex justify-center gap-2.5">
                                 {otp.map((d, i) => (
                                     <input key={i} ref={el => { otpRefs.current[i] = el }} type="text" inputMode="numeric" maxLength={1} value={d}
                                         onChange={e => handleOtpChange(i, e.target.value)} onKeyDown={e => handleOtpKeyDown(i, e)} autoFocus={i === 0}
-                                        className={`h-14 w-12 rounded-xl border text-center text-xl font-bold outline-none transition-all ${d ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#0F172A]' : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#0F172A]'} focus:border-[#8FB34A] focus:ring-2 focus:ring-[#8FB34A]/20`}
+                                        className={`h-14 w-12 rounded-xl border text-center text-xl font-bold outline-none transition-all ${d ? 'border-[#C8E64C] bg-[rgba(200,230,76,0.1)] text-white' : 'border-white/[0.08] bg-white/[0.04] text-white'} focus:border-[#C8E64C] focus:ring-2 focus:ring-[#C8E64C]/20`}
                                     />
                                 ))}
                             </div>
                             <button type="submit" disabled={loading || otp.join('').length < 6}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40">
+                                className="h-13 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_16px_rgba(200,230,76,0.3)] transition-all hover:bg-[#b5d440] active:scale-[0.98] disabled:opacity-40">
                                 {loading ? 'Verifying…' : 'Verify'}
                             </button>
                             <div className="mt-4 flex justify-center gap-3 text-sm">
-                                <button type="button" onClick={() => { setStep('phone'); setOtp(['', '', '', '', '', '']) }} className="text-[#64748B] hover:text-[#0F172A]">Change number</button>
+                                <button type="button" onClick={() => { setStep('phone'); setOtp(['', '', '', '', '', '']) }} className="text-white/50 hover:text-white">Change number</button>
                                 <span className="text-[#E2E8F0]">|</span>
-                                <button type="button" disabled={resendTimer > 0} className={resendTimer > 0 ? 'text-[#94a3b8]' : 'text-[#8FB34A] hover:text-[#7da33f]'}>
+                                <button type="button" disabled={resendTimer > 0} className={resendTimer > 0 ? 'text-white/35' : 'text-[#C8E64C] hover:text-[#b5d440]'}>
                                     {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend'}
                                 </button>
                             </div>
@@ -473,54 +473,54 @@ export default function JoinPage() {
 
                     {/* ═══ BUSINESS STEP ═══ */}
                     {step === 'business' && (
-                        <form onSubmit={handleRegister} className="rounded-2xl bg-white/80 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
-                            <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#EAF4D8] px-4 py-2.5 text-sm font-semibold text-[#3a5e10]">
+                        <form onSubmit={handleRegister} className="rounded-2xl bg-white/[0.04] backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.3)] ring-1 ring-white/[0.06]">
+                            <div className="mb-3 flex items-center gap-2 rounded-xl bg-[rgba(200,230,76,0.1)] px-4 py-2.5 text-sm font-semibold text-[#C8E64C]">
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                                 Phone verified ✓
                             </div>
 
                             {/* Business Name */}
                             <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Business Name *</label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Business Name *</label>
                                 <input type="text" value={businessName} onChange={e => setBusinessName(e.target.value)}
                                     placeholder="Smith Plumbing LLC" autoFocus autoComplete="organization"
-                                    className="h-13 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] px-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-13 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-base font-medium text-white placeholder:text-white/25 outline-none focus:border-[#C8E64C] focus:bg-white/[0.06]/[0.04]"
                                 />
                             </div>
 
                             {/* Address */}
                             <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Business Address *</label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Business Address *</label>
                                 <input type="text" value={address} onChange={e => setAddress(e.target.value)}
                                     placeholder="123 Main St, Toronto, ON" autoComplete="street-address"
-                                    className="h-13 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] px-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-13 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-base font-medium text-white placeholder:text-white/25 outline-none focus:border-[#C8E64C] focus:bg-white/[0.06]/[0.04]"
                                 />
                             </div>
 
                             {/* Contact Email */}
                             <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Contact Email <span className="normal-case font-normal">(for receipts)</span></label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Contact Email <span className="normal-case font-normal">(for receipts)</span></label>
                                 <input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)}
                                     placeholder="info@smithplumbing.com" autoComplete="email"
-                                    className="h-13 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFB] px-4 text-base font-medium text-[#0F172A] placeholder:text-[#CBD5E1] outline-none focus:border-[#8FB34A] focus:bg-white"
+                                    className="h-13 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-base font-medium text-white placeholder:text-white/25 outline-none focus:border-[#C8E64C] focus:bg-white/[0.06]/[0.04]"
                                 />
                             </div>
 
                             {/* Language */}
                             <div className="mb-4">
-                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Preferred Language</label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/35">Preferred Language</label>
                                 <LanguageDropdown value={language} onChange={setLanguage} />
                             </div>
 
                             {/* Services */}
                             <div className="mb-4">
-                                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#94a3b8]">Services Offered *</label>
+                                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-white/35">Services Offered *</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {TRADES.map(t => (
                                         <button key={t} type="button" onClick={() => toggleTrade(t)}
                                             className={`flex items-center justify-center rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] ${selectedTrades.includes(t)
-                                                ? 'border-[#8FB34A] bg-[#EAF4D8] text-[#3a5e10] shadow-[0_2px_8px_rgba(143,179,74,0.15)]'
-                                                : 'border-[#E2E8F0] bg-[#F8FAFB] text-[#64748B] hover:border-[#94a3b8]'
+                                                ? 'border-[#C8E64C] bg-[rgba(200,230,76,0.1)] text-[#C8E64C] shadow-[0_2px_8px_rgba(200,230,76,0.15)]'
+                                                : 'border-white/[0.08] bg-white/[0.04] text-white/50 hover:border-white/20'
                                                 }`}>
                                             {t}
                                         </button>
@@ -531,22 +531,22 @@ export default function JoinPage() {
                             {/* Terms */}
                             <label className="mb-5 flex items-start gap-3 cursor-pointer">
                                 <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
-                                    className="mt-0.5 h-5 w-5 rounded border-[#E2E8F0] text-[#8FB34A] focus:ring-[#8FB34A]/20"
+                                    className="mt-0.5 h-5 w-5 rounded border-white/[0.08] text-[#C8E64C] focus:ring-[#C8E64C]/20"
                                 />
-                                <span className="text-xs text-[#64748B] leading-relaxed">
-                                    I agree to the <a href="/terms" className="text-[#8FB34A] underline">Terms of Service</a> and <a href="/privacy" className="text-[#8FB34A] underline">Privacy Policy</a>. I confirm this is a legitimate business.
+                                <span className="text-xs text-white/50 leading-relaxed">
+                                    I agree to the <a href="/terms" className="text-[#C8E64C] underline">Terms of Service</a> and <a href="/privacy" className="text-[#C8E64C] underline">Privacy Policy</a>. I confirm this is a legitimate business.
                                 </span>
                             </label>
 
                             <button type="submit" disabled={loading || !businessName.trim() || !address.trim() || selectedTrades.length === 0 || !agreed}
-                                className="h-13 w-full rounded-xl bg-[#8FB34A] font-semibold text-white shadow-[0_4px_16px_rgba(143,179,74,0.3)] transition-all hover:bg-[#7da33f] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
+                                className="h-13 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_16px_rgba(200,230,76,0.3)] transition-all hover:bg-[#b5d440] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
                                 {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Creating…</span> : 'Start Receiving Leads'}
                             </button>
                         </form>
                     )}
 
                     {/* Trust badges */}
-                    <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-[#94a3b8]">
+                    <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-white/35">
                         <span className="flex items-center gap-1">
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             Encrypted
