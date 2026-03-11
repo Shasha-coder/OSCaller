@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video } from 'lucide-react'
+import { VideoInspection } from '@/components/video-inspection'
 
 /* ─── Countries (3 supported, rest locked) ─── */
 const COUNTRIES = [
@@ -452,6 +453,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     lng: number
     rating?: number
   } | null>(null)
+  const [showVideoInspection, setShowVideoInspection] = useState(false)
+  const [videoAnalysis, setVideoAnalysis] = useState<string | null>(null)
 
   // Fetch nearby providers from API and set as markers
   const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
@@ -1058,6 +1061,18 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     {callStatus === 'active' && 'Describe your problem to Aria'}
                   </p>
 
+                  {/* Video Inspection button - shows during active call */}
+                  {callStatus === 'active' && (
+                    <button
+                      onClick={() => setShowVideoInspection(true)}
+                      data-no-focus-ring
+                      className="mt-5 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500/80 to-red-600/80 text-white font-bold text-sm shadow-[0_4px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_6px_28px_rgba(239,68,68,0.4)] transition-all active:scale-[0.97] outline-none"
+                    >
+                      <Video className="h-4 w-4" />
+                      Start Video Inspection
+                    </button>
+                  )}
+
                   {/* Soft connecting sound indicator */}
                   <div className="flex items-center gap-1 mt-6">
                     {[0, 1, 2, 3, 4].map(i => (
@@ -1616,6 +1631,15 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           )}
         </div>
       </div>
+
+      {/* ─── Video Inspection Overlay ─── */}
+      {showVideoInspection && (
+        <VideoInspection
+          requestId={undefined}
+          onAnalysis={(a) => setVideoAnalysis(a.description + ' | ' + a.issue_detected)}
+          onClose={() => setShowVideoInspection(false)}
+        />
+      )}
     </div>
   )
 }
