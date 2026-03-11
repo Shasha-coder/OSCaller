@@ -70,68 +70,6 @@ async function analyzeWithAI(input: {
   audioMimeType?: string
   text?: string
 }): Promise<MediaAnalysis> {
-  try {
-    if (!GEMINI_API_KEY) {
-      console.error('[v0] GEMINI_API_KEY not set')
-      throw new Error('GEMINI_API_KEY not configured')
-    }
-
-    const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY })
-
-    console.log('[v0] Calling Gemini for', input.type, 'analysis')
-
-    // Build the prompt + content for each media type
-    let userPrompt: string
-    const parts: Array<any> = []
-
-    if (input.type === 'image' && input.imageUrl) {
-      userPrompt = 'Analyze this image and respond with JSON:'
-
-      // Fetch the image and convert to base64 for reliable multimodal input
-      try {
-        const imgRes = await fetch(input.imageUrl)
-        const imgBuffer = await imgRes.arrayBuffer()
-        const base64 = Buffer.from(imgBuffer).toString('base64')
-        const contentType = imgRes.headers.get('content-type') || 'image/jpeg'
-
-        parts.push({
-          type: 'image' as const,
-          image: base64,
-          mimeType: contentType,
-        })
-        console.log('[v0] Image fetched, size:', imgBuffer.byteLength, 'type:', contentType)
-      } catch (fetchErr) {
-        console.error('[v0] Failed to fetch image URL:', fetchErr)
-        // Fallback: try URL directly
-        parts.push({
-          type: 'image' as const,
-          image: new URL(input.imageUrl),
-        })
-      }
-    } else if (input.type === 'audio' && input.audioBase64) {
-      userPrompt = 'Listen to this audio message. Transcribe it and analyze. Respond with JSON:'
-      parts.push({
-        type: 'file' as const,
-        data: input.audioBase64,
-        mimeType: input.audioMimeType || 'audio/webm',
-      })
-    } else {
-      userPrompt = `Analyze this description of a home issue and respond with JSON:\n\n"${input.text}"`
-    }
-
-    const result = await generateText({
-      model: google('gemini-2.0-flash'),
-      system: SYSTEM_PROMPT,
-      messages: [{
-        role: 'user',
-        content: parts.length > 0
-          ? [{ type: 'text' as const, text: userPrompt }, ...parts]
-          : userPrompt,
-      }],
-      temperature: 0.1,
-      maxTokens: 1024,
-    })
-
 
   try {
     if (!GEMINI_API_KEY) {
@@ -234,9 +172,11 @@ async function analyzeWithAI(input: {
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+type RouteContext = { params: Promise<{ id: string }> }
+
+export async function POST(req: NextRequest, context: RouteContext) {
   try {
-    const { id: requestId } = await params
+    const { id: requestId } = await context.params
     const body = await req.json()
     const { media_type, media_url, text, audio_base64, mime_type } = body
 
