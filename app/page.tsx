@@ -107,7 +107,7 @@ export default function Root() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requestId: realId }),
-        }).catch(() => {})
+        }).catch(() => { })
       }
     } catch {
       // Request is already saved optimistically -- tracking page will poll for updates
@@ -307,7 +307,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           </div>
 
           {/* Services ticker — above mobile nav bar */}
-          <div className="relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
+          <div className="relative z-10 flex flex-col items-center pb-[88px] lg:pb-0">
             <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>

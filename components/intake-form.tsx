@@ -166,7 +166,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
           'flex h-12 w-full items-center justify-between rounded-2xl border px-3 text-sm font-medium transition-all cursor-pointer',
           open
             ? 'border-[#8FB34A] bg-white ring-2 ring-[#8FB34A]/20'
-            : 'border-border/60 bg-muted/40 hover:border-border'
+            : 'border-border/60 bg-white hover:border-border'
         )}>
         <span className="flex items-center gap-2">
           <svg className="h-4 w-4 text-[#8FB34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
@@ -226,7 +226,7 @@ export function IntakeForm({ onSubmit }: IntakeFormProps) {
 
   return (
     <div className="mx-auto w-full max-w-lg">
-      <div className="rounded-3xl bg-white/70 backdrop-blur-sm p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] sm:p-8">
+      <div className="rounded-3xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] sm:p-8">
 
         {/* Address */}
         <div className="mb-6">

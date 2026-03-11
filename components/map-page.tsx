@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, ArrowLeftRight } from 'lucide-react'
 
 /* ─── Countries (3 supported, rest locked) ─── */
 const COUNTRIES = [
@@ -64,19 +64,19 @@ function FloatingDropdown({
   const [flipUp, setFlipUp] = useState(false)
 
   useEffect(() => {
-  if (!open || !anchorRef.current) return
-  const rect = anchorRef.current.getBoundingClientRect()
-  const left = Math.min(rect.left, window.innerWidth - width - 12)
-  const spaceBelow = window.innerHeight - rect.bottom
-  const spaceAbove = rect.top
-  // Flip up if not enough space below AND there's more space above
-  const shouldFlip = spaceBelow < 300 && spaceAbove > spaceBelow
-  setFlipUp(shouldFlip)
-  if (shouldFlip) {
-  setPos({ top: rect.top - 8, left: Math.max(8, left) })
-  } else {
-  setPos({ top: rect.bottom + 8, left: Math.max(8, left) })
-  }
+    if (!open || !anchorRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    const left = Math.min(rect.left, window.innerWidth - width - 12)
+    const spaceBelow = window.innerHeight - rect.bottom
+    const spaceAbove = rect.top
+    // Flip up if not enough space below AND there's more space above
+    const shouldFlip = spaceBelow < 300 && spaceAbove > spaceBelow
+    setFlipUp(shouldFlip)
+    if (shouldFlip) {
+      setPos({ top: rect.top - 8, left: Math.max(8, left) })
+    } else {
+      setPos({ top: rect.bottom + 8, left: Math.max(8, left) })
+    }
   }, [open, anchorRef, width])
 
   if (!open) return null
@@ -369,7 +369,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
           'flex items-center gap-2 w-full sm:w-auto h-[52px] sm:h-[36px] px-4 sm:px-3 rounded-2xl sm:rounded-full border-2 sm:border text-[15px] sm:text-[12px] font-semibold transition-all cursor-pointer outline-none',
           open
             ? 'border-[#8FB34A] bg-white shadow-[0_0_0_4px_rgba(143,179,74,0.1)] sm:shadow-[0_0_0_3px_rgba(143,179,74,0.10)]'
-            : 'border-[#E2E8F0] sm:border-white/60 bg-[#F8FAFB] sm:bg-white/95 sm:backdrop-blur-md hover:border-[#CBD5E1] sm:shadow-sm'
+            : 'border-[#D4E0C8] sm:border-[#D4E0C8]/80 bg-[#F1F5F0] sm:bg-[#F1F5F0]/95 sm:backdrop-blur-md hover:border-[#8FB34A]/40 sm:shadow-sm'
         )}
       >
         <svg className="h-5 w-5 sm:h-3.5 sm:w-3.5 text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -438,7 +438,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   const audioChunksRef = useRef<Blob[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
-  
+
   // Validation and call state
   const [validationError, setValidationError] = useState<string | null>(null)
   const [callStatus, setCallStatus] = useState<'idle' | 'connecting' | 'ringing' | 'active' | 'dispatched' | 'ended'>('idle')
@@ -478,18 +478,18 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   // Validate before call
   const validateCall = useCallback((): string | null => {
     const missingFields: string[] = []
-    
+
     if (!coords) missingFields.push('GPS location')
     if (!language) missingFields.push('language')
     if (!phone || phone.length < 7) missingFields.push('phone number')
-    
+
     if (missingFields.length > 0) {
       return `Please fill the form to make the call`
     }
-    
+
     const selectedCountry = COUNTRIES.find(c => c.code === country)
     if (!selectedCountry?.supported) return 'Service not available in this country yet'
-    
+
     return null
   }, [coords, language, phone, country])
 
@@ -500,19 +500,19 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
       mediaRecorderRef.current = mediaRecorder
       audioChunksRef.current = []
-      
+
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data)
         }
       }
-      
+
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
         setAudioBlob(blob)
         stream.getTracks().forEach(track => track.stop())
       }
-      
+
       mediaRecorder.start()
       setIsRecording(true)
     } catch (err) {
@@ -540,7 +540,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   // Call Aria: Validate, Create request, Trigger Retell call, Navigate to tracking
   const callAria = useCallback(async () => {
     if (callingAria) return
-    
+
     // Validate first
     const error = validateCall()
     if (error) {
@@ -548,15 +548,15 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       setTimeout(() => setValidationError(null), 3000)
       return
     }
-    
+
     setCallingAria(true)
     setCallStatus('connecting')
     setValidationError(null)
-    
+
     try {
       const selectedCountry = COUNTRIES.find(c => c.code === country)
       const fullPhone = `${selectedCountry?.dial || '+1'}${phone.replace(/\D/g, '')}`
-      
+
       // 1. Create service_request in Supabase
       const createRes = await fetch('/api/requests', {
         method: 'POST',
@@ -572,41 +572,41 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           status: 'qualified',
         }),
       })
-      
+
       if (!createRes.ok) {
         const err = await createRes.json()
         throw new Error(err.error || 'Failed to create request')
       }
-      
+
       const { request } = await createRes.json()
       const requestId = request.id
-      
+
       // 2. If photo was uploaded, analyze it with Gemini FIRST (before call)
       let photoSummary = ''
       let audioSummary = ''
-      
+
       if (uploadedFile && inputMode === 'photo') {
         // Use AbortController for timeout (15 seconds total for upload + analysis)
         const controller = new AbortController()
         const timeout = setTimeout(() => controller.abort(), 15000)
-        
+
         try {
           // First upload the image to get a URL
           const formData = new FormData()
           formData.append('file', uploadedFile)
-          
+
           console.log('[v0] Uploading photo, size:', uploadedFile.size, 'type:', uploadedFile.type)
-          
+
           const uploadRes = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
             signal: controller.signal,
           })
-          
+
           if (uploadRes.ok) {
             const uploadData = await uploadRes.json()
             console.log('[v0] Photo uploaded to:', uploadData.url)
-            
+
             // Now analyze with the URL (with remaining time)
             const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
               method: 'POST',
@@ -617,7 +617,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               }),
               signal: controller.signal,
             })
-            
+
             if (analyzeRes.ok) {
               const analyzeData = await analyzeRes.json()
               // The API returns agent_prompt which is the formatted string for Aria
@@ -646,12 +646,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           clearTimeout(timeout)
         }
       }
-      
+
       // 2b. If voice recording exists, analyze it
       if (audioBlob && inputMode === 'voice') {
         const controller = new AbortController()
         const timeout = setTimeout(() => controller.abort(), 12000)
-        
+
         try {
           const base64 = await new Promise<string>((resolve) => {
             const reader = new FileReader()
@@ -659,7 +659,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             reader.readAsDataURL(audioBlob)
           })
           console.log('[v0] Audio blob size:', audioBlob.size, 'type:', audioBlob.type)
-          
+
           const analyzeRes = await fetch(`/api/requests/${requestId}/analyze-media`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -670,7 +670,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             }),
             signal: controller.signal,
           })
-          
+
           if (analyzeRes.ok) {
             const analyzeData = await analyzeRes.json()
             // The API returns agent_prompt which is the formatted string for Aria
@@ -693,10 +693,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           clearTimeout(timeout)
         }
       }
-      
+
       // 3. Trigger Retell AI call to client with full context
       setCallStatus('ringing')
-      
+
       // Play call sound effect using Web Audio API
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -721,7 +721,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       } catch (e) {
         // Ignore sound errors on browsers that don't support Web Audio
       }
-      
+
       const callPayload = {
         request_id: requestId,
         phone: fullPhone,
@@ -737,15 +737,15 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         service_type: 'general',
         urgency: 'standard',
       }
-      
+
       console.log('[v0] Calling Retell with payload:', callPayload)
-      
+
       const callRes = await fetch('/api/retell/call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(callPayload),
       })
-      
+
       if (!callRes.ok) {
         const err = await callRes.json()
         console.error('Call failed:', err)
@@ -753,7 +753,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       } else {
         setCallStatus('active')
       }
-      
+
       // 4. Start GPS streaming
       const streamGps = () => {
         if (navigator.geolocation) {
@@ -769,14 +769,14 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 }),
               })
             },
-            () => {},
+            () => { },
             { enableHighAccuracy: true }
           )
         }
       }
       streamGps()
       const gpsInterval = setInterval(streamGps, 30000)
-      
+
       // 5. Fetch nearest provider for animation
       try {
         const providerRes = await fetch(`/api/providers/nearby?lat=${coords!.lat}&lng=${coords!.lng}&radius=25&limit=1`)
@@ -788,13 +788,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             const R = 6371 // km
             const dLat = (p.lat - coords!.lat) * Math.PI / 180
             const dLng = (p.lng - coords!.lng) * Math.PI / 180
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(coords!.lat * Math.PI / 180) * Math.cos(p.lat * Math.PI / 180) *
-                      Math.sin(dLng/2) * Math.sin(dLng/2)
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(coords!.lat * Math.PI / 180) * Math.cos(p.lat * Math.PI / 180) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2)
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
             const distance = R * c
             const eta = Math.round(distance * 3 + 5) // Rough ETA: 3 min/km + 5 min buffer
-            
+
             setMatchedProvider({
               name: p.name || p.business_name || 'Professional',
               trade: p.trade || 'Service Pro',
@@ -805,7 +805,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               rating: p.rating || 4.8,
             })
             setCallStatus('dispatched')
-            
+
             // Play success sound
             try {
               const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -826,20 +826,20 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               playTone(523, 0.12, now)       // C5
               playTone(659, 0.12, now + 0.1) // E5
               playTone(784, 0.2, now + 0.2)  // G5
-            } catch (e) {}
+            } catch (e) { }
           }
         }
       } catch (e) {
         console.error('Failed to fetch provider:', e)
       }
-      
+
       // 6. Trigger dispatch
       await fetch('/api/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),
       })
-      
+
       // 7. Navigate to tracking after showing provider animation
       setTimeout(() => {
         if (onRequestCreated) {
@@ -848,9 +848,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         setCallStatus('idle')
         setMatchedProvider(null)
       }, 4000) // Give time to see the provider info
-      
+
       return () => clearInterval(gpsInterval)
-      
+
     } catch (err) {
       console.error('Failed to create request:', err)
       setValidationError(err instanceof Error ? err.message : 'Something went wrong')
@@ -901,7 +901,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
         {/* Map takes upper portion, leaves room for larger bottom panel */}
-        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-320px)]">
+        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-380px)]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -972,7 +972,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           {/* Calling Aria overlay */}
           {callStatus !== 'idle' && (
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
-              
+
               {/* Provider dispatched state */}
               {callStatus === 'dispatched' && matchedProvider ? (
                 <>
@@ -985,12 +985,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       </div>
                       <span className="text-[10px] text-white/70 mt-1.5 font-medium">You</span>
                     </div>
-                    
+
                     {/* Animated connection line */}
                     <div className="absolute left-14 right-14 top-1/2 -translate-y-1/2 h-1 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full w-1/2 bg-gradient-to-r from-[#8FB34A] to-[#BFFF4D] rounded-full animate-[slideRight_1.5s_ease-in-out_infinite]" />
                     </div>
-                    
+
                     {/* Provider marker */}
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
                       <div className="w-12 h-12 rounded-full bg-[#BFFF4D] flex items-center justify-center shadow-lg shadow-[#BFFF4D]/30">
@@ -999,19 +999,19 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       <span className="text-[10px] text-white/70 mt-1.5 font-medium">Pro</span>
                     </div>
                   </div>
-                  
+
                   {/* Provider info */}
                   <div className="text-center mb-6">
                     <p className="text-[#BFFF4D] font-bold text-xl mb-1">{matchedProvider.name}</p>
                     <p className="text-white/60 text-sm capitalize">{matchedProvider.trade}</p>
                     {matchedProvider.rating && (
                       <div className="flex items-center justify-center gap-1 mt-2">
-                        <svg className="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg className="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                         <span className="text-white/80 text-sm font-medium">{matchedProvider.rating}</span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Distance and ETA */}
                   <div className="flex items-center gap-6">
                     <div className="text-center">
@@ -1024,7 +1024,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       <p className="text-white/50 text-xs">ETA</p>
                     </div>
                   </div>
-                  
+
                   {/* Status message */}
                   <p className="text-[#8FB34A] text-sm font-medium mt-6 animate-pulse">Dispatching to your location...</p>
                 </>
@@ -1038,7 +1038,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       <Phone className={cn("h-8 w-8 text-white", callStatus === 'ringing' && "animate-[wiggle_0.5s_ease-in-out_infinite]")} />
                     </div>
                   </div>
-                  
+
                   {/* Status text */}
                   <p className="text-white font-bold text-lg mb-1">
                     {callStatus === 'connecting' && 'Connecting...'}
@@ -1050,7 +1050,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     {callStatus === 'ringing' && 'Answer the call from Aria'}
                     {callStatus === 'active' && 'Describe your problem to Aria'}
                   </p>
-                  
+
                   {/* Soft connecting sound indicator */}
                   <div className="flex items-center gap-1 mt-6">
                     {[0, 1, 2, 3, 4].map(i => (
@@ -1081,8 +1081,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 bg-white border-t border-[#E2E8F0]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[84px]">
-          
+        <div className="shrink-0 overflow-y-auto bg-white border-t border-[#E2E8F0]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[88px]">
+
           {/* Row 1: Name and Language */}
           <div className="flex items-center gap-3 mb-3">
             <div className="flex-1">
@@ -1145,12 +1145,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                   />
                 )}
                 {inputMode === 'voice' && (
-<button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-3 w-full outline-none">
-  <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
-  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-  <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
-  </span>
-  <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
+                  <button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-3 w-full outline-none">
+                    <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
+                      {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                      <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
+                    </span>
+                    <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
                       {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Tap to speak'}
                     </span>
                   </button>
@@ -1167,10 +1167,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                         <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                           <Upload className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
                           <span className="text-[14px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
                             onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
                           />
                         </label>
@@ -1178,10 +1178,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                         <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                           <Camera className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
                           <span className="text-[14px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Camera</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            capture="environment" 
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
                             className="hidden"
                             onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
                           />
@@ -1216,17 +1216,22 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
             {callingAria ? 'Calling Aria...' : 'Call Aria'}
           </button>
+
+          {/* Powered by Aria AI */}
+          <p className="text-[11px] text-[#94A3B8] text-center mt-3 pb-1">
+            Powered by <span className="font-bold text-[#8FB34A]">Aria AI</span> — Your 24/7 assistant
+          </p>
         </div>
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
       <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:pb-8" style={{ height: 'calc(100% - 16px)' }}>
-        
+
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
           {/* Form Card - Same height as map */}
           <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#E2E8F0]/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5">
-            
+
             {/* Name and Language row */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
@@ -1289,13 +1294,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     />
                   )}
                   {inputMode === 'voice' && (
-<button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-2.5 w-full outline-none">
-  <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
-  {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-  <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
-  </span>
-  <span className={cn('text-[14px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
-  {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Click to speak'}
+                    <button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-2.5 w-full outline-none">
+                      <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
+                        {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                        <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#8FB34A]' : 'bg-[#94A3B8]')} />
+                      </span>
+                      <span className={cn('text-[14px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#8FB34A]' : 'text-[#94A3B8]')}>
+                        {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Click to speak'}
                       </span>
                     </button>
                   )}
@@ -1311,9 +1316,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                           <label className="flex items-center gap-1.5 cursor-pointer group whitespace-nowrap">
                             <Upload className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
                             <span className="text-[13px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Upload</span>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
+                            <input
+                              type="file"
+                              accept="image/*"
                               className="hidden"
                               onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
                             />
@@ -1322,10 +1327,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                           <label className="flex items-center gap-1.5 cursor-pointer group whitespace-nowrap">
                             <Camera className="h-4 w-4 text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors" strokeWidth={2} />
                             <span className="text-[13px] font-medium text-[#94A3B8] group-hover:text-[#8FB34A] transition-colors">Camera</span>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              capture="environment" 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
                               className="hidden"
                               onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
                             />
@@ -1349,25 +1354,32 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             {/* GPS Toggle */}
             <div className="mb-6">
               <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">Location</label>
-              <button
-                type="button"
-                data-no-focus-ring
-                onClick={() => setIsLiveLocation(v => !v)}
-                className={cn(
-                  'flex items-center justify-between w-full h-[48px] px-4 rounded-xl border-2 transition-all outline-none',
-                  isLiveLocation
-                    ? 'border-[#8FB34A] bg-[#EAF4D8]/40'
-                    : 'border-[#E2E8F0] bg-[#F8FAFB] hover:border-[#CBD5E1]'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <LocateFixed className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2} />
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  data-no-focus-ring
+                  onClick={() => setIsLiveLocation(v => !v)}
+                  className={cn(
+                    'flex items-center justify-center h-[52px] w-[52px] rounded-full border-2 transition-all outline-none shrink-0',
+                    isLiveLocation
+                      ? 'border-[#8FB34A] bg-[#EAF4D8]/60 shadow-[0_0_0_4px_rgba(143,179,74,0.08)]'
+                      : 'border-[#E2E8F0] bg-[#F8FAFB] hover:border-[#CBD5E1] hover:bg-white'
+                  )}
+                  aria-label="Toggle GPS location"
+                >
+                  <ArrowLeftRight className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#8FB34A]' : 'text-[#94A3B8]')} strokeWidth={2} />
+                </button>
+                <div className="flex flex-col gap-1 flex-1">
                   <span className="text-[14px] font-semibold text-[#334155]">Use my GPS location</span>
+                  <span className="text-[11px] text-[#94A3B8]">{isLiveLocation ? 'Live location active' : 'Tap to enable'}</span>
                 </div>
-                <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}>
+                <div
+                  onClick={() => setIsLiveLocation(v => !v)}
+                  className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200 cursor-pointer shrink-0', isLiveLocation ? 'bg-[#8FB34A]' : 'bg-[#CBD5E1]')}
+                >
                   <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px]' : 'translate-x-[2px]')} />
                 </div>
-              </button>
+              </div>
             </div>
 
             {/* Spacer */}
@@ -1465,7 +1477,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           {/* Calling Aria overlay - premium animation */}
           {callStatus !== 'idle' && (
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-xl rounded-3xl">
-              
+
               {/* Provider dispatched state */}
               {callStatus === 'dispatched' && matchedProvider ? (
                 <>
@@ -1478,12 +1490,12 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       </div>
                       <span className="text-xs text-white/70 mt-2 font-medium">You</span>
                     </div>
-                    
+
                     {/* Animated connection line */}
                     <div className="absolute left-20 right-20 top-1/2 -translate-y-1/2 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full w-1/3 bg-gradient-to-r from-[#8FB34A] to-[#BFFF4D] rounded-full animate-[slideRight_1.5s_ease-in-out_infinite]" />
                     </div>
-                    
+
                     {/* Provider marker */}
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center">
                       <div className="w-16 h-16 rounded-full bg-[#BFFF4D] flex items-center justify-center shadow-lg shadow-[#BFFF4D]/30">
@@ -1492,19 +1504,19 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       <span className="text-xs text-white/70 mt-2 font-medium">Pro</span>
                     </div>
                   </div>
-                  
+
                   {/* Provider info */}
                   <div className="text-center mb-8">
                     <p className="text-[#BFFF4D] font-bold text-2xl mb-1">{matchedProvider.name}</p>
                     <p className="text-white/60 text-base capitalize">{matchedProvider.trade}</p>
                     {matchedProvider.rating && (
                       <div className="flex items-center justify-center gap-1.5 mt-3">
-                        <svg className="w-5 h-5 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg className="w-5 h-5 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                         <span className="text-white/80 text-base font-medium">{matchedProvider.rating}</span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Distance and ETA - larger */}
                   <div className="flex items-center gap-10 bg-white/5 rounded-2xl px-8 py-5">
                     <div className="text-center">
@@ -1517,7 +1529,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       <p className="text-white/50 text-sm mt-1">ETA</p>
                     </div>
                   </div>
-                  
+
                   {/* Status message */}
                   <p className="text-[#8FB34A] text-base font-medium mt-8 animate-pulse">Dispatching to your location...</p>
                 </>
@@ -1536,7 +1548,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       )} />
                     </div>
                   </div>
-                  
+
                   {/* Status text */}
                   <p className="text-white font-bold text-2xl mb-2 tracking-tight">
                     {callStatus === 'connecting' && 'Connecting...'}
@@ -1548,14 +1560,14 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     {callStatus === 'ringing' && 'Please answer the incoming call'}
                     {callStatus === 'active' && 'Describe your problem to Aria'}
                   </p>
-                  
+
                   {/* Sound wave animation */}
                   <div className="flex items-end gap-1 mt-10 h-8">
                     {[0, 1, 2, 3, 4, 5, 6].map(i => (
                       <div
                         key={i}
                         className="w-1 bg-[#8FB34A] rounded-full transition-all duration-150"
-                        style={{ 
+                        style={{
                           height: callStatus === 'active' ? `${12 + Math.sin(Date.now() / 200 + i) * 16}px` : '4px',
                           animationDelay: `${i * 100}ms`,
                           opacity: callStatus === 'active' ? 1 : 0.3
