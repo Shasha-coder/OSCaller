@@ -209,6 +209,13 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
       'flex h-dvh w-full flex-col overflow-hidden relative z-10',
       !isHome && 'bg-[#0A0A0A]/90'
     )}>
+      {/* Top edge light line effect */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-[1px] z-50 pointer-events-none"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(200,230,76,0.3) 20%, rgba(200,230,76,0.5) 50%, rgba(200,230,76,0.3) 80%, transparent 100%)'
+        }}
+      />
 
       {/* SVG art background for service pages — renders at z-0, behind content */}
       {!isHome && <ServicePageBackground />}

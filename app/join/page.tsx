@@ -121,27 +121,27 @@ function CountryDropdown({ value, onChange }: { value: string; onChange: (code: 
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     {/* Supported header */}
-                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C8E64C] bg-[rgba(200,230,76,0.1)]/50">Available</div>
+                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C8E64C] bg-[#C8E64C]/10">Available</div>
                     <div className="max-h-40 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
                         {COUNTRIES.filter(c => c.supported).map(c => (
                             <button key={c.code} type="button"
                                 onClick={() => { onChange(c.code); setOpen(false) }}
-                                className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm transition-colors ${c.code === value ? 'bg-[rgba(200,230,76,0.1)] font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.04]'}`}>
+                                className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-sm transition-colors ${c.code === value ? 'bg-[#C8E64C]/15 font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.06]'}`}>
                                 <span className="text-lg">{c.flag}</span>
                                 <span className="flex-1 text-left">{c.name}</span>
-                                <span className="text-xs text-white/35">{c.dial}</span>
+                                <span className="text-xs text-white/50">{c.dial}</span>
                                 {c.code === value && <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
                             </button>
                         ))}
                     </div>
                     {/* Coming soon header */}
-                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/35 bg-white/[0.04] border-t border-white/[0.08]">Coming Soon</div>
+                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.05] border-t border-white/[0.1]">Coming Soon</div>
                     <div className="max-h-36 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
                         {COUNTRIES.filter(c => !c.supported).map(c => (
                             <div key={c.code}
-                                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-white/35 opacity-60 cursor-not-allowed">
+                                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-sm text-white/40 opacity-70 cursor-not-allowed">
                                 <span className="text-lg grayscale">{c.flag}</span>
                                 <span className="flex-1 text-left">{c.name}</span>
                                 <span className="text-xs">{c.dial}</span>
@@ -178,12 +178,12 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-white/[0.08] bg-white/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in fade-in slide-in-from-top-2 duration-200"
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200"
                     style={{ scrollbarWidth: 'thin' }}>
                     {LANGUAGES.map(lang => (
                         <button key={lang} type="button"
                             onClick={() => { onChange(lang); setOpen(false) }}
-                            className={`flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors ${lang === value ? 'bg-[rgba(200,230,76,0.1)] font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.04]'}`}>
+                            className={`flex w-full items-center justify-between px-3.5 py-2.5 text-sm transition-colors ${lang === value ? 'bg-[#C8E64C]/15 font-semibold text-[#C8E64C]' : 'text-white hover:bg-white/[0.06]'}`}>
                             {lang}
                             {lang === value && <svg className="h-4 w-4 text-[#C8E64C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>}
                         </button>
@@ -377,7 +377,7 @@ export default function JoinPage() {
                     {/* Header */}
                     <div className="mb-6 flex flex-col items-center">
                         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#C8E64C] shadow-[0_8px_30px_rgba(200,230,76,0.3)]">
-                            <OSSymbol className="h-8 w-8" color="#FFFFFF" />
+                            <OSSymbol className="h-8 w-8" color="#0F172A" />
                         </div>
                         <h1 className="mt-4 text-xl font-bold text-white tracking-tight">Join OSCaller</h1>
                         <p className="mt-1 text-center text-sm text-white/50">
