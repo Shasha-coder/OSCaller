@@ -69,10 +69,10 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
     if (loading) {
         return (
-            <div className="flex h-dvh items-center justify-center bg-[#F6F8F4]">
+            <div className="flex h-dvh items-center justify-center bg-[#0A0A0A]">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#8FB34A]/20 border-t-[#8FB34A]" />
-                    <span className="text-sm text-[#64748B]">Loading…</span>
+                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#C8E64C]/20 border-t-[#C8E64C]" />
+                    <span className="text-sm text-white/50">Loading…</span>
                 </div>
             </div>
         )
@@ -91,30 +91,30 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
     }
 
     return (
-        <div className="relative min-h-dvh bg-[#F6F8F4]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="relative min-h-dvh bg-[#0A0A0A]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <ServicePageBackground />
             </div>
 
             {/* Top bar - Minimalist Light Style */}
-            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
+            <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 backdrop-blur-2xl bg-white/[0.03] shadow-none" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(90deg, transparent, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1), transparent) 1' }}>
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAF4D8] shadow-[0_0_15px_rgba(234,244,216,0.5)] border border-[#8FB34A]/20">
-                        <OSSymbol className="h-5 w-5" color="#8FB34A" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(200,230,76,0.1)] shadow-[0_0_20px_rgba(200,230,76,0.15)] border border-[#C8E64C]/20 animate-glow-pulse">
+                        <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-[#0F172A] tracking-wide">{profile?.name || 'Service Provider'}</p>
-                        <p className="text-[10px] text-[#8FB34A] font-bold uppercase tracking-widest">{profile?.trade || 'Loading...'}</p>
+                        <p className="text-sm font-bold text-white tracking-wide">{profile?.name || 'Service Provider'}</p>
+                        <p className="text-[10px] text-[#C8E64C] font-bold uppercase tracking-widest">{profile?.trade || 'Loading...'}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] border border-slate-200 transition-all active:scale-95">
+                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full glass-card-v2 text-white/50 hover:text-white border-transparent transition-all active:scale-95">
                         <Bell className="h-4 w-4" />
-                        <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-[#8FB34A] ring-2 ring-white" />
+                        <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-[#C8E64C] ring-2 ring-[#0A0A0A]" />
                     </button>
                     <button
                         onClick={handleSignOut}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#64748B] hover:bg-red-50 hover:text-red-500 hover:border-red-100 border border-slate-200 transition-all active:scale-95"
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.04] text-white/50 hover:bg-red-500/100/10 hover:text-red-400 hover:border-red-500/20 border border-white/[0.08] transition-all active:scale-95"
                         title="Sign out"
                     >
                         <LogOut className="h-4 w-4" />

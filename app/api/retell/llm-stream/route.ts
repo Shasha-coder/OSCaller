@@ -98,11 +98,31 @@ export async function POST(request: NextRequest) {
 
     // Build OSCaller context
     const oscallerContext = await buildOSCallerContext(metadata?.request_id)
-    
+
     // Build conversation messages for the AI
     const messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [
       { role: 'system', content: ARIA_SYSTEM_PROMPT },
     ]
+
+    // Inject language instruction if the customer selected a non-English language
+    const lang = metadata?.language || ''
+    const langCodeToName: Record<string, string> = {
+      'fr': 'French', 'es': 'Spanish', 'ar': 'Arabic', 'pt': 'Portuguese',
+      'hi': 'Hindi', 'zh': 'Mandarin Chinese', 'de': 'German', 'it': 'Italian',
+      'ja': 'Japanese', 'ko': 'Korean', 'nl': 'Dutch', 'pl': 'Polish',
+      'tr': 'Turkish', 'sv': 'Swedish', 'id': 'Indonesian', 'fil': 'Filipino',
+      'ro': 'Romanian', 'uk': 'Ukrainian', 'el': 'Greek', 'cs': 'Czech',
+      'da': 'Danish', 'fi': 'Finnish', 'bg': 'Bulgarian', 'hr': 'Croatian',
+      'sk': 'Slovak', 'ta': 'Tamil', 'ms': 'Malay',
+    }
+    const isEnglish = !lang || ['en', 'en-US', 'en-CA'].includes(lang)
+    if (!isEnglish) {
+      const fullLangName = langCodeToName[lang] || langCodeToName[lang.split('-')[0]] || lang
+      messages.push({
+        role: 'system',
+        content: `CRITICAL LANGUAGE REQUIREMENT: The customer speaks ${fullLangName}. You MUST conduct this ENTIRE conversation in ${fullLangName}. Every sentence you say must be in ${fullLangName}. Do NOT speak English unless the customer switches to English first.`,
+      })
+    }
 
     // Add OSCaller context as system message
     if (oscallerContext) {
@@ -140,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     // Collect the full response for Retell's expected format
     let fullContent = ''
-    
+
     for await (const chunk of result.textStream) {
       fullContent += chunk
     }
@@ -172,7 +192,7 @@ async function buildOSCallerContext(requestId?: string): Promise<string> {
 
   try {
     const db = createServerClient()
-    
+
     const { data: request } = await db
       .from('service_requests')
       .select('*')
@@ -195,10 +215,10 @@ Status: ${request.status}
 
     // Add media analysis if available
     if (request.media_analysis) {
-      const analysis = Array.isArray(request.media_analysis) 
-        ? request.media_analysis[0] 
+      const analysis = Array.isArray(request.media_analysis)
+        ? request.media_analysis[0]
         : request.media_analysis
-      
+
       if (analysis) {
         context += `
 CUSTOMER UPLOADED A PHOTO:
@@ -247,7 +267,7 @@ DISPATCH STATUS: A technician has been assigned!
 // Determine if we should end the call based on conversation
 function shouldEndCall(response: string, transcript?: Utterance[]): boolean {
   const lowerResponse = response.toLowerCase()
-  
+
   // Check for goodbye indicators in our response
   if (
     lowerResponse.includes('have a great day') ||
@@ -260,7 +280,7 @@ function shouldEndCall(response: string, transcript?: Utterance[]): boolean {
       return true
     }
   }
-  
+
   return false
 }
 

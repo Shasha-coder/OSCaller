@@ -63,52 +63,140 @@ EXAMPLES OF CORRECT RESPONSES:
 - Image of leak: {"summary": "Water dripping from a pipe under a kitchen sink", "detected_issue": "leaking pipe", ...}
 - Image of cat: {"summary": "A cat sitting on a couch", "detected_issue": null, ...}`
 
-async function analyzeWithAI(input: { 
+async function analyzeWithAI(input: {
   type: 'image' | 'audio' | 'text'
   imageUrl?: string
   audioBase64?: string
   audioMimeType?: string
-  text?: string 
+  text?: string
 }): Promise<MediaAnalysis> {
-  
-  // Build message content based on input type
-  const content: Array<{ type: string; text?: string; image?: { url: string }; data?: string; mimeType?: string }> = []
-  
-  if (input.type === 'image' && input.imageUrl) {
-    content.push({ type: 'text', text: 'Describe EXACTLY what you see in this image. Be accurate and specific. Do NOT assume or guess - only describe what is actually visible. Respond with JSON:' })
-    content.push({ type: 'image', image: { url: input.imageUrl } })
-  } else if (input.type === 'audio' && input.audioBase64) {
-    content.push({ type: 'text', text: 'Listen to this audio message. Transcribe it EXACTLY word for word. Then analyze what was said. Respond with JSON:' })
-    content.push({ 
-      type: 'file',
-      data: input.audioBase64,
-      mimeType: input.audioMimeType || 'audio/webm',
+  try {
+    if (!GEMINI_API_KEY) {
+      console.error('[v0] GEMINI_API_KEY not set')
+      throw new Error('GEMINI_API_KEY not configured')
+    }
+
+    const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY })
+
+    console.log('[v0] Calling Gemini for', input.type, 'analysis')
+
+    // Build the prompt + content for each media type
+    let userPrompt: string
+    const parts: Array<any> = []
+
+    if (input.type === 'image' && input.imageUrl) {
+      userPrompt = 'Analyze this image and respond with JSON:'
+
+      // Fetch the image and convert to base64 for reliable multimodal input
+      try {
+        const imgRes = await fetch(input.imageUrl)
+        const imgBuffer = await imgRes.arrayBuffer()
+        const base64 = Buffer.from(imgBuffer).toString('base64')
+        const contentType = imgRes.headers.get('content-type') || 'image/jpeg'
+
+        parts.push({
+          type: 'image' as const,
+          image: base64,
+          mimeType: contentType,
+        })
+        console.log('[v0] Image fetched, size:', imgBuffer.byteLength, 'type:', contentType)
+      } catch (fetchErr) {
+        console.error('[v0] Failed to fetch image URL:', fetchErr)
+        // Fallback: try URL directly
+        parts.push({
+          type: 'image' as const,
+          image: new URL(input.imageUrl),
+        })
+      }
+    } else if (input.type === 'audio' && input.audioBase64) {
+      userPrompt = 'Listen to this audio message. Transcribe it and analyze. Respond with JSON:'
+      parts.push({
+        type: 'file' as const,
+        data: input.audioBase64,
+        mimeType: input.audioMimeType || 'audio/webm',
+      })
+    } else {
+      userPrompt = `Analyze this description of a home issue and respond with JSON:\n\n"${input.text}"`
+    }
+
+    const result = await generateText({
+      model: google('gemini-2.0-flash'),
+      system: SYSTEM_PROMPT,
+      messages: [{
+        role: 'user',
+        content: parts.length > 0
+          ? [{ type: 'text' as const, text: userPrompt }, ...parts]
+          : userPrompt,
+      }],
+      temperature: 0.1,
+      maxTokens: 1024,
     })
-  } else if (input.text) {
-    content.push({ type: 'text', text: `Analyze this text and respond with JSON:\n\n"${input.text}"` })
-  }
+
 
   try {
     if (!GEMINI_API_KEY) {
       console.error('[v0] GEMINI_API_KEY not set')
       throw new Error('GEMINI_API_KEY not configured')
     }
-    
-    // Use direct Gemini API with user's key for better multimodal support
+
     const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY })
-    
+
     console.log('[v0] Calling Gemini for', input.type, 'analysis')
-    
+
+    // Build the prompt + content for each media type
+    let userPrompt: string
+    const parts: Array<any> = []
+
+    if (input.type === 'image' && input.imageUrl) {
+      userPrompt = 'Analyze this image and respond with JSON:'
+
+      // Fetch the image and convert to base64 for reliable multimodal input
+      try {
+        const imgRes = await fetch(input.imageUrl)
+        const imgBuffer = await imgRes.arrayBuffer()
+        const base64 = Buffer.from(imgBuffer).toString('base64')
+        const contentType = imgRes.headers.get('content-type') || 'image/jpeg'
+
+        parts.push({
+          type: 'image' as const,
+          image: base64,
+          mimeType: contentType,
+        })
+        console.log('[v0] Image fetched, size:', imgBuffer.byteLength, 'type:', contentType)
+      } catch (fetchErr) {
+        console.error('[v0] Failed to fetch image URL:', fetchErr)
+        // Fallback: try URL directly
+        parts.push({
+          type: 'image' as const,
+          image: new URL(input.imageUrl),
+        })
+      }
+    } else if (input.type === 'audio' && input.audioBase64) {
+      userPrompt = 'Listen to this audio message. Transcribe it and analyze. Respond with JSON:'
+      parts.push({
+        type: 'file' as const,
+        data: input.audioBase64,
+        mimeType: input.audioMimeType || 'audio/webm',
+      })
+    } else {
+      userPrompt = `Analyze this description of a home issue and respond with JSON:\n\n"${input.text}"`
+    }
+
     const result = await generateText({
       model: google('gemini-2.0-flash'),
       system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: content as any }],
+      messages: [{
+        role: 'user',
+        content: parts.length > 0
+          ? [{ type: 'text' as const, text: userPrompt }, ...parts]
+          : userPrompt,
+      }],
       temperature: 0.1,
       maxTokens: 1024,
     })
 
     const responseText = result.text
-    
+
     // Parse JSON from response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
@@ -127,7 +215,7 @@ async function analyzeWithAI(input: {
         analyzed_at: new Date().toISOString(),
       }
     }
-    
+
     // Fallback if JSON parsing fails
     return {
       input_type: input.type,
@@ -187,8 +275,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           return NextResponse.json({ error: 'audio_base64 required for audio' }, { status: 400 })
         }
         console.log('[v0] Analyzing audio, size:', audio_base64.length)
-        analysis = await analyzeWithAI({ 
-          type: 'audio', 
+        analysis = await analyzeWithAI({
+          type: 'audio',
           audioBase64: audio_base64,
           audioMimeType: mime_type || 'audio/webm'
         })
@@ -222,8 +310,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Update media_urls if this is an image/audio
     const existingUrls = request.media_urls as string[] || []
-    const updatedUrls = media_url && !existingUrls.includes(media_url) 
-      ? [...existingUrls, media_url] 
+    const updatedUrls = media_url && !existingUrls.includes(media_url)
+      ? [...existingUrls, media_url]
       : existingUrls
 
     await db.from('service_requests')
@@ -246,8 +334,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       label: `Media analyzed (${media_type}): ${analysis.detected_issue || analysis.summary.substring(0, 50)}`,
       status: 'completed',
       actor_type: 'system',
-      metadata: JSON.stringify({ 
-        media_type, 
+      metadata: JSON.stringify({
+        media_type,
         detected_issue: analysis.detected_issue,
         severity: analysis.severity,
         language: analysis.language_detected,
@@ -263,7 +351,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     } else {
       agentPrompt = `The customer described: ${analysis.summary}`
     }
-    
+
     if (analysis.safety_concerns.length > 0) {
       agentPrompt += ` SAFETY ALERT: ${analysis.safety_concerns.join(', ')}`
     }

@@ -99,37 +99,25 @@ const SERVICES = [
   { label: 'Security', icon: ShieldIcon },
 ]
 
-function ServiceCard({ label, icon: Icon, dark }: { label: string; icon: React.FC<{ className?: string }>; dark?: boolean }) {
+function ServiceCard({ label, icon: Icon }: { label: string; icon: React.FC<{ className?: string }> }) {
   return (
-    <div className={cn(
-      'flex flex-shrink-0 items-center gap-3 rounded-2xl px-4 py-3 transition-shadow',
-      dark
-        ? 'border border-white/10 bg-white/10 backdrop-blur-sm'
-        : 'border border-border/40 bg-card shadow-[0_2px_12px_rgba(0,0,0,0.04)] ring-1 ring-border/20 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]'
-    )}>
-      <div className={cn(
-        'flex h-9 w-9 items-center justify-center rounded-xl',
-        dark ? 'bg-white/15' : 'bg-secondary'
-      )}>
-        <Icon className={cn('h-4.5 w-4.5', dark ? 'text-white' : 'text-primary')} />
+    <div className="flex flex-shrink-0 items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-300 glass-card-v2 hover:bg-white/[0.06]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10 shadow-[0_0_12px_rgba(200,230,76,0.1)]">
+        <Icon className="h-4.5 w-4.5 text-[#C8E64C]" />
       </div>
-      <span className={cn(
-        'text-sm font-semibold whitespace-nowrap',
-        dark ? 'text-white/90' : 'text-foreground'
-      )}>{label}</span>
+      <span className="text-sm font-semibold whitespace-nowrap text-white/80">{label}</span>
     </div>
   )
 }
 
 export function ServicesTicker({ variant }: { variant?: 'dark' | 'light' }) {
-  const dark = variant === 'dark'
   const doubled = [...SERVICES, ...SERVICES]
 
   return (
     <section className="w-full overflow-hidden py-4" aria-label="Available services">
       <div className="flex gap-3 animate-ticker" style={{ width: 'max-content' }}>
         {doubled.map((s, i) => (
-          <ServiceCard key={`${s.label}-${i}`} label={s.label} icon={s.icon} dark={dark} />
+          <ServiceCard key={`${s.label}-${i}`} label={s.label} icon={s.icon} />
         ))}
       </div>
     </section>

@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return (
             <div className="flex h-dvh items-center justify-center bg-[#0B0F1A]">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#8FB34A]/20 border-t-[#8FB34A]" />
+                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#C8E64C]/20 border-t-[#C8E64C]" />
                     <span className="text-sm text-white/40">Loading…</span>
                 </div>
             </div>
@@ -76,10 +76,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <div className="flex h-dvh bg-[#0B0F1A] text-white overflow-hidden">
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex flex-col w-[260px] border-r border-white/[0.06] bg-[#0D1220]">
+            <aside className="hidden lg:flex flex-col w-[260px] bg-white/[0.02] backdrop-blur-2xl overflow-hidden relative" style={{ borderRight: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}>
                 <div className="flex items-center gap-3 px-5 py-5 border-b border-white/[0.06]">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#8FB34A]/10">
-                        <OSSymbol className="h-5 w-5" color="#8FB34A" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8E64C]/10">
+                        <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-white tracking-tight">OSCaller</h2>
@@ -91,13 +91,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
                         <button
                             key={id}
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-all hover:bg-white/[0.04] hover:text-white/80 data-[active=true]:bg-[#8FB34A]/10 data-[active=true]:text-[#8FB34A]"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 data-[active=true]:glass-card-v2 data-[active=true]:text-[#C8E64C] data-[active=true]:shadow-[0_2px_12px_rgba(200,230,76,0.1)] text-white/50 hover:bg-white/[0.04] hover:text-white/80"
                             data-active={id === 'dashboard'}
                         >
                             <Icon className="h-[18px] w-[18px]" />
                             <span className="flex-1 text-left">{label}</span>
                             {badge && badge > 0 && (
-                                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8FB34A] px-1.5 text-[10px] font-bold text-white">
+                                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#C8E64C] px-1.5 text-[10px] font-bold text-white">
                                     {badge}
                                 </span>
                             )}
@@ -105,9 +105,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     ))}
                 </nav>
 
-                <div className="border-t border-white/[0.06] p-3">
-                    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#8FB34A]/15 text-xs font-bold text-[#8FB34A]">
+                <div className="border-t border-white/[0.04] p-3">
+                    <div className="flex items-center gap-3 rounded-xl glass-card-v2 px-3 py-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C8E64C]/15 text-xs font-bold text-[#C8E64C]">
                             {user?.email?.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -126,19 +126,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
 
             {/* Mobile header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#0D1220]/90 backdrop-blur-xl border-b border-white/[0.06]">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#0A0A0A]/85 backdrop-blur-2xl" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(90deg, transparent, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1), transparent) 1' }}>
                 <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white/60">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
                 <div className="flex items-center gap-2">
-                    <OSSymbol className="h-5 w-5" color="#8FB34A" />
+                    <OSSymbol className="h-5 w-5" color="#C8E64C" />
                     <span className="text-sm font-bold">Admin</span>
                 </div>
                 <button className="relative text-white/60">
                     <Bell className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#8FB34A]" />
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#C8E64C]" />
                 </button>
             </div>
 
@@ -146,7 +146,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {sidebarOpen && (
                 <div className="lg:hidden fixed inset-0 z-40">
                     <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-                    <aside className="absolute left-0 top-0 h-full w-[280px] bg-[#0D1220] border-r border-white/[0.06] p-4">
+                    <aside className="absolute left-0 top-0 h-full w-[280px] bg-[#0A0A0A]/95 backdrop-blur-2xl p-4" style={{ borderRight: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}>
                         <nav className="mt-14 space-y-1">
                             {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
                                 <button
