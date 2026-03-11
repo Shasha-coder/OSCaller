@@ -285,7 +285,7 @@ function MobilePhoneInput({
       </div>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={300}>
-        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.08] bg-[#0d1117]/95 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#C8E64C] bg-[#C8E64C]/[0.08] border-b border-[#C8E64C]/[0.12]">
             Available Countries
           </div>
@@ -337,7 +337,7 @@ function MobilePhoneInput({
 
 /* ══════════════════�����������������════════════════════════
    Language Dropdown
-   ═══════════════════════════════════════════ */
+   ══════════════��════════════════════════════ */
 function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -367,24 +367,24 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
         data-no-focus-ring
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
         className={cn(
-          'flex items-center gap-2 w-full sm:w-auto h-[52px] sm:h-[36px] px-4 sm:px-3 rounded-2xl sm:rounded-full border-2 sm:border text-[15px] sm:text-[12px] font-semibold transition-all cursor-pointer outline-none',
+          'flex items-center gap-2 w-full h-[48px] px-4 rounded-xl border-2 text-[14px] font-semibold transition-all cursor-pointer outline-none',
           open
-            ? 'border-[#C8E64C] bg-[#1E293B] sm:bg-white shadow-[0_0_0_4px_rgba(200,230,76,0.15)] sm:shadow-[0_0_0_3px_rgba(200,230,76,0.10)]'
-            : 'border-white/30 sm:border-[#E2E8F0] bg-[#1E293B] sm:bg-white sm:backdrop-blur-md hover:border-[#C8E64C]/60 sm:shadow-sm'
+            ? 'border-[#C8E64C] bg-white/[0.04] shadow-[0_0_0_4px_rgba(200,230,76,0.08)]'
+            : 'border-white/[0.08] bg-white/[0.04] hover:border-[#C8E64C]/40'
         )}
       >
-        <svg className="h-5 w-5 sm:h-3.5 sm:w-3.5 text-[#C8E64C] sm:text-[#8FB34A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="h-4 w-4 text-[#C8E64C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
-        <span className="text-white sm:text-[#334155] whitespace-nowrap flex-1 sm:flex-none text-left font-semibold">{value}</span>
-        <ChevronDown className={cn('h-5 w-5 sm:h-3 sm:w-3 text-white/70 sm:text-[#64748B] transition-transform duration-200', open && 'rotate-180')} />
+        <span className="text-white/70 whitespace-nowrap flex-1 text-left font-semibold">{value}</span>
+        <ChevronDown className={cn('h-4 w-4 text-white/50 transition-transform duration-200', open && 'rotate-180')} />
       </button>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
         <div
           ref={dropdownRef}
-          className="max-h-[280px] overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0d1117]/95 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+          className="max-h-[280px] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
           style={{ scrollbarWidth: 'thin' }}
         >
           {LANGUAGES.map(lang => (
@@ -938,13 +938,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                   className={cn(
                     'flex items-center gap-1.5 h-[34px] px-2.5 rounded-full border transition-all outline-none shadow-none',
                     isLiveLocation
-                      ? 'border-[#C8E64C]/30 bg-[rgba(200,230,76,0.1)]/90 backdrop-blur-md'
+                      ? 'border-[#C8E64C]/30 bg-[rgba(200,230,76,0.15)] backdrop-blur-md'
                       : 'border-white/60 bg-white/[0.04] backdrop-blur-md'
                   )}
                 >
-                  <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/35')} strokeWidth={2.5} />
+                  <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#0F172A]' : 'text-white/35')} strokeWidth={2.5} />
                   <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-[#CBD5E1]')}>
-                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full bg-white/[0.04] shadow-none transition-transform duration-200', isLiveLocation ? 'translate-x-[12px]' : 'translate-x-[2px]')} />
+                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px]' : 'translate-x-[2px]')} />
                   </div>
                 </button>
                 <button
@@ -1103,7 +1103,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 overflow-y-auto bg-white/[0.04] border-t border-white/[0.08]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[88px]">
+        <div className="shrink-0 bg-[#0d1117] border-t border-white/[0.10] shadow-[0_-4px_24px_rgba(0,0,0,0.2)] px-4 pt-4 pb-[88px] rounded-t-2xl">
 
           {/* Row 1: Name and Language */}
           <div className="flex items-center gap-3 mb-3">
@@ -1163,8 +1163,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     className={cn(
                       'flex items-center justify-center h-[36px] w-[36px] rounded-xl transition-all duration-200 outline-none',
                       inputMode === mode
-                        ? 'bg-[#C8E64C] text-white shadow-md'
-                        : 'text-white/35 hover:text-white/50 hover:bg-white',
+                        ? 'bg-[#C8E64C] text-[#0F172A] shadow-md'
+                        : 'text-white/35 hover:text-white/50 hover:bg-white/[0.06]',
                       mode === 'text' && 'mr-1'
                     )}
                     aria-label={`${mode} input`}
@@ -1253,15 +1253,15 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             data-no-focus-ring
             onClick={callAria}
             disabled={callingAria}
-            className="w-full flex items-center justify-center gap-2.5 h-[56px] rounded-2xl bg-gradient-to-r from-[#C8E64C] to-[#7DA33F] text-white text-[17px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.4)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.5)] active:scale-[0.98] outline-none disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-2xl bg-gradient-to-r from-[#C8E64C] to-[#7DA33F] text-[#0F172A] text-[16px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.4)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.5)] active:scale-[0.98] outline-none disabled:opacity-60"
           >
-            <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
+            <Phone className={cn("h-5 w-5 text-[#0F172A]", callingAria && "animate-pulse")} strokeWidth={2.5} />
             {callingAria ? 'Calling Aria...' : 'Call Aria'}
           </button>
 
           {/* Powered by Aria AI */}
           <p className="text-[11px] text-white/40 text-center mt-3 pb-1">
-            Powered by <span className="font-bold text-[#C8E64C]">Aria AI</span> — Your 24/7 assistant
+            Powered by <span className="font-bold text-[#C8E64C]">Aria AI</span> - Your 24/7 assistant
           </p>
         </div>
       </div>
@@ -1270,9 +1270,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:pb-4" style={{ height: 'calc(100% - 24px)' }}>
 
         {/* Left Panel - Request Form */}
-        <div className="flex flex-col h-full overflow-hidden pb-4">
+        <div className="flex flex-col h-full pb-4">
           {/* Form Card - Same height as map */}
-          <div className="flex-1 flex flex-col glass-card-v2 glass-gradient-border rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.2)] p-5 overflow-auto">
+          <div className="flex-1 flex flex-col glass-card-v2 glass-gradient-border rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.2)] p-5">
 
             {/* Name and Language row */}
             <div className="grid grid-cols-2 gap-3 mb-4">
@@ -1284,7 +1284,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                   onChange={e => setCustomerName(e.target.value)}
                   placeholder="First name"
                   data-no-focus-ring
-                  className="w-full h-[48px] px-4 rounded-xl glass-input text-[14px] font-medium text-white outline-none placeholder:text-white/35 focus:border-[#C8E64C] focus:shadow-[0_0_0_4px_rgba(200,230,76,0.08)] transition-all"
+                  className="w-full h-[48px] px-4 rounded-xl bg-white/[0.04] border-2 border-white/[0.08] text-[14px] font-medium text-white outline-none placeholder:text-white/35 focus:border-[#C8E64C] focus:shadow-[0_0_0_4px_rgba(200,230,76,0.08)] transition-all"
                 />
               </div>
               <div>
@@ -1332,8 +1332,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       className={cn(
                         'flex items-center justify-center h-[32px] w-[32px] rounded-lg transition-all duration-200 outline-none',
                         inputMode === mode
-                          ? 'bg-[#C8E64C] text-white shadow-none'
-                          : 'text-white/35 hover:text-white/50 hover:bg-white',
+                          ? 'bg-[#C8E64C] text-[#0F172A] shadow-none'
+                          : 'text-white/35 hover:text-white/50 hover:bg-white/[0.06]',
                         mode === 'text' && 'mr-0.5'
                       )}
                       aria-label={`${mode} input`}
@@ -1428,11 +1428,11 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <LocateFixed className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/35')} strokeWidth={2} />
+                  <ArrowLeftRight className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#0F172A]' : 'text-white/35')} strokeWidth={2} />
                   <span className="text-[14px] font-semibold text-white/70">Use my GPS location</span>
                 </div>
                 <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-[#CBD5E1]')}>
-                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full bg-white/[0.04] shadow-none transition-transform duration-200', isLiveLocation ? 'translate-x-[22px]' : 'translate-x-[2px]')} />
+                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px]' : 'translate-x-[2px]')} />
                 </div>
               </button>
             </div>
@@ -1454,9 +1454,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               data-no-focus-ring
               onClick={callAria}
               disabled={callingAria}
-              className="w-full flex items-center justify-center gap-3 h-[56px] px-6 rounded-2xl bg-gradient-to-r from-[#C8E64C] to-[#7DA33F] text-white text-[17px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.35)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.45)] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.99] outline-none disabled:opacity-60 disabled:hover:translate-y-0"
+              className="w-full flex items-center justify-center gap-3 h-[52px] rounded-2xl bg-gradient-to-r from-[#C8E64C] to-[#7DA33F] text-[#0F172A] text-[16px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.35)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.45)] hover:translate-y-[-1px] active:translate-y-0 active:scale-[0.99] outline-none disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              <Phone className={cn("h-5 w-5", callingAria && "animate-[wiggle_0.5s_ease-in-out_infinite]")} strokeWidth={2.5} />
+              <Phone className={cn("h-5 w-5 text-[#0F172A]", callingAria && "animate-[wiggle_0.5s_ease-in-out_infinite]")} strokeWidth={2.5} />
               {callingAria ? 'Calling Aria...' : 'Call Aria'}
             </button>
 
