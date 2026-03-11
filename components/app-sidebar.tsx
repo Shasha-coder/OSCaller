@@ -49,7 +49,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 pointer-events-auto',
+          'hidden lg:flex flex-col items-center gap-1.5 py-4 z-50 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
           'backdrop-blur-2xl transition-colors duration-300',
           'bg-white/[0.03]'
@@ -57,6 +57,13 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         style={{ width: 80, borderLeft: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}
         aria-label="Main navigation"
       >
+        {/* Logo at top */}
+        <div className="mb-4">
+          <img src="/logo.svg" alt="OSCaller" className="h-10 w-10 rounded-lg" />
+        </div>
+
+        {/* Spacer to center nav items */}
+        <div className="flex-1" />
         {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
@@ -89,18 +96,31 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
             </button>
           )
         })}
+
+        {/* Spacer at bottom */}
+        <div className="flex-1" />
       </aside>
 
       {/* ─── Mobile bottom bar ─── */}
       <nav
         className={cn(
-          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto gradient-edge-top',
-          'flex items-end justify-around px-1',
-          'pt-2 pb-[max(env(safe-area-inset-bottom),10px)]',
-          'bg-[#0A0A0A]/85 backdrop-blur-3xl border-t border-white/[0.04]'
+          'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto',
+          'flex items-center justify-around px-2',
+          'py-2 pb-[max(env(safe-area-inset-bottom),12px)]',
+          'bg-[#0A0A0A]/95 backdrop-blur-2xl border-t border-white/[0.08]'
         )}
+        style={{
+          boxShadow: '0 -1px 0 rgba(200,230,76,0.15), 0 -8px 24px rgba(0,0,0,0.3)'
+        }}
         aria-label="Main navigation"
       >
+        {/* Top edge light line effect */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-[1px]"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(200,230,76,0.4) 20%, rgba(200,230,76,0.6) 50%, rgba(200,230,76,0.4) 80%, transparent 100%)'
+          }}
+        />
         {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
@@ -110,14 +130,14 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-label={label}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-[3px] px-3 py-1.5 rounded-xl transition-all duration-200',
-                active ? 'text-[#C8E64C]' : 'text-white/35 active:text-white/55'
+                'flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-all duration-200',
+                active ? 'text-[#C8E64C]' : 'text-white/40 active:text-white/60'
               )}
             >
               <div className="relative">
                 {active && (
                   <span
-                    className="absolute -top-[7px] left-1/2 -translate-x-1/2 h-[2.5px] w-5 rounded-full bg-[#C8E64C] transition-all duration-300"
+                    className="absolute -top-[6px] left-1/2 -translate-x-1/2 h-[2px] w-6 rounded-full bg-[#C8E64C] transition-all duration-300"
                     aria-hidden="true"
                   />
                 )}

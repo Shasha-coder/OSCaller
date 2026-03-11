@@ -701,32 +701,50 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       // 3. Trigger Retell AI call to client with full context
       setCallStatus('ringing')
 
-      // 🔊 OSCaller brand ring sound — rising arpeggio chime
+      // 🔊 OSCaller unique brand sound — warm "digital bell" notification
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-        const playTone = (freq: number, duration: number, startTime: number, vol = 0.3) => {
+        const playChime = (freq: number, duration: number, startTime: number, vol = 0.25) => {
+          // Main tone
           const osc = audioContext.createOscillator()
           const gain = audioContext.createGain()
+          // Add slight harmonic overtone for richness
+          const osc2 = audioContext.createOscillator()
+          const gain2 = audioContext.createGain()
+          
           osc.connect(gain)
+          osc2.connect(gain2)
           gain.connect(audioContext.destination)
+          gain2.connect(audioContext.destination)
+          
           osc.frequency.value = freq
           osc.type = 'sine'
-          gain.gain.setValueAtTime(vol, startTime)
-          gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration)
+          osc2.frequency.value = freq * 2 // Octave harmonic
+          osc2.type = 'sine'
+          
+          // Bell-like envelope with quick attack and smooth decay
+          gain.gain.setValueAtTime(0, startTime)
+          gain.gain.linearRampToValueAtTime(vol, startTime + 0.01)
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration)
+          
+          gain2.gain.setValueAtTime(0, startTime)
+          gain2.gain.linearRampToValueAtTime(vol * 0.15, startTime + 0.01)
+          gain2.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.7)
+          
           osc.start(startTime)
           osc.stop(startTime + duration)
+          osc2.start(startTime)
+          osc2.stop(startTime + duration)
         }
         const now = audioContext.currentTime
-        // Ring pattern: C5 → E5 → G5 → C6 (rising major arpeggio)
-        playTone(523, 0.18, now, 0.30)         // C5
-        playTone(659, 0.18, now + 0.15, 0.28)  // E5
-        playTone(784, 0.18, now + 0.30, 0.25)  // G5
-        playTone(1047, 0.25, now + 0.45, 0.30) // C6 (hold longer)
-        // Repeat after brief pause
-        playTone(523, 0.18, now + 0.9, 0.25)
-        playTone(659, 0.18, now + 1.05, 0.22)
-        playTone(784, 0.18, now + 1.20, 0.20)
-        playTone(1047, 0.25, now + 1.35, 0.25)
+        // OSCaller signature: D5 → F#5 → A5 → D6 (D major arpeggio - warm, friendly)
+        playChime(587, 0.25, now, 0.28)          // D5
+        playChime(740, 0.25, now + 0.12, 0.26)   // F#5
+        playChime(880, 0.25, now + 0.24, 0.24)   // A5
+        playChime(1175, 0.35, now + 0.36, 0.30)  // D6 (hold longer, slightly louder)
+        // Brief pause, then confirmation double-tap
+        playChime(880, 0.15, now + 0.8, 0.18)    // A5
+        playChime(1175, 0.25, now + 0.92, 0.22)  // D6
       } catch (e) {
         // Ignore sound errors on browsers that don't support Web Audio
       }
@@ -910,8 +928,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes upper portion, leaves room for larger bottom panel */}
-        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-380px)]">
+        {/* Map takes upper portion - more generous space */}
+        <div className="relative flex-1 min-h-[35vh] max-h-[45vh]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
