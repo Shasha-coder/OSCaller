@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video } from 'lucide-react'
+import { VideoInspection } from '@/components/video-inspection'
 
 /* ─── Countries (3 supported, rest locked) ─── */
 const COUNTRIES = [
@@ -434,6 +435,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
   const [callingAria, setCallingAria] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [serviceType, setServiceType] = useState('general')
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -451,6 +453,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     lng: number
     rating?: number
   } | null>(null)
+  const [showVideoInspection, setShowVideoInspection] = useState(false)
+  const [videoAnalysis, setVideoAnalysis] = useState<string | null>(null)
 
   // Fetch nearby providers from API and set as markers
   const fetchNearbyProviders = useCallback(async (lat: number, lng: number) => {
@@ -697,27 +701,32 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       // 3. Trigger Retell AI call to client with full context
       setCallStatus('ringing')
 
-      // Play call sound effect using Web Audio API
+      // 🔊 OSCaller brand ring sound — rising arpeggio chime
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-        const playTone = (freq: number, duration: number, startTime: number) => {
-          const oscillator = audioContext.createOscillator()
-          const gainNode = audioContext.createGain()
-          oscillator.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-          oscillator.frequency.value = freq
-          oscillator.type = 'sine'
-          gainNode.gain.setValueAtTime(0.15, startTime)
-          gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
-          oscillator.start(startTime)
-          oscillator.stop(startTime + duration)
+        const playTone = (freq: number, duration: number, startTime: number, vol = 0.3) => {
+          const osc = audioContext.createOscillator()
+          const gain = audioContext.createGain()
+          osc.connect(gain)
+          gain.connect(audioContext.destination)
+          osc.frequency.value = freq
+          osc.type = 'sine'
+          gain.gain.setValueAtTime(vol, startTime)
+          gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration)
+          osc.start(startTime)
+          osc.stop(startTime + duration)
         }
-        // Play a pleasant two-tone ring (similar to modern phone ringtone)
         const now = audioContext.currentTime
-        playTone(880, 0.15, now)        // A5
-        playTone(1047, 0.15, now + 0.15) // C6
-        playTone(880, 0.15, now + 0.4)
-        playTone(1047, 0.15, now + 0.55)
+        // Ring pattern: C5 → E5 → G5 → C6 (rising major arpeggio)
+        playTone(523, 0.18, now, 0.30)         // C5
+        playTone(659, 0.18, now + 0.15, 0.28)  // E5
+        playTone(784, 0.18, now + 0.30, 0.25)  // G5
+        playTone(1047, 0.25, now + 0.45, 0.30) // C6 (hold longer)
+        // Repeat after brief pause
+        playTone(523, 0.18, now + 0.9, 0.25)
+        playTone(659, 0.18, now + 1.05, 0.22)
+        playTone(784, 0.18, now + 1.20, 0.20)
+        playTone(1047, 0.25, now + 1.35, 0.25)
       } catch (e) {
         // Ignore sound errors on browsers that don't support Web Audio
       }
@@ -734,7 +743,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         issue_description: inputMode === 'text' ? searchQuery : '',
         photo_summary: photoSummary,
         audio_summary: audioSummary,
-        service_type: 'general',
+        service_type: serviceType,
         urgency: 'standard',
       }
 
@@ -806,26 +815,27 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             })
             setCallStatus('dispatched')
 
-            // Play success sound
+            // 🔊 OSCaller success sound — celebratory chord
             try {
               const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-              const playTone = (freq: number, duration: number, startTime: number) => {
-                const oscillator = audioContext.createOscillator()
-                const gainNode = audioContext.createGain()
-                oscillator.connect(gainNode)
-                gainNode.connect(audioContext.destination)
-                oscillator.frequency.value = freq
-                oscillator.type = 'sine'
-                gainNode.gain.setValueAtTime(0.12, startTime)
-                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
-                oscillator.start(startTime)
-                oscillator.stop(startTime + duration)
+              const playTone = (freq: number, duration: number, startTime: number, vol = 0.25) => {
+                const osc = audioContext.createOscillator()
+                const gain = audioContext.createGain()
+                osc.connect(gain)
+                gain.connect(audioContext.destination)
+                osc.frequency.value = freq
+                osc.type = 'sine'
+                gain.gain.setValueAtTime(vol, startTime)
+                gain.gain.exponentialRampToValueAtTime(0.005, startTime + duration)
+                osc.start(startTime)
+                osc.stop(startTime + duration)
               }
-              // Play ascending success tones (C5, E5, G5)
               const now = audioContext.currentTime
-              playTone(523, 0.12, now)       // C5
-              playTone(659, 0.12, now + 0.1) // E5
-              playTone(784, 0.2, now + 0.2)  // G5
+              // Triumphant rising chord: C5 → E5 → G5 → C6
+              playTone(523, 0.2, now, 0.25)          // C5
+              playTone(659, 0.2, now + 0.12, 0.22)   // E5
+              playTone(784, 0.25, now + 0.24, 0.25)   // G5
+              playTone(1047, 0.35, now + 0.36, 0.28)  // C6 — sustained
             } catch (e) { }
           }
         }
@@ -1051,6 +1061,18 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                     {callStatus === 'active' && 'Describe your problem to Aria'}
                   </p>
 
+                  {/* Video Inspection button - shows during active call */}
+                  {callStatus === 'active' && (
+                    <button
+                      onClick={() => setShowVideoInspection(true)}
+                      data-no-focus-ring
+                      className="mt-5 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500/80 to-red-600/80 text-white font-bold text-sm shadow-[0_4px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_6px_28px_rgba(239,68,68,0.4)] transition-all active:scale-[0.97] outline-none"
+                    >
+                      <Video className="h-4 w-4" />
+                      Start Video Inspection
+                    </button>
+                  )}
+
                   {/* Soft connecting sound indicator */}
                   <div className="flex items-center gap-1 mt-6">
                     {[0, 1, 2, 3, 4].map(i => (
@@ -1099,6 +1121,26 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             <div className="flex-1">
               <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Language</label>
               <LanguageDropdown value={language} onChange={setLanguage} />
+            </div>
+          </div>
+          {/* Service Type Selector - Scrollable chips */}
+          <div className="mb-3">
+            <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Service type</label>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+              {[{ id: 'general', label: '🔧 General' }, { id: 'plumbing', label: '🚿 Plumbing' }, { id: 'electrical', label: '⚡ Electrical' }, { id: 'hvac', label: '🌡️ HVAC' }, { id: 'locksmith', label: '🔐 Locksmith' }, { id: 'roofing', label: '🏠 Roofing' }, { id: 'appliance', label: '🔌 Appliance' }, { id: 'pest', label: '🐛 Pest' }].map(s => (
+                <button
+                  key={s.id}
+                  type="button"
+                  data-no-focus-ring
+                  onClick={() => setServiceType(s.id)}
+                  className={cn(
+                    'flex-shrink-0 px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 outline-none whitespace-nowrap border',
+                    serviceType === s.id
+                      ? 'bg-[#C8E64C]/15 border-[#C8E64C]/40 text-[#C8E64C] shadow-[0_0_12px_rgba(200,230,76,0.15)]'
+                      : 'bg-white/[0.03] border-white/[0.06] text-white/50 hover:bg-white/[0.06] hover:text-white/70'
+                  )}
+                >{s.label}</button>
+              ))}
             </div>
           </div>
 
@@ -1243,6 +1285,26 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               <div>
                 <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Language</label>
                 <LanguageDropdown value={language} onChange={setLanguage} />
+              </div>
+            </div>
+            {/* Service Type Selector */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Service type</label>
+              <div className="flex flex-wrap gap-2">
+                {[{ id: 'general', label: '🔧 General' }, { id: 'plumbing', label: '🚿 Plumbing' }, { id: 'electrical', label: '⚡ Electrical' }, { id: 'hvac', label: '🌡️ HVAC' }, { id: 'locksmith', label: '🔐 Locksmith' }, { id: 'roofing', label: '🏠 Roofing' }, { id: 'appliance', label: '🔌 Appliance' }, { id: 'pest', label: '🐛 Pest' }].map(s => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    data-no-focus-ring
+                    onClick={() => setServiceType(s.id)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all duration-200 outline-none whitespace-nowrap border',
+                      serviceType === s.id
+                        ? 'bg-[#C8E64C]/15 border-[#C8E64C]/40 text-[#C8E64C] shadow-[0_0_12px_rgba(200,230,76,0.15)]'
+                        : 'bg-white/[0.03] border-white/[0.06] text-white/50 hover:bg-white/[0.06] hover:text-white/70'
+                    )}
+                  >{s.label}</button>
+                ))}
               </div>
             </div>
 
@@ -1569,6 +1631,15 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           )}
         </div>
       </div>
+
+      {/* ─── Video Inspection Overlay ─── */}
+      {showVideoInspection && (
+        <VideoInspection
+          requestId={undefined}
+          onAnalysis={(a) => setVideoAnalysis(a.description + ' | ' + a.issue_detected)}
+          onClose={() => setShowVideoInspection(false)}
+        />
+      )}
     </div>
   )
 }
