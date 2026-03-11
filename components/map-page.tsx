@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video, ArrowLeftRight } from 'lucide-react'
 import { VideoInspection } from '@/components/video-inspection'
 
 /* ─── Countries (3 supported, rest locked) ─── */
