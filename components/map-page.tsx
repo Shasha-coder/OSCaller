@@ -369,16 +369,16 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
         className={cn(
           'flex items-center gap-2 w-full sm:w-auto h-[52px] sm:h-[36px] px-4 sm:px-3 rounded-2xl sm:rounded-full border-2 sm:border text-[15px] sm:text-[12px] font-semibold transition-all cursor-pointer outline-none',
           open
-            ? 'border-[#C8E64C] bg-white/[0.04] shadow-[0_0_0_4px_rgba(200,230,76,0.1)] sm:shadow-[0_0_0_3px_rgba(200,230,76,0.10)]'
-            : 'border-white/[0.08] sm:border-white/60 bg-white/[0.04] sm:bg-white/95 sm:backdrop-blur-md hover:border-[#CBD5E1] sm:shadow-none'
+            ? 'border-[#C8E64C] bg-[#1a1f2e] sm:bg-white/[0.04] shadow-[0_0_0_4px_rgba(200,230,76,0.1)] sm:shadow-[0_0_0_3px_rgba(200,230,76,0.10)]'
+            : 'border-white/20 sm:border-white/60 bg-[#1a1f2e] sm:bg-white/95 sm:backdrop-blur-md hover:border-[#C8E64C]/50 sm:shadow-none'
         )}
       >
         <svg className="h-5 w-5 sm:h-3.5 sm:w-3.5 text-[#C8E64C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
-        <span className="text-white whitespace-nowrap flex-1 sm:flex-none text-left">{value}</span>
-        <ChevronDown className={cn('h-5 w-5 sm:h-3 sm:w-3 text-white/35 transition-transform duration-200', open && 'rotate-180')} />
+        <span className="text-white sm:text-[#334155] whitespace-nowrap flex-1 sm:flex-none text-left">{value}</span>
+        <ChevronDown className={cn('h-5 w-5 sm:h-3 sm:w-3 text-white/50 sm:text-[#64748B] transition-transform duration-200', open && 'rotate-180')} />
       </button>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
@@ -911,7 +911,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
         {/* Map takes upper portion, leaves room for larger bottom panel */}
-        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-320px)]">
+        <div className="relative flex-1 min-h-0 max-h-[calc(100dvh-380px)]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -1103,7 +1103,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 bg-white/[0.04] border-t border-white/[0.08]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[84px]">
+        <div className="shrink-0 bg-[#0d1117] border-t border-white/[0.08] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] px-4 pt-4 pb-[90px] mb-2 rounded-t-3xl">
 
           {/* Row 1: Name and Language */}
           <div className="flex items-center gap-3 mb-3">
@@ -1262,7 +1262,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:pb-8" style={{ height: 'calc(100% - 16px)' }}>
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:pb-4" style={{ height: 'calc(100% - 24px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
