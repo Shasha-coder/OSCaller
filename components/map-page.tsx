@@ -285,7 +285,7 @@ function MobilePhoneInput({
       </div>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={300}>
-        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#C8E64C] bg-[#C8E64C]/[0.08] border-b border-[#C8E64C]/[0.12]">
             Available Countries
           </div>
@@ -384,7 +384,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
       <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
         <div
           ref={dropdownRef}
-          className="max-h-[280px] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
+          className="max-h-[280px] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
           style={{ scrollbarWidth: 'thin' }}
         >
           {LANGUAGES.map(lang => (
@@ -928,8 +928,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes upper portion - more generous space */}
-        <div className="relative flex-1 min-h-[35vh] max-h-[45vh]">
+        {/* Map takes upper half of screen */}
+        <div className="relative h-[50vh] min-h-[280px]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}

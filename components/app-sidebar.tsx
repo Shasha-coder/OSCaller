@@ -49,7 +49,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       {/* ─── Desktop right rail ─── */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col items-center gap-1.5 py-4 z-50 pointer-events-auto',
+          'hidden lg:flex flex-col items-center justify-center gap-1.5 py-6 z-50 pointer-events-auto',
           'fixed right-0 top-0 h-dvh',
           'backdrop-blur-2xl transition-colors duration-300',
           'bg-white/[0.03]'
@@ -57,13 +57,6 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
         style={{ width: 80, borderLeft: '1px solid transparent', borderImage: 'linear-gradient(to bottom, rgba(200,230,76,0.15), rgba(255,255,255,0.06), rgba(200,230,76,0.1)) 1' }}
         aria-label="Main navigation"
       >
-        {/* Logo at top */}
-        <div className="mb-4">
-          <img src="/logo.svg" alt="OSCaller" className="h-10 w-10 rounded-lg" />
-        </div>
-
-        {/* Spacer to center nav items */}
-        <div className="flex-1" />
         {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
@@ -96,9 +89,6 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
             </button>
           )
         })}
-
-        {/* Spacer at bottom */}
-        <div className="flex-1" />
       </aside>
 
       {/* ─── Mobile bottom bar ─── */}

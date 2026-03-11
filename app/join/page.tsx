@@ -121,7 +121,7 @@ function CountryDropdown({ value, onChange }: { value: string; onChange: (code: 
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     {/* Supported header */}
                     <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C8E64C] bg-[#C8E64C]/10">Available</div>
                     <div className="max-h-40 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
@@ -178,7 +178,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#0F172A] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200"
+                <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-48 overflow-y-auto rounded-xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-200"
                     style={{ scrollbarWidth: 'thin' }}>
                     {LANGUAGES.map(lang => (
                         <button key={lang} type="button"
@@ -439,8 +439,8 @@ export default function JoinPage() {
                             </p>
 
                             <button type="submit" disabled={loading || phoneDigits.length < 10 || !selectedCountry.supported}
-                                className="h-13 w-full rounded-xl bg-[#C8E64C] font-semibold text-white shadow-[0_4px_16px_rgba(200,230,76,0.3)] transition-all hover:bg-[#b5d440] active:scale-[0.98] disabled:opacity-40">
-                                {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Sending…</span> : 'Send verification code'}
+                                className="h-13 w-full rounded-xl bg-[#C8E64C] font-semibold text-[#0F172A] shadow-[0_4px_16px_rgba(200,230,76,0.3)] transition-all hover:bg-[#b5d440] active:scale-[0.98] disabled:opacity-40">
+                                {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0F172A]/30 border-t-[#0F172A]" />Sending…</span> : 'Send verification code'}
                             </button>
                         </form>
                     )}
