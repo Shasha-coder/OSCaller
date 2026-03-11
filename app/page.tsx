@@ -322,7 +322,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           </div>
 
           {/* Services ticker — above mobile nav bar */}
-          <div className="gsap-reveal relative z-10 flex flex-col items-center pb-[80px] lg:pb-0">
+          <div className="gsap-reveal relative z-10 flex flex-col items-center pb-[88px] lg:pb-0">
             <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>
