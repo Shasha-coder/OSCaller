@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { GoogleMap } from '@/components/google-map'
 import type { MapMarker } from '@/components/google-map'
-import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video } from 'lucide-react'
+import { LocateFixed, Phone, Lock, ChevronDown, Mic, Camera, Type, Upload, Video, ArrowLeftRight } from 'lucide-react'
 import { VideoInspection } from '@/components/video-inspection'
 
 /* ─── Countries (3 supported, rest locked) ─── */
@@ -942,7 +942,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                       : 'border-white/60 bg-white/[0.04] backdrop-blur-md'
                   )}
                 >
-                  <LocateFixed className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/35')} strokeWidth={2.5} />
+                  <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/35')} strokeWidth={2.5} />
                   <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-[#CBD5E1]')}>
                     <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full bg-white/[0.04] shadow-none transition-transform duration-200', isLiveLocation ? 'translate-x-[12px]' : 'translate-x-[2px]')} />
                   </div>
@@ -1103,7 +1103,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 max-h-[55vh] overflow-y-auto bg-[#0d1117] border-t border-white/[0.12] shadow-[0_-4px_24px_rgba(0,0,0,0.25)] px-4 pt-4 pb-[92px] mb-3 rounded-t-3xl">
+        <div className="shrink-0 overflow-y-auto bg-white/[0.04] border-t border-white/[0.08]/60 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 pt-4 pb-[88px]">
 
           {/* Row 1: Name and Language */}
           <div className="flex items-center gap-3 mb-3">
@@ -1258,6 +1258,11 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
             {callingAria ? 'Calling Aria...' : 'Call Aria'}
           </button>
+
+          {/* Powered by Aria AI */}
+          <p className="text-[11px] text-white/40 text-center mt-3 pb-1">
+            Powered by <span className="font-bold text-[#C8E64C]">Aria AI</span> — Your 24/7 assistant
+          </p>
         </div>
       </div>
 

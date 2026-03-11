@@ -219,7 +219,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           {/* Animated background — replaces static bg1.webp */}
           <HeroBackground />
 
-          <div ref={homeRevealRef} className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
+          <div ref={homeRevealRef} className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-16">
             <div className="flex flex-col items-center">
               {/* Logo with glass reflection animation */}
               <div
@@ -322,7 +322,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           </div>
 
           {/* Services ticker — above mobile nav bar */}
-          <div className="gsap-reveal relative z-10 flex flex-col items-center pb-[90px] lg:pb-0">
+          <div className="gsap-reveal relative z-10 flex flex-col items-center pb-[88px] lg:pb-0">
             <div className="w-full">
               <ServicesTicker variant="dark" />
             </div>
