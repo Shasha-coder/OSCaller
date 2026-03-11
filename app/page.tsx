@@ -219,7 +219,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
           {/* Animated background — replaces static bg1.webp */}
           <HeroBackground />
 
-          <div ref={homeRevealRef} className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 -mt-8">
+          <div ref={homeRevealRef} className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-8">
             <div className="flex flex-col items-center">
               {/* Logo with glass reflection animation */}
               <div
