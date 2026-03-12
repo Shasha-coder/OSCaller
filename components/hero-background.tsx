@@ -247,16 +247,25 @@ export function HeroBackground() {
 
             {/* ── Layer 5: Floating particles ── */}
             <div className="absolute inset-0 pointer-events-none">
-                {[...Array(8)].map((_, i) => (
+                {[
+                    { w: 2.5, h: 2.8, l: 15, t: 65, a: 0.35 },
+                    { w: 1.8, h: 3.2, l: 32, t: 72, a: 0.28 },
+                    { w: 3.1, h: 1.9, l: 48, t: 68, a: 0.42 },
+                    { w: 2.2, h: 2.5, l: 62, t: 78, a: 0.32 },
+                    { w: 1.5, h: 3.5, l: 75, t: 63, a: 0.38 },
+                    { w: 2.9, h: 2.1, l: 85, t: 75, a: 0.25 },
+                    { w: 2.0, h: 2.8, l: 25, t: 82, a: 0.45 },
+                    { w: 3.3, h: 1.6, l: 55, t: 70, a: 0.30 },
+                ].map((p, i) => (
                     <div
                         key={i}
                         className="hero-particle absolute rounded-full"
                         style={{
-                            width: Math.random() * 3 + 1,
-                            height: Math.random() * 3 + 1,
-                            left: `${Math.random() * 100}%`,
-                            top: `${60 + Math.random() * 30}%`,
-                            background: `rgba(200, 230, 76, ${0.2 + Math.random() * 0.3})`,
+                            width: p.w,
+                            height: p.h,
+                            left: `${p.l}%`,
+                            top: `${p.t}%`,
+                            background: `rgba(200, 230, 76, ${p.a})`,
                             opacity: 0.6,
                         }}
                     />
