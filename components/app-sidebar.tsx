@@ -93,7 +93,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
 
       {/* ─── Mobile bottom bar ─── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.06] pt-3 pb-[max(env(safe-area-inset-bottom),10px)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.06] pt-3 pb-[max(env(safe-area-inset-bottom),10px)] pointer-events-auto"
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
