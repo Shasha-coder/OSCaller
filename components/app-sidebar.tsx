@@ -95,22 +95,12 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
       <nav
         className={cn(
           'lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto',
-          'flex items-center justify-around px-2',
-          'py-2 pb-[max(env(safe-area-inset-bottom),12px)]',
-          'bg-[#0A0A0A]/95 backdrop-blur-2xl border-t border-white/[0.08]'
+          'flex items-center justify-around',
+          'pt-2 pb-[max(env(safe-area-inset-bottom),8px)]',
+          'bg-[#141414] border-t border-white/[0.06]'
         )}
-        style={{
-          boxShadow: '0 -1px 0 rgba(200,230,76,0.15), 0 -8px 24px rgba(0,0,0,0.3)'
-        }}
         aria-label="Main navigation"
       >
-        {/* Top edge light line effect */}
-        <div 
-          className="absolute top-0 left-0 right-0 h-[1px]"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(200,230,76,0.4) 20%, rgba(200,230,76,0.6) 50%, rgba(200,230,76,0.4) 80%, transparent 100%)'
-          }}
-        />
         {NAV.map(({ page, label, path, extraPath }) => {
           const active = currentPage === page
           return (
@@ -120,20 +110,19 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-label={label}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-all duration-200',
-                active ? 'text-[#C8E64C]' : 'text-white/40 active:text-white/60'
+                'relative flex flex-col items-center gap-1.5 px-5 py-2 transition-all duration-200',
+                active ? 'text-[#C8E64C]' : 'text-white/40 active:text-white/55'
               )}
             >
-              <div className="relative">
-                {active && (
-                  <span
-                    className="absolute -top-[6px] left-1/2 -translate-x-1/2 h-[2px] w-6 rounded-full bg-[#C8E64C] transition-all duration-300"
-                    aria-hidden="true"
-                  />
-                )}
-                <NavIcon path={path} extraPath={extraPath} active={active} />
-              </div>
-              <span className={cn('text-[10px] leading-none', active ? 'font-bold' : 'font-medium')}>{label}</span>
+              {/* Active indicator line ABOVE icon */}
+              {active && (
+                <span
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-[2.5px] w-8 rounded-b-full bg-[#C8E64C]"
+                  aria-hidden="true"
+                />
+              )}
+              <NavIcon path={path} extraPath={extraPath} active={active} />
+              <span className={cn('text-[11px] leading-none tracking-wide', active ? 'font-semibold' : 'font-medium')}>{label}</span>
             </button>
           )
         })}
