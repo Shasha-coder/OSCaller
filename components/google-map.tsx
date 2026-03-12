@@ -33,7 +33,6 @@ interface GoogleMapProps {
 const MAP_STYLES: google.maps.MapTypeStyle[] = [
     // Base: near‑black land
     { elementType: 'geometry', stylers: [{ color: '#0d0f12' }] },
-    { elementType: 'labels', stylers: [{ visibility: 'off' }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
     { elementType: 'labels.text.fill', stylers: [{ color: '#4a5568' }] },
     { elementType: 'labels.text.stroke', stylers: [{ color: '#0d0f12' }] },
