@@ -927,9 +927,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     <div className="relative h-full w-full flex flex-col">
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
-      <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes upper portion - generous space */}
-        <div className="relative h-[52vh] min-h-[300px]">
+      <div className="flex flex-col h-full lg:hidden">
+        {/* Map takes upper portion */}
+        <div className="relative h-[45vh] min-h-[260px] mx-3 mt-2 rounded-2xl overflow-hidden shadow-lg">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -1127,16 +1127,16 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           <div className="rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-3">
             <h3 className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">Service Details</h3>
             
-            {/* Service Type Pills */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {[{ id: 'general', label: 'General', icon: '🔧' }, { id: 'plumbing', label: 'Plumbing', icon: '🚿' }, { id: 'electrical', label: 'Electrical', icon: '⚡' }, { id: 'hvac', label: 'HVAC', icon: '🌡️' }].map(s => (
+            {/* Service Type Pills - Horizontal Scroll */}
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+              {[{ id: 'general', label: 'General', icon: '🔧' }, { id: 'plumbing', label: 'Plumbing', icon: '🚿' }, { id: 'electrical', label: 'Electrical', icon: '⚡' }, { id: 'hvac', label: 'HVAC', icon: '🌡️' }, { id: 'locksmith', label: 'Locksmith', icon: '🔐' }, { id: 'roofing', label: 'Roofing', icon: '🏠' }].map(s => (
                 <button
                   key={s.id}
                   type="button"
                   data-no-focus-ring
                   onClick={() => setServiceType(s.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-semibold transition-all duration-200 outline-none border',
+                    'flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-semibold transition-all duration-200 outline-none border',
                     serviceType === s.id
                       ? 'bg-[#C8E64C]/15 border-[#C8E64C]/50 text-[#C8E64C]'
                       : 'bg-white/[0.04] border-white/[0.08] text-white/60 hover:bg-white/[0.08]'
@@ -1278,8 +1278,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
       </div>
 
-      {/* ��── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-6" style={{ height: 'calc(100% - 48px)' }}>
+      {/* ─── DESKTOP: Premium two-column layout ─── */}
+      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5 my-5" style={{ height: 'calc(100% - 40px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">

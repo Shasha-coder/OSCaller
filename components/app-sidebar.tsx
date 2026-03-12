@@ -93,7 +93,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
 
       {/* ─── Mobile bottom bar ─── */}
       <nav
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.08] pt-2.5 pb-[max(env(safe-area-inset-bottom),12px)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.06] pt-3 pb-[max(env(safe-area-inset-bottom),10px)]"
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -105,13 +105,13 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-label={label}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'relative flex flex-col items-center gap-1.5 min-w-[72px] py-1.5 transition-colors duration-150',
-                active ? 'text-[#C8E64C]' : 'text-white/45'
+                'relative flex flex-col items-center gap-1 min-w-[70px] py-1 transition-colors duration-150 cursor-pointer',
+                active ? 'text-[#C8E64C]' : 'text-white/40 hover:text-white/60 active:text-white/70'
               )}
             >
               {/* Active indicator - lime green line ABOVE */}
               {active && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full bg-[#C8E64C]" />
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full bg-[#C8E64C]" />
               )}
               <NavIcon path={path} extraPath={extraPath} active={active} />
               <span className={cn('text-[11px]', active ? 'font-semibold' : 'font-normal')}>{label}</span>
