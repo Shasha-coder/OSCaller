@@ -1114,10 +1114,34 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
         </div>
 
         {/* ─── Bottom scrollable panel with two cards ─── */}
-        <div className="flex-1 overflow-y-auto bg-[#0d1117] px-4 pt-4 pb-[100px]">
+        <div className="flex-1 overflow-y-auto bg-[#0d1117] px-4 pt-4 pb-[100px] relative">
+          {/* Background icons pattern */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+            <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="mobileNavIcons" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+                  <g transform="translate(8,8) scale(0.5)" fill="none" stroke="rgba(200,230,76,0.06)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                  </g>
+                  <g transform="translate(45,8) scale(0.5)" fill="none" stroke="rgba(200,230,76,0.06)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+                  </g>
+                  <g transform="translate(8,45) scale(0.5)" fill="none" stroke="rgba(200,230,76,0.06)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v6m0 0a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3m0-7a3 3 0 0 0-3 3v1a3 3 0 0 0 3 3m0 0v7" />
+                    <path d="M6 8h12" />
+                  </g>
+                  <g transform="translate(45,45) scale(0.5)" fill="none" stroke="rgba(200,230,76,0.06)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </g>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#mobileNavIcons)" />
+            </svg>
+          </div>
 
           {/* ═══ CARD 1: SERVICE DETAILS ═══ */}
-          <div className="rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-3">
+          <div className="relative z-10 rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-3">
             <h3 className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">Service Details</h3>
             
             {/* Service Type Pills - Horizontal Scroll */}
@@ -1218,7 +1242,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           </div>
 
           {/* ═══ CARD 2: YOUR INFORMATION ═══ */}
-          <div className="rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-4">
+          <div className="relative z-10 rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-4">
             <h3 className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">Your Information</h3>
             
             {/* Name and Language Row */}

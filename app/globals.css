@@ -941,16 +941,6 @@ textarea:focus {
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* Hide Google Maps footer labels (Keyboard shortcuts, Map Data, Terms) */
-.gm-style .gmnoscreen,
-.gm-style a[href^="https://maps.google.com/maps"],
-.gm-style a[href^="https://www.google.com/intl"],
-.gm-style .gm-style-cc,
-.gm-style > div > div:last-child > div:last-child {
-  display: none !important;
-  visibility: hidden !important;
-}
-
 /* Hide pegman/street view by default on mobile */
 @media (max-width: 640px) {
   .gm-style .gm-svpc {
