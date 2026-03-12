@@ -1285,7 +1285,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ��── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 mt-5 mb-6" style={{ height: 'calc(100% - 44px)' }}>
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-5" style={{ height: 'calc(100% - 40px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
