@@ -888,10 +888,10 @@ textarea:focus {
   top: 40% !important;
 }
 
-/* The zoom button container wrapper */
+/* The zoom button container wrapper - slightly rounded corners */
 .gm-style .gmnoprint > div {
   background-color: #2f312a !important;
-  border-radius: 16px !important;
+  border-radius: 8px !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
   overflow: hidden !important;
@@ -901,8 +901,8 @@ textarea:focus {
 .gm-style .gm-control-active {
   background-color: transparent !important;
   border-radius: 0 !important;
-  width: 44px !important;
-  height: 44px !important;
+  width: 40px !important;
+  height: 40px !important;
 }
 
 .gm-style .gm-control-active:hover {
@@ -922,7 +922,7 @@ textarea:focus {
 /* Street view and other controls */
 .gm-style .gm-svpc {
   background-color: #2f312a !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
@@ -930,7 +930,7 @@ textarea:focus {
 /* Full screen control */
 .gm-style .gm-fullscreen-control {
   background-color: #2f312a !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -939,6 +939,16 @@ textarea:focus {
   background-color: #2f312a !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Hide Google Maps footer labels (Keyboard shortcuts, Map Data, Terms) */
+.gm-style .gmnoscreen,
+.gm-style a[href^="https://maps.google.com/maps"],
+.gm-style a[href^="https://www.google.com/intl"],
+.gm-style .gm-style-cc,
+.gm-style > div > div:last-child > div:last-child {
+  display: none !important;
+  visibility: hidden !important;
 }
 
 /* Hide pegman/street view by default on mobile */
