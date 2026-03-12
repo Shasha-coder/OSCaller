@@ -928,8 +928,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
       <div className="flex flex-col h-full sm:hidden">
-        {/* Map takes upper half of screen */}
-        <div className="relative h-[50vh] min-h-[280px]">
+        {/* Map takes upper portion - generous space */}
+        <div className="relative h-[52vh] min-h-[300px]">
           <GoogleMap
             center={coords || undefined}
             zoom={14}
@@ -1285,7 +1285,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ��── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 sm:py-5" style={{ height: 'calc(100% - 40px)' }}>
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-6" style={{ height: 'calc(100% - 48px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
