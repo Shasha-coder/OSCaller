@@ -877,3 +877,53 @@ textarea:focus {
       rgba(255, 255, 255, 0.08) 80%,
       transparent 100%);
 }
+
+/* ═══ Google Maps Dark Theme Controls ═══ */
+/* Style the zoom buttons and other map controls to match our dark theme */
+.gm-style .gm-style-mtc,
+.gm-style .gm-svpc,
+.gm-style .gm-bundled-control,
+.gm-style .gmnoprint {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.95);
+}
+
+/* Zoom control container */
+.gm-style .gm-bundled-control-on-bottom {
+  right: 12px !important;
+  bottom: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
+/* Override Google Maps default white controls */
+.gm-style button {
+  background-color: #2f312a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.gm-style button:hover {
+  background-color: #3a3d33 !important;
+}
+
+/* Zoom buttons specifically */
+.gm-style .gm-control-active {
+  background-color: #2f312a !important;
+  border-radius: 10px !important;
+}
+
+.gm-style .gm-control-active > img {
+  filter: invert(1) brightness(0.8);
+}
+
+/* Full screen and other controls */
+.gm-style .gm-fullscreen-control {
+  background-color: #2f312a !important;
+  border-radius: 12px !important;
+}
+
+/* Hide Google logo watermark area styling */
+.gm-style .gmnoscreen {
+  opacity: 0.6;
+}
