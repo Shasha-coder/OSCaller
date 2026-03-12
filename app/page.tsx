@@ -347,7 +347,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
         </div>
       )}
       {page === 'tracking' && request && (
-        <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
+        <div className="flex h-full flex-col overflow-y-auto ">
           <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
             <HeroIcon>
               <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -368,7 +368,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
       {/* ══ HISTORY ══ */}
       {page === 'history' && (
-        <div className="flex h-full flex-col overflow-y-auto lg:pr-[80px]">
+        <div className="flex h-full flex-col overflow-y-auto ">
           {historyHasData && (
             <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-6 pt-10 sm:px-8">
               <HeroIcon>
@@ -388,7 +388,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
       {/* ══ SUPPORT ══ */}
       {page === 'support' && (
-        <div className="flex h-full flex-col overflow-hidden lg:pr-[80px]">
+        <div className="flex h-full flex-col overflow-hidden ">
           <div className="flex shrink-0 flex-col items-center gap-3 px-5 pb-4 pt-10 sm:px-8">
             <HeroIcon>
               <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -406,7 +406,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
 
       {/* ══ MAP ══ */}
       {page === 'map' && (
-        <div className="flex h-full flex-col overflow-hidden lg:pr-[80px]">
+        <div className="flex h-full flex-col overflow-hidden ">
           {/* Desktop header -- minimal inline version */}
           <div className="hidden sm:flex shrink-0 items-center justify-between px-5 py-3 sm:px-8">
             <div className="flex items-center gap-2">
