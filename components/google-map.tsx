@@ -365,7 +365,7 @@ export function GoogleMap({
     return (
         <div
             ref={containerRef}
-            className={cn('rounded-3xl overflow-hidden', className)}
+            className={cn('overflow-hidden', className)}
             style={{ backgroundColor: '#0d0f12', ...style }}
         />
     )
