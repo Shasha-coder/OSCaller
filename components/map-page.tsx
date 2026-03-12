@@ -953,12 +953,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 <button
                   data-no-focus-ring
                   onClick={() => setIsLiveLocation(v => !v)}
-                  className={cn(
-                    'flex items-center gap-1.5 h-[34px] px-2.5 rounded-full border transition-all outline-none shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
-                    isLiveLocation
-                      ? 'border-[#C8E64C]/40 bg-[#C8E64C]/20 backdrop-blur-md'
-                      : 'border-white/[0.12] bg-[#2f312a] backdrop-blur-md'
-                  )}
+                  className="flex items-center gap-1.5 h-[34px] px-2.5 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
                 >
                   <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/50')} strokeWidth={2.5} />
                   <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
@@ -1279,7 +1274,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5 pb-6" style={{ height: 'calc(100% - 24px)' }}>
+      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5" style={{ height: 'calc(100% - 8px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">

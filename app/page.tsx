@@ -421,7 +421,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             <p className="text-[12px] text-white/40">Fill the form and call Aria</p>
           </div>
           {/* Mobile: full-bleed, Desktop: padded with margin bottom */}
-          <div className="flex-1 min-h-0 lg:px-5 lg:pb-5"><MapPage onRequestCreated={onMapRequestCreated} /></div>
+          <div className="flex-1 min-h-0 lg:px-5 lg:pb-8"><MapPage onRequestCreated={onMapRequestCreated} /></div>
         </div>
       )}
 
