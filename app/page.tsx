@@ -408,7 +408,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
       {page === 'map' && (
         <div className="flex h-full flex-col overflow-hidden lg:pr-[80px]">
           {/* Desktop header -- minimal inline version */}
-          <div className="hidden sm:flex shrink-0 items-center justify-between px-5 py-3 sm:px-8">
+          <div className="hidden lg:flex shrink-0 items-center justify-between px-5 py-3 lg:px-8">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-[#C8E64C]/10">
                 <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -420,8 +420,8 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
             </div>
             <p className="text-[12px] text-white/40">Fill the form and call Aria</p>
           </div>
-          {/* Mobile: full-bleed map, Desktop: padded */}
-          <div className="flex-1 min-h-0 sm:px-5 sm:pb-5"><MapPage onRequestCreated={onMapRequestCreated} /></div>
+          {/* Mobile: full-bleed, Desktop: padded with margin bottom */}
+          <div className="flex-1 min-h-0 lg:px-5 lg:pb-5"><MapPage onRequestCreated={onMapRequestCreated} /></div>
         </div>
       )}
 

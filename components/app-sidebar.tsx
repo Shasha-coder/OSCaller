@@ -93,7 +93,7 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
 
       {/* ─── Mobile bottom bar ─── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.08] pt-3 pb-[max(env(safe-area-inset-bottom),10px)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#141414] border-t border-white/[0.06] pt-3 pb-[max(env(safe-area-inset-bottom),10px)]"
         aria-label="Main navigation"
       >
         {NAV.map(({ page, label, path, extraPath }) => {
@@ -105,8 +105,8 @@ export function AppSidebar({ currentPage, onNavigate, isHomePage }: Props) {
               aria-label={label}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'relative flex flex-col items-center gap-1 min-w-[70px] py-1 transition-colors duration-150',
-                active ? 'text-[#C8E64C]' : 'text-white/40'
+                'relative flex flex-col items-center gap-1 min-w-[70px] py-1 transition-colors duration-150 cursor-pointer',
+                active ? 'text-[#C8E64C]' : 'text-white/40 hover:text-white/60 active:text-white/70'
               )}
             >
               {/* Active indicator - lime green line ABOVE */}
