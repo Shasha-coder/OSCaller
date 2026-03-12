@@ -953,9 +953,9 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 <button
                   data-no-focus-ring
                   onClick={() => setIsLiveLocation(v => !v)}
-                  className="flex items-center gap-1.5 h-[34px] px-2.5 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
+                  className="flex items-center gap-2 h-[34px] px-3 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
                 >
-                  <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/50')} strokeWidth={2.5} />
+                  <span className="text-[12px] font-semibold text-white">Track Pro on Map</span>
                   <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
                     <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
                   </div>
@@ -1274,7 +1274,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5" style={{ height: 'calc(100% - 8px)' }}>
+      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5" style={{ height: 'calc(100% - 40px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
