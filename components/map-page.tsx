@@ -173,11 +173,11 @@ function CountryPhoneInput({
       </div>
 
       <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
-        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.08] bg-white/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden">
+        <div ref={dropdownRef} className="rounded-2xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="px-3.5 py-2 text-[10px] font-bold uppercase tracking-widest text-[#C8E64C] bg-[#C8E64C]/[0.08] border-b border-[#C8E64C]/[0.12]">
             Available
           </div>
-          <div className="max-h-[130px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+          <div className="max-h-[130px] overflow-y-auto no-scrollbar">
             {COUNTRIES.filter(c => c.supported).map(c => (
               <button
                 key={c.code}
@@ -204,7 +204,7 @@ function CountryPhoneInput({
             <Lock className="h-3 w-3" />
             Coming Soon
           </div>
-          <div className="max-h-[160px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+          <div className="max-h-[160px] overflow-y-auto no-scrollbar">
             {COUNTRIES.filter(c => !c.supported).map(c => (
               <div
                 key={c.code}
@@ -289,7 +289,7 @@ function MobilePhoneInput({
           <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#C8E64C] bg-[#C8E64C]/[0.08] border-b border-[#C8E64C]/[0.12]">
             Available Countries
           </div>
-          <div className="max-h-[180px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+          <div className="max-h-[180px] overflow-y-auto no-scrollbar">
             {COUNTRIES.filter(c => c.supported).map(c => (
               <button
                 key={c.code}
@@ -316,7 +316,7 @@ function MobilePhoneInput({
             <Lock className="h-3.5 w-3.5" />
             Coming Soon
           </div>
-          <div className="max-h-[200px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+          <div className="max-h-[200px] overflow-y-auto no-scrollbar">
             {COUNTRIES.filter(c => !c.supported).map(c => (
               <div
                 key={c.code}
@@ -384,8 +384,7 @@ function LanguageDropdown({ value, onChange }: { value: string; onChange: (v: st
       <FloatingDropdown anchorRef={triggerRef} open={open} width={260}>
         <div
           ref={dropdownRef}
-          className="max-h-[280px] overflow-y-auto rounded-2xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
-          style={{ scrollbarWidth: 'thin' }}
+          className="max-h-[280px] overflow-y-auto no-scrollbar rounded-2xl border border-white/[0.12] bg-[#2f312a] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
         >
           {LANGUAGES.map(lang => (
             <button
@@ -927,7 +926,32 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
     <div className="relative h-full w-full flex flex-col">
 
       {/* ─── MOBILE: Full-bleed immersive map ─── */}
-      <div className="flex flex-col h-full lg:hidden">
+      <div className="flex flex-col h-full lg:hidden relative">
+        {/* Background icons pattern - same as desktop */}
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden select-none" aria-hidden="true">
+          <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="mobileServiceIcons" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+                <g transform="translate(10,10) scale(0.6)" fill="none" stroke="rgba(200,230,76,0.04)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </g>
+                <g transform="translate(55,10) scale(0.6)" fill="none" stroke="rgba(200,230,76,0.04)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+                </g>
+                <g transform="translate(10,55) scale(0.6)" fill="none" stroke="rgba(200,230,76,0.04)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v6m0 0a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3m0-7a3 3 0 0 0-3 3v1a3 3 0 0 0 3 3m0 0v7" />
+                  <path d="M6 8h12" />
+                </g>
+                <g transform="translate(55,55) scale(0.6)" fill="none" stroke="rgba(200,230,76,0.04)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </g>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#mobileServiceIcons)" />
+          </svg>
+        </div>
+
         {/* Map takes upper portion - NO rounded corners on mobile */}
         <div className="relative h-[42vh] min-h-[240px]">
           <GoogleMap
@@ -936,6 +960,10 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             markers={markers}
             className="h-full w-full"
           />
+
+          {/* Bottom edge light line effect */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C8E64C]/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0d0f12] to-transparent pointer-events-none" />
 
           {/* Floating header */}
           <div className="absolute top-0 inset-x-0 z-10 pt-3 px-3">
