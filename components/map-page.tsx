@@ -1120,172 +1120,166 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           )}
         </div>
 
-        {/* ─── Bottom floating panel with fields ─── */}
-        <div className="shrink-0 bg-[#0d1117] border-t border-white/[0.10] shadow-[0_-4px_24px_rgba(0,0,0,0.2)] px-4 pt-4 pb-[88px] rounded-t-2xl">
+        {/* ─── Bottom scrollable panel with two cards ─── */}
+        <div className="flex-1 overflow-y-auto bg-[#0d1117] px-4 pt-4 pb-[100px]">
 
-          {/* Row 1: Name and Language */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex-1">
-              <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Your name</label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={e => setCustomerName(e.target.value)}
-                placeholder="First name"
-                data-no-focus-ring
-                className="w-full h-[52px] px-4 rounded-2xl bg-white/[0.04] border-2 border-white/[0.08] text-[15px] font-medium text-white outline-none placeholder:text-white/35 focus:border-[#C8E64C] focus:bg-white/[0.06]/[0.04] focus:shadow-[0_0_0_4px_rgba(200,230,76,0.1)] transition-all"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Language</label>
-              <LanguageDropdown value={language} onChange={setLanguage} />
-            </div>
-          </div>
-          {/* Service Type Selector - Scrollable chips */}
-          <div className="mb-3">
-            <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Service type</label>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
-              {[{ id: 'general', label: '🔧 General' }, { id: 'plumbing', label: '🚿 Plumbing' }, { id: 'electrical', label: '⚡ Electrical' }, { id: 'hvac', label: '🌡️ HVAC' }, { id: 'locksmith', label: '🔐 Locksmith' }, { id: 'roofing', label: '🏠 Roofing' }, { id: 'appliance', label: '🔌 Appliance' }, { id: 'pest', label: '🐛 Pest' }].map(s => (
+          {/* ═══ CARD 1: SERVICE DETAILS ═══ */}
+          <div className="rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-3">
+            <h3 className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">Service Details</h3>
+            
+            {/* Service Type Pills */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {[{ id: 'general', label: 'General', icon: '🔧' }, { id: 'plumbing', label: 'Plumbing', icon: '🚿' }, { id: 'electrical', label: 'Electrical', icon: '⚡' }, { id: 'hvac', label: 'HVAC', icon: '🌡️' }].map(s => (
                 <button
                   key={s.id}
                   type="button"
                   data-no-focus-ring
                   onClick={() => setServiceType(s.id)}
                   className={cn(
-                    'flex-shrink-0 px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 outline-none whitespace-nowrap border',
+                    'flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-semibold transition-all duration-200 outline-none border',
                     serviceType === s.id
-                      ? 'bg-[#C8E64C]/15 border-[#C8E64C]/40 text-[#C8E64C] shadow-[0_0_12px_rgba(200,230,76,0.15)]'
-                      : 'bg-white/[0.03] border-white/[0.06] text-white/50 hover:bg-white/[0.06] hover:text-white/70'
+                      ? 'bg-[#C8E64C]/15 border-[#C8E64C]/50 text-[#C8E64C]'
+                      : 'bg-white/[0.04] border-white/[0.08] text-white/60 hover:bg-white/[0.08]'
                   )}
-                >{s.label}</button>
+                >
+                  <span>{s.icon}</span>
+                  <span>{s.label}</span>
+                </button>
               ))}
             </div>
-          </div>
 
-          {/* Row 2: Describe Problem - Full width, taller */}
-          <div className="mb-3">
-            <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Describe your problem</label>
-            <div
-              className={cn(
-                'flex items-center h-[52px] w-full rounded-2xl bg-white/[0.04] border-2 transition-all duration-200',
-                'border-white/[0.08] focus-within:border-[#C8E64C] focus-within:bg-white/[0.04] focus-within:shadow-[0_0_0_4px_rgba(200,230,76,0.1)]'
+            {/* Describe Your Problem */}
+            <label className="block text-[11px] font-medium text-white/50 mb-2">Describe Your Problem</label>
+            
+            {/* Input Mode Tabs */}
+            <div className="flex gap-1 mb-3 bg-white/[0.04] rounded-xl p-1">
+              {(['text', 'voice', 'photo'] as const).map(mode => (
+                <button
+                  key={mode}
+                  type="button"
+                  data-no-focus-ring
+                  onClick={() => { setInputMode(mode); if (mode !== 'voice') { stopRecording(); setAudioBlob(null); } }}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[13px] font-medium transition-all outline-none',
+                    inputMode === mode
+                      ? 'bg-[#2f312a] text-[#C8E64C]'
+                      : 'text-white/40 hover:text-white/60'
+                  )}
+                >
+                  {mode === 'text' && <Type className="h-4 w-4" strokeWidth={2} />}
+                  {mode === 'voice' && <Mic className="h-4 w-4" strokeWidth={2} />}
+                  {mode === 'photo' && <Camera className="h-4 w-4" strokeWidth={2} />}
+                  <span className="capitalize">{mode === 'voice' ? 'Audio' : mode === 'photo' ? 'Photo' : 'Text'}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Input Area */}
+            <div className="h-[48px] rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center px-4">
+              {inputMode === 'text' && (
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  type="text"
+                  data-no-focus-ring
+                  placeholder="e.g. Leaking pipe under sink..."
+                  className="w-full h-full bg-transparent text-[14px] text-white outline-none placeholder:text-white/35"
+                />
               )}
-            >
-              <div className="flex items-center h-full pl-2 gap-1 shrink-0 border-r border-white/[0.08]/80">
-                {(['voice', 'photo', 'text'] as const).map(mode => (
-                  <button
-                    key={mode}
-                    type="button"
-                    data-no-focus-ring
-                    onClick={() => { setInputMode(mode); if (mode !== 'voice') { stopRecording(); setAudioBlob(null); } }}
-                    className={cn(
-                      'flex items-center justify-center h-[36px] w-[36px] rounded-xl transition-all duration-200 outline-none',
-                      inputMode === mode
-                        ? 'bg-[#C8E64C] text-[#0F172A] shadow-md'
-                        : 'text-white/35 hover:text-white/50 hover:bg-white/[0.06]',
-                      mode === 'text' && 'mr-1'
-                    )}
-                    aria-label={`${mode} input`}
-                  >
-                    {mode === 'voice' && <Mic className="h-4 w-4" strokeWidth={2} />}
-                    {mode === 'photo' && <Camera className="h-4 w-4" strokeWidth={2} />}
-                    {mode === 'text' && <Type className="h-4 w-4" strokeWidth={2} />}
-                  </button>
-                ))}
-              </div>
-              <div className="flex-1 min-w-0 h-full flex items-center px-3">
-                {inputMode === 'text' && (
-                  <input
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    type="text"
-                    data-no-focus-ring
-                    placeholder="e.g. Leaking pipe under sink..."
-                    className="w-full h-full bg-transparent text-[15px] font-medium text-white outline-none placeholder:text-white/35"
-                  />
-                )}
-                {inputMode === 'voice' && (
-                  <button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-3 w-full outline-none">
-                    <span className={cn('relative flex h-6 w-6 items-center justify-center', isRecording && 'animate-pulse')}>
-                      {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
-                      <span className={cn('relative h-3 w-3 rounded-full transition-colors', isRecording ? 'bg-red-500/100' : audioBlob ? 'bg-[#C8E64C]' : 'bg-[#94A3B8]')} />
-                    </span>
-                    <span className={cn('text-[15px] font-medium', isRecording ? 'text-red-500' : audioBlob ? 'text-[#C8E64C]' : 'text-white/35')}>
-                      {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Tap to speak'}
-                    </span>
-                  </button>
-                )}
-                {inputMode === 'photo' && (
-                  <div className="flex items-center gap-4 w-full">
-                    {uploadedFile ? (
-                      <div className="flex items-center gap-3 flex-1">
-                        <span className="text-[14px] font-semibold text-[#C8E64C] truncate max-w-[140px]">{uploadedFile.name}</span>
-                        <button type="button" onClick={() => setUploadedFile(null)} className="text-[13px] text-white/35 hover:text-red-400 font-medium">Remove</button>
-                      </div>
-                    ) : (
-                      <>
-                        <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                          <Upload className="h-4 w-4 text-white/35 group-hover:text-[#C8E64C] transition-colors" strokeWidth={2} />
-                          <span className="text-[14px] font-medium text-white/35 group-hover:text-[#C8E64C] transition-colors">Upload</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
-                          />
-                        </label>
-                        <span className="text-white/25">|</span>
-                        <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                          <Camera className="h-4 w-4 text-white/35 group-hover:text-[#C8E64C] transition-colors" strokeWidth={2} />
-                          <span className="text-[14px] font-medium text-white/35 group-hover:text-[#C8E64C] transition-colors">Camera</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            className="hidden"
-                            onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }}
-                          />
-                        </label>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+              {inputMode === 'voice' && (
+                <button type="button" data-no-focus-ring onClick={toggleRecording} className="flex items-center gap-3 w-full outline-none">
+                  <span className={cn('relative flex h-5 w-5 items-center justify-center', isRecording && 'animate-pulse')}>
+                    {isRecording && <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />}
+                    <span className={cn('relative h-2.5 w-2.5 rounded-full transition-colors', isRecording ? 'bg-red-500' : audioBlob ? 'bg-[#C8E64C]' : 'bg-white/40')} />
+                  </span>
+                  <span className={cn('text-[14px]', isRecording ? 'text-red-500' : audioBlob ? 'text-[#C8E64C]' : 'text-white/35')}>
+                    {isRecording ? 'Recording...' : audioBlob ? 'Recording saved' : 'Tap to speak'}
+                  </span>
+                </button>
+              )}
+              {inputMode === 'photo' && (
+                <div className="flex items-center gap-4 w-full">
+                  {uploadedFile ? (
+                    <div className="flex items-center gap-3 flex-1">
+                      <span className="text-[13px] font-medium text-[#C8E64C] truncate max-w-[140px]">{uploadedFile.name}</span>
+                      <button type="button" onClick={() => setUploadedFile(null)} className="text-[12px] text-white/35 hover:text-red-400">Remove</button>
+                    </div>
+                  ) : (
+                    <>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <Upload className="h-4 w-4 text-white/35 group-hover:text-[#C8E64C]" strokeWidth={2} />
+                        <span className="text-[13px] text-white/35 group-hover:text-[#C8E64C]">Upload</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }} />
+                      </label>
+                      <span className="text-white/20">|</span>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <Camera className="h-4 w-4 text-white/35 group-hover:text-[#C8E64C]" strokeWidth={2} />
+                        <span className="text-[13px] text-white/35 group-hover:text-[#C8E64C]">Camera</span>
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setUploadedFile(e.target.files[0]) }} />
+                      </label>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Row 3: Phone number - Full width */}
-          <div className="mb-4">
-            <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5 pl-1">Phone number</label>
-            <MobilePhoneInput
-              country={country}
-              onCountryChange={setCountry}
-              phone={phone}
-              onPhoneChange={setPhone}
-            />
+          {/* ═══ CARD 2: YOUR INFORMATION ═══ */}
+          <div className="rounded-2xl bg-[#1a1d23] border border-white/[0.08] p-4 mb-4">
+            <h3 className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">Your Information</h3>
+            
+            {/* Name and Language Row */}
+            <div className="flex gap-3 mb-3">
+              <div className="flex-1">
+                <label className="block text-[11px] font-medium text-white/50 mb-1.5">Your Name</label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={e => setCustomerName(e.target.value)}
+                  placeholder="First name"
+                  data-no-focus-ring
+                  className="w-full h-[48px] px-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[14px] text-white outline-none placeholder:text-white/35 focus:border-[#C8E64C]/50 transition-colors"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-[11px] font-medium text-white/50 mb-1.5">Language</label>
+                <LanguageDropdown value={language} onChange={setLanguage} />
+              </div>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-[11px] font-medium text-white/50 mb-1.5">Phone Number</label>
+              <MobilePhoneInput
+                country={country}
+                onCountryChange={setCountry}
+                phone={phone}
+                onPhoneChange={setPhone}
+              />
+            </div>
           </div>
 
-          {/* Row 4: Call Aria button - Full width, prominent */}
+          {/* Call Aria Button */}
           <button
             type="button"
             data-no-focus-ring
             onClick={callAria}
             disabled={callingAria}
-            className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-2xl bg-gradient-to-r from-[#C8E64C] to-[#7DA33F] text-[#0F172A] text-[16px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.4)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.5)] active:scale-[0.98] outline-none disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-2xl bg-[#C8E64C] text-[#0F172A] text-[15px] font-bold shadow-[0_4px_20px_rgba(200,230,76,0.3)] transition-all hover:shadow-[0_6px_28px_rgba(200,230,76,0.4)] active:scale-[0.98] outline-none disabled:opacity-60"
           >
-            <Phone className={cn("h-5 w-5 text-[#0F172A]", callingAria && "animate-pulse")} strokeWidth={2.5} />
+            <Phone className={cn("h-5 w-5", callingAria && "animate-pulse")} strokeWidth={2.5} />
             {callingAria ? 'Calling Aria...' : 'Call Aria'}
           </button>
 
-          {/* Powered by Aria AI */}
-          <p className="text-[11px] text-white/40 text-center mt-3 pb-1">
-            Powered by <span className="font-bold text-[#C8E64C]">Aria AI</span> - Your 24/7 assistant
+          {/* Powered by */}
+          <p className="text-[11px] text-white/40 text-center mt-3">
+            Powered by <span className="font-semibold text-[#C8E64C]">Aria AI</span> - Your 24/7 assistant
           </p>
         </div>
       </div>
 
       {/* ��── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-5" style={{ height: 'calc(100% - 40px)' }}>
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-6" style={{ height: 'calc(100% - 48px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
