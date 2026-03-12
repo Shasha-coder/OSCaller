@@ -940,39 +940,31 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
           {/* Floating header */}
           <div className="absolute top-0 inset-x-0 z-10 pt-3 px-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 rounded-full bg-[#2f312a] backdrop-blur-xl px-3 py-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.25)] border border-white/[0.12]">
-                <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                  <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                </svg>
-                <span className="text-[13px] font-bold text-white">Request a Pro</span>
-              </div>
+              {/* Track Pro on Map - LEFT side */}
+              <button
+                data-no-focus-ring
+                onClick={() => setIsLiveLocation(v => !v)}
+                className="flex items-center gap-2 h-[34px] px-3 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
+              >
+                <span className="text-[12px] font-semibold text-white">Track Pro on Map</span>
+                <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
+                  <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
+                </div>
+              </button>
 
-              {/* GPS + Recenter */}
-              <div className="flex items-center gap-2">
-                <button
-                  data-no-focus-ring
-                  onClick={() => setIsLiveLocation(v => !v)}
-                  className="flex items-center gap-2 h-[34px] px-3 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
-                >
-                  <span className="text-[12px] font-semibold text-white">Track Pro on Map</span>
-                  <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
-                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
-                  </div>
-                </button>
-                <button
-                  data-no-focus-ring
-                  onClick={requestLocation}
-                  className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.2)] border border-white/[0.12] outline-none active:scale-95 transition-transform"
-                  aria-label="Recenter"
-                >
-                  {loading ? (
-                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/20 border-t-[#C8E64C]" />
-                  ) : (
-                    <LocateFixed className="h-3.5 w-3.5 text-white/70" strokeWidth={2.5} />
-                  )}
-                </button>
-              </div>
+              {/* Recenter button - RIGHT side */}
+              <button
+                data-no-focus-ring
+                onClick={requestLocation}
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.2)] border border-white/[0.12] outline-none active:scale-95 transition-transform"
+                aria-label="Recenter"
+              >
+                {loading ? (
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/20 border-t-[#C8E64C]" />
+                ) : (
+                  <LocateFixed className="h-3.5 w-3.5 text-white/70" strokeWidth={2.5} />
+                )}
+              </button>
             </div>
           </div>
 
@@ -1274,7 +1266,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5" style={{ height: 'calc(100% - 40px)' }}>
+      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5" style={{ height: 'calc(100% - 60px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
