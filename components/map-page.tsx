@@ -1082,15 +1082,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             </div>
           )}
 
-          {/* Status badge */}
-          {!loading && !error && (
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
-              <div className="flex items-center justify-center p-0.5 rounded-sm bg-[#C8E64C] text-white">
-                <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <span className="text-[11px] font-bold text-[#334155] tracking-wide uppercase">Track Pro On Map</span>
-            </div>
-          )}
+
         </div>
 
         {/* ─── Bottom scrollable panel with two cards ─── */}
@@ -1252,7 +1244,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ─── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5 pb-6 min-h-0" style={{ maxHeight: 'calc(100% - 24px)' }}>
+      <div className="hidden lg:grid lg:grid-cols-[420px_1fr] lg:gap-5 mb-6" style={{ height: 'calc(100% - 48px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
@@ -1396,30 +1388,6 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               <div className="relative">
                 <CountryPhoneInput country={country} onCountryChange={setCountry} phone={phone} onPhoneChange={setPhone} />
               </div>
-            </div>
-
-            {/* GPS Toggle */}
-            <div className="mb-6">
-              <label className="block text-[11px] font-bold text-white/50 uppercase tracking-wider mb-2">Location</label>
-              <button
-                type="button"
-                data-no-focus-ring
-                onClick={() => setIsLiveLocation(v => !v)}
-                className={cn(
-                  'flex items-center justify-between w-full h-[48px] px-4 rounded-xl border-2 transition-all outline-none',
-                  isLiveLocation
-                    ? 'border-[#C8E64C] bg-[rgba(200,230,76,0.1)]/40'
-                    : 'border-white/[0.08] bg-white/[0.04] hover:border-[#CBD5E1]'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <ArrowLeftRight className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#0F172A]' : 'text-white/35')} strokeWidth={2} />
-                  <span className="text-[14px] font-semibold text-white/70">Use my GPS location</span>
-                </div>
-                <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
-                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
-                </div>
-              </button>
             </div>
 
             {/* Spacer */}
