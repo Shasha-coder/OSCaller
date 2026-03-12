@@ -962,7 +962,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                 >
                   <ArrowLeftRight className={cn('h-3.5 w-3.5 transition-colors', isLiveLocation ? 'text-[#C8E64C]' : 'text-white/50')} strokeWidth={2.5} />
                   <div className={cn('relative inline-flex h-[16px] w-[26px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
-                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px]' : 'translate-x-[2px]')} />
+                    <span className={cn('inline-block h-[12px] w-[12px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[12px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
                   </div>
                 </button>
                 <button
@@ -1285,7 +1285,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
       </div>
 
       {/* ��── DESKTOP: Premium two-column layout ─── */}
-      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 my-6" style={{ height: 'calc(100% - 48px)' }}>
+      <div className="hidden sm:grid sm:grid-cols-[380px_1fr] lg:grid-cols-[420px_1fr] sm:gap-5 mt-5 mb-6" style={{ height: 'calc(100% - 44px)' }}>
 
         {/* Left Panel - Request Form */}
         <div className="flex flex-col h-full">
@@ -1449,8 +1449,8 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
                   <ArrowLeftRight className={cn('h-5 w-5 transition-colors', isLiveLocation ? 'text-[#0F172A]' : 'text-white/35')} strokeWidth={2} />
                   <span className="text-[14px] font-semibold text-white/70">Use my GPS location</span>
                 </div>
-                <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-[#CBD5E1]')}>
-                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px]' : 'translate-x-[2px]')} />
+                <div className={cn('relative inline-flex h-[24px] w-[44px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
+                  <span className={cn('inline-block h-[20px] w-[20px] transform rounded-full shadow-sm transition-transform duration-200', isLiveLocation ? 'translate-x-[22px] bg-[#0F172A]' : 'translate-x-[2px] bg-white')} />
                 </div>
               </button>
             </div>
