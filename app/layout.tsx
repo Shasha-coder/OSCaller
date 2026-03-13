@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0A0A0A',
+  themeColor: '#0d0f12',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -39,7 +39,7 @@ export default function RootLayout({
         {/* Preload the landing background so there's no white flash */}
 
       </head>
-      <body className="font-sans antialiased bg-[#0A0A0A]">
+      <body className="font-sans antialiased bg-[#0d0f12]">
         {children}
         <Toaster
           position="top-right"

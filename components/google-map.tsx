@@ -149,21 +149,12 @@ function createServiceMarkerHTML() {
   </div>`
 }
 
-/* ─── Loading skeleton ─── */
+/* ─── Loading skeleton with pulsing dot animation ─── */
 function MapSkeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
     return (
-        <div className={cn('relative overflow-hidden rounded-3xl bg-[#0d0f12]', className)} style={style}>
-            <div className="absolute inset-0 animate-shimmer" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.06] shadow-lg backdrop-blur-sm border border-white/[0.08]">
-                    <svg viewBox="0 0 24 24" className="h-6 w-6 text-[#C8E64C]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                    </svg>
-                </div>
-                <span className="text-xs font-medium text-[#C8E64C]/60">Loading map…</span>
-            </div>
-            <svg className="absolute inset-0 h-full w-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+        <div className={cn('relative overflow-hidden bg-[#0d0f12]', className)} style={style}>
+            {/* Subtle grid pattern */}
+            <svg className="absolute inset-0 h-full w-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <pattern id="mapGrid" width="32" height="32" patternUnits="userSpaceOnUse">
                         <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#C8E64C" strokeWidth="0.5" />
@@ -171,6 +162,20 @@ function MapSkeleton({ className, style }: { className?: string; style?: React.C
                 </defs>
                 <rect width="100%" height="100%" fill="url(#mapGrid)" />
             </svg>
+            
+            {/* Center pulsing location dot - same style as user marker */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="relative flex items-center justify-center">
+                    {/* Outer pulse rings */}
+                    <div className="absolute w-16 h-16 rounded-full bg-[#C8E64C]/10 animate-[mapPulse_2s_ease-out_infinite]" />
+                    <div className="absolute w-12 h-12 rounded-full bg-[#C8E64C]/15 animate-[mapPulse_2s_ease-out_0.5s_infinite]" />
+                    {/* Core dot */}
+                    <div className="relative w-5 h-5 rounded-full bg-[#C8E64C] shadow-[0_0_20px_rgba(200,230,76,0.4)]">
+                        <div className="absolute inset-0 rounded-full bg-[#C8E64C] animate-ping opacity-50" />
+                    </div>
+                </div>
+                <span className="text-xs font-medium text-[#C8E64C]/50 tracking-wide">Locating...</span>
+            </div>
         </div>
     )
 }
