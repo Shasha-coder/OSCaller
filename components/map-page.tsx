@@ -961,9 +961,13 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             className="h-full w-full"
           />
 
-          {/* Bottom edge light line effect */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C8E64C]/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0d0f12] to-transparent pointer-events-none" />
+          {/* Bottom edge light line effect - same as top */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-[1px] z-20 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(200,230,76,0.3) 20%, rgba(200,230,76,0.5) 50%, rgba(200,230,76,0.3) 80%, transparent 100%)'
+            }}
+          />
 
           {/* Floating header */}
           <div className="absolute top-0 inset-x-0 z-10 pt-3 px-3">
@@ -972,7 +976,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
               <button
                 data-no-focus-ring
                 onClick={() => setIsLiveLocation(v => !v)}
-                className="flex items-center gap-2 h-[34px] px-3 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
+                className="flex items-center gap-2 h-[34px] px-3 rounded-full border border-white/[0.12] bg-[#2f312a] shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all outline-none"
               >
                 <span className="text-[12px] font-semibold text-white">Track Pro on Map</span>
                 <div className={cn('relative inline-flex h-[16px] w-[28px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>
@@ -984,7 +988,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
           {/* Error toast */}
           {error && isLiveLocation && (
-            <div className="absolute top-14 left-3 right-3 z-10 rounded-full border border-amber-200 bg-amber-50/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] justify-center">
+            <div className="absolute top-14 left-3 right-3 z-10 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-bold text-amber-800 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)] justify-center">
               <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               <span className="truncate">{error}</span>
             </div>
@@ -992,7 +996,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
           {/* Validation error toast */}
           {validationError && (
-            <div className="absolute top-14 left-3 right-3 z-20 rounded-full border border-red-500/20 bg-red-500/10/95 backdrop-blur-md px-3 py-2 text-[12px] font-semibold text-red-700 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.08)] justify-center animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute top-14 left-3 right-3 z-20 rounded-full border border-red-500/20 bg-[#1a1d23] px-3 py-2 text-[12px] font-semibold text-red-400 flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.3)] justify-center animate-in fade-in slide-in-from-top-2 duration-200">
               <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               <span>{validationError}</span>
             </div>
@@ -1000,7 +1004,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
 
           {/* Calling Aria overlay */}
           {callStatus !== 'idle' && (
-            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A]/95 to-[#1E293B]/95 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-b from-[#0F172A] to-[#1E293B] animate-in fade-in duration-300">
 
               {/* Provider dispatched state */}
               {callStatus === 'dispatched' && matchedProvider ? (
@@ -1505,7 +1509,7 @@ export function MapPage({ onRequestCreated }: MapPageProps) {
             <button
               data-no-focus-ring
               onClick={() => setIsLiveLocation(v => !v)}
-              className="flex items-center gap-2.5 h-[38px] px-3.5 rounded-full border border-white/[0.12] bg-[#2f312a] backdrop-blur-xl shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-all outline-none hover:border-[#C8E64C]/30"
+              className="flex items-center gap-2.5 h-[38px] px-3.5 rounded-full border border-white/[0.12] bg-[#2f312a] shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-all outline-none hover:border-[#C8E64C]/30"
             >
               <span className="text-[13px] font-semibold text-white">Track Pro on Map</span>
               <div className={cn('relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors duration-200', isLiveLocation ? 'bg-[#C8E64C]' : 'bg-white/20')}>

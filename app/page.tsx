@@ -149,14 +149,14 @@ export default function Root() {
   }, [navigate])
 
   return (
-    <div className="relative flex h-dvh w-full overflow-hidden bg-[#0A0A0A]">
+    <div className="relative flex h-dvh w-full overflow-hidden bg-[#0d0f12]">
 
       {/* EXITING page (behind) */}
       {exitPage && (
         <div
           ref={exitRef}
           key={`exit-${exitPage}`}
-          className="absolute inset-0"
+          className="absolute inset-0 bg-[#0d0f12]"
           style={{ zIndex: 1, willChange: 'transform, opacity' }}
         >
           <PageContent page={exitPage} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} onMapRequestCreated={handleMapRequestCreated} />
@@ -167,7 +167,7 @@ export default function Root() {
       <div
         ref={enterRef}
         key={`enter-${active}`}
-        className="absolute inset-0"
+        className="absolute inset-0 bg-[#0d0f12]"
         style={{ zIndex: 2, willChange: 'transform, opacity' }}
       >
         <PageContent page={active} request={request} navigate={navigate} onSubmit={handleSubmit} onCancel={handleCancel} historyHasData={historyHasData} onHistoryDataLoaded={setHistoryHasData} onMapRequestCreated={handleMapRequestCreated} />
@@ -207,7 +207,7 @@ function PageContent({ page, request, navigate, onSubmit, onCancel, historyHasDa
   return (
     <div className={cn(
       'flex h-dvh w-full flex-col overflow-hidden relative z-10',
-      !isHome && 'bg-[#0A0A0A]/90'
+      !isHome && 'bg-[#0d0f12]'
     )}>
       {/* Top edge light line effect */}
       <div 
