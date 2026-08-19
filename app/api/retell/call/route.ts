@@ -60,7 +60,10 @@ export async function POST(request: NextRequest) {
 
     // Reverse geocode to get readable address if we have coordinates
     // Try server-side key first, fallback to public key
-    const googleMapsKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    const googleMapsKey =
+      process.env.GOOGLE_MAPS_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
     let readableAddress = address || ''
     let shortAddress = '' // For natural speech: "King Street, Toronto"
 

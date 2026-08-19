@@ -77,10 +77,13 @@ function loadGoogleMapsScript(): Promise<void> {
     // Loading in progress
     if (loadPromise) return loadPromise
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''
+    const apiKey =
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ||
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+        ''
 
     if (!apiKey) {
-        console.warn('[GoogleMap] No API key found. Set NEXT_PUBLIC_GOOGLE_MAPS_KEY in .env.local')
+        console.warn('[GoogleMap] No API key found. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in .env.local')
         return Promise.reject(new Error('No Google Maps API key'))
     }
 

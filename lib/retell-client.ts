@@ -241,7 +241,10 @@ export async function detectCountryFromCoords(
 ): Promise<{ code: string; name: string } | null> {
   try {
     // Use Google Maps Geocoding API
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    const apiKey =
+      process.env.GOOGLE_MAPS_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
     if (!apiKey) return null
 
     const response = await fetch(
